@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ResumeTailor.Api/ResumeTailor.Api.csproj" />
+    <Project Path="src/ResumeTailor.Application/ResumeTailor.Application.csproj" />
+    <Project Path="src/ResumeTailor.Domain/ResumeTailor.Domain.csproj" />
+    <Project Path="src/ResumeTailor.Infrastructure/ResumeTailor.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ResumeTailor.Application.Tests/ResumeTailor.Application.Tests.csproj" />
+  </Folder>
+</Solution>
