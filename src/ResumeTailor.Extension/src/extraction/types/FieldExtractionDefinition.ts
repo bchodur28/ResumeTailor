@@ -6,5 +6,6 @@ export type FieldExtractionDefinition = {
   displayLabel: string;
   selectors: string[];
   extractionType: ExtractionType;
+  attributeName?: string;
   required: boolean;
 };
