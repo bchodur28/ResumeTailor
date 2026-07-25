@@ -6,13 +6,13 @@ namespace ResumeTailor.Domain.Extraction;
 public sealed class FieldExtractionDefinition : Entity
 {
     public int SiteExtractionDefinitionId { get; private set; }
+    public SiteExtractionDefinition SiteExtractionDefinition { get; private set; } = null!;
     public JobFieldName FieldName { get; private set; }
     public string DisplayLabel { get; private set; } = string.Empty;
     public ExtractionValueType ExtractionType { get; private set;  }
     public string? AttributeName { get; private set; }
     public bool IsRequired { get; private set; }
     public int SortOrder { get; private set; }
-    public SiteExtractionDefinition ExtractionDefinition { get; private set; } = null;
 
     private readonly List<FieldSelector> _selectors = [];
     public IReadOnlyCollection<FieldSelector> Selectors => _selectors.AsReadOnly();

@@ -10,6 +10,9 @@ public sealed class SiteExtractionDefinition : Entity
     public int Version { get; private set;  }
     public bool IsEnabled { get; private set; }
 
+    private readonly List<FieldExtractionDefinition> _fields;
+    public IReadOnlyCollection<FieldExtractionDefinition> Fields => _fields.AsReadOnly();
+
     private SiteExtractionDefinition() { }
 
     public SiteExtractionDefinition(string siteName, int version, bool isEnabled)
