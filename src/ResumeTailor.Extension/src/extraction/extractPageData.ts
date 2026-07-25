@@ -15,7 +15,7 @@ export const extractPageData = (
   );
 
   return {
-    sourceUrl: normalizeUrl.toString(),
+    sourceUrl: normalizedUrl.toString(),
     siteName: definition.siteName,
     definitionId: definition.id,
     definitionVerison: definition.version,
