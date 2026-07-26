@@ -8,7 +8,7 @@ namespace ResumeTailor.Infrastructure.Persistence;
 
 public sealed class ResumeTailorDbContext(DbContextOptions<ResumeTailorDbContext> options) : DbContext(options)
 {
-    public DbSet<SiteExtractionDefinition> ExtractionDefinitions => Set<SiteExtractionDefinition>();
+    public DbSet<SiteExtractionDefinition> SiteExtractionDefinitions => Set<SiteExtractionDefinition>();
     public DbSet<FieldExtractionDefinition> FieldExtractionDefinitions => Set<FieldExtractionDefinition>();
     public DbSet<FieldSelector> FieldSelectors => Set<FieldSelector>();
 
