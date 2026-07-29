@@ -9,14 +9,14 @@ namespace ResumeTailor.Infrastructure.Persistence.Repositories;
 
 internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext dbContext) : ISiteExtractionDefinitionRepository
 {
-    public async Task<IReadOnlyCollection<SiteExtractionDefinition>> GetEnabledAsync(CancellationToken cancellationToken = default)
+    
+
+    public async Task<SiteExtractionDefinition?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default)
     {
         return await dbContext.SiteExtractionDefinitions
-            .AsNoTracking()
-            .Where(definition => definition.IsEnabled)
             .Include(definition => definition.Fields)
                 .ThenInclude(field => field.Selectors)
-            .ToListAsync(cancellationToken);
+            .SingleOrDefaultAsync(definition => definition.Id == id, cancellationToken);
     }
 
     public async Task<SiteExtractionDefinition?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -26,6 +26,16 @@ internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext d
             .Include(definition => definition.Fields)
                 .ThenInclude(field => field.Selectors)
             .SingleOrDefaultAsync(definition => definition.Id == id, cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<SiteExtractionDefinition>> GetEnabledAsync(CancellationToken cancellationToken = default)
+    {
+        return await dbContext.SiteExtractionDefinitions
+            .AsNoTracking()
+            .Where(definition => definition.IsEnabled)
+            .Include(definition => definition.Fields)
+                .ThenInclude(field => field.Selectors)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<SiteExtractionDefinition?> GetMatchingDefinitionAsync(string hostName, string path, CancellationToken cancellationToken = default)
