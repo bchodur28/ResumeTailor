@@ -30,7 +30,16 @@ internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext d
 
     public async Task<SiteExtractionDefinition?> GetMatchingDefinitionAsync(string hostName, string path, CancellationToken cancellationToken = default)
     {
-        return null;
+        return await dbContext.SiteExtractionDefinitions
+            .AsNoTracking()
+            .Include(definition => definition.Fields)
+                .ThenInclude(field => field.Selectors)
+            .Where(definition =>
+                definition.IsEnabled &&
+                definition.Hostname == hostName &&
+                path.StartsWith(definition.PathPattern))
+            .OrderByDescending(definition => definition.Version)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task CreateAsync(SiteExtractionDefinition definition, CancellationToken cancellationToken = default)
