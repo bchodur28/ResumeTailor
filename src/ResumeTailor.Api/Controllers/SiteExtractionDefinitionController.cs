@@ -15,7 +15,7 @@ public class SiteExtractionDefinitionController(ISiteExtractionDefinitionService
         return Ok(siteExtractionResponse);
     }
 
-    [HttpGet]
+    [HttpGet("enabled")]
     public async Task<ActionResult<IReadOnlyCollection<SiteExtractionDefinitionResponse>>> GetEnabledAsync(CancellationToken cancellationToken = default)
     {
         var siteExtractionListResponse = await service.GetEnabledAsync(cancellationToken);
