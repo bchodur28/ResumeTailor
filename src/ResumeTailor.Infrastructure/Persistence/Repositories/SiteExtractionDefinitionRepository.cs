@@ -1,16 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using ResumeTailor.Application.Extraction;
 using ResumeTailor.Domain.Extraction;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ResumeTailor.Infrastructure.Persistence.Repositories;
 
 internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext dbContext) : ISiteExtractionDefinitionRepository
 {
-    
-
     public async Task<SiteExtractionDefinition?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default)
     {
         return await dbContext.SiteExtractionDefinitions
