@@ -1,6 +1,6 @@
 using ResumeTailor.Application.Extraction.Models;
 
-namespace ResumeTailor.Application.Extraction;
+namespace ResumeTailor.Application.Extraction.Interfaces;
 
 public interface ISiteExtractionDefinitionService
 {

@@ -1,4 +1,5 @@
 using ResumeTailor.Application.Common.Exceptions;
+using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Application.Extraction.Models;
 using ResumeTailor.Domain.Extraction;
 

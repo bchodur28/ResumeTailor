@@ -1,7 +1,7 @@
 
 
 using Microsoft.EntityFrameworkCore;
-using ResumeTailor.Application.Extraction;
+using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Domain.Extraction;
 
 namespace ResumeTailor.Infrastructure.Persistence.Repositories;

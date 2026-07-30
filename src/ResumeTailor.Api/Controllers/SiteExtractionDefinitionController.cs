@@ -1,6 +1,7 @@
 namespace ResumeTailor.Api.Controllers;
+
 using Microsoft.AspNetCore.Mvc;
-using ResumeTailor.Application.Extraction;
+using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Application.Extraction.Models;
 
 [ApiController]

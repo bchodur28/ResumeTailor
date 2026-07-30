@@ -1,6 +1,6 @@
 using ResumeTailor.Domain.Extraction;
 
-namespace ResumeTailor.Application.Extraction;
+namespace ResumeTailor.Application.Extraction.Interfaces;
 
 public interface ISiteExtractionDefinitionRepository
 {
@@ -11,4 +11,5 @@ public interface ISiteExtractionDefinitionRepository
     Task<SiteExtractionDefinition?> GetMatchingDefinitionAsync(string hostname, string path, CancellationToken cancellationToken = default);
     Task CreateAsync(SiteExtractionDefinition definition, CancellationToken cancellationToken = default);
     Task UpdateAsync(SiteExtractionDefinition definition, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default);
 }

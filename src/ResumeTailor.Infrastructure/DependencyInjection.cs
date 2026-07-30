@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ResumeTailor.Application.Extraction;
+using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Infrastructure.Persistence;
 using ResumeTailor.Infrastructure.Persistence.Repositories;
 

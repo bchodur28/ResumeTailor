@@ -1,6 +1,6 @@
 using ResumeTailor.Domain.Extraction;
 
-namespace ResumeTailor.Application.Extraction;
+namespace ResumeTailor.Application.Extraction.Interfaces;
 
 public interface IFieldExtractionDefinitionRepository
 {

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using ResumeTailor.Application.Extraction;
+using ResumeTailor.Application.Extraction.Interfaces;
 
 namespace ResumeTailor.Application;
 
