@@ -8,40 +8,41 @@ using ResumeTailor.Application.Extraction.Models;
 [Route("api/[controller]")]
 public class SiteExtractionDefinitionController(ISiteExtractionDefinitionService service) : ControllerBase
 {
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int}", Name = "GetSiteExtractionDefinitionById")]
     public async Task<ActionResult<SiteExtractionDefinitionResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var siteExtractionResponse = await service.GetByIdAsync(id, cancellationToken);
+        var response = await service.GetByIdAsync(id, cancellationToken);
 
-        return Ok(siteExtractionResponse);
+        return Ok(response);
     }
 
     [HttpGet("enabled")]
     public async Task<ActionResult<IReadOnlyCollection<SiteExtractionDefinitionResponse>>> GetEnabledAsync(CancellationToken cancellationToken = default)
     {
-        var siteExtractionListResponse = await service.GetEnabledAsync(cancellationToken);
+        var response = await service.GetEnabledAsync(cancellationToken);
 
-        return Ok(siteExtractionListResponse);
+        return Ok(response);
     }
 
     [HttpGet("match")]
     public async Task<ActionResult<SiteExtractionDefinitionResponse>> GetMatchingAsync(string hostname, string path, CancellationToken cancellationToken = default)
     {
-        var siteExtractionResponse = await service.GetMatchingDefinitionAsync(hostname, path, cancellationToken);
+        var response = await service.GetMatchingDefinitionAsync(hostname, path, cancellationToken);
 
-        if (siteExtractionResponse is null)
+        if (response is null)
         {
             return NotFound();
         }
 
-        return Ok(siteExtractionResponse);
+        return Ok(response);
     }
 
     [HttpPost]
     public async Task<ActionResult<SiteExtractionDefinitionResponse>> CreateAsync(SiteExtractionDefinitionRequest request, CancellationToken cancellationToken = default)
     {
-        var siteExtractionresponse = await service.CreateAsync(request, cancellationToken);
-        return Ok(siteExtractionresponse);
+        var response = await service.CreateAsync(request, cancellationToken);
+
+        return CreatedAtRoute("GetSiteExtractionDefinitionById", new { id= response.Id }, response);
     }
 
     [HttpPut("{id:int}")]
@@ -49,7 +50,7 @@ public class SiteExtractionDefinitionController(ISiteExtractionDefinitionService
     {
         await service.UpdateAsync(id, request, cancellationToken);
 
-        return Ok();
+        return NoContent();
     }
 
 }

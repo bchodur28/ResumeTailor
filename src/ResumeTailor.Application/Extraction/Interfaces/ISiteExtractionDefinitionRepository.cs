@@ -12,4 +12,6 @@ public interface ISiteExtractionDefinitionRepository
     Task CreateAsync(SiteExtractionDefinition definition, CancellationToken cancellationToken = default);
     Task UpdateAsync(SiteExtractionDefinition definition, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default);
+    Task<int> GetNextVersionAsync(string hostname, string pathPattern, CancellationToken cancellationToken = default);
+
 }

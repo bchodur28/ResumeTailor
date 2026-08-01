@@ -25,6 +25,8 @@ internal sealed class SiteExtractionDefinitionConfiguration : IEntityTypeConfigu
 
         builder.HasIndex(definition => new
         {
+            definition.Hostname,
+            definition.PathPattern,
             definition.Version
         }).IsUnique();
 

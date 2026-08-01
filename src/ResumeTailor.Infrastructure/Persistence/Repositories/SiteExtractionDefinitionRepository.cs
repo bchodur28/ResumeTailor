@@ -61,7 +61,18 @@ internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext d
 
     public async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await dbContext.SiteExtractionDefinitions.AnyAsync(definition => definition.Id == id, cancellationToken);
-            
+        return await dbContext.SiteExtractionDefinitions.AnyAsync(definition => definition.Id == id, cancellationToken);    
+    }
+
+    public async Task<int> GetNextVersionAsync(string hostname, string pathPattern, CancellationToken cancellationToken = default)
+    {
+        var highestVersion = await dbContext.SiteExtractionDefinitions
+            .Where(definition =>
+            definition.Hostname == hostname &&
+            definition.PathPattern == pathPattern)
+            .Select(defintion => (int?)defintion.Version)
+            .MaxAsync(cancellationToken);
+
+        return (highestVersion ?? 0) + 1;
     }
 }

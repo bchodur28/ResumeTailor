@@ -11,4 +11,19 @@ public class FieldSelector : Entity
     public string Selector { get; private set; } = string.Empty;
     public int Priority { get; private set; }
     public FieldExtractionDefinition FieldExtractionDefinition { get; private set; } = null!;
+
+    public FieldSelector(int fieldExtractionDefinitionId, string selector, int priority)
+    {
+        FieldExtractionDefinitionId = fieldExtractionDefinitionId;
+        Selector = selector;
+        Priority = priority;
+    }
+
+    public void Update(int fieldExtractionDefinitionId, string selector, int priority)
+    {
+        FieldExtractionDefinitionId = fieldExtractionDefinitionId;
+        Selector = selector;
+        Priority = priority;
+        MarkUpdated();
+    }
 }

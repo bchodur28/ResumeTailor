@@ -38,7 +38,8 @@ internal sealed class SiteExtractionDefinitionService(ISiteExtractionDefinitionR
 
     public async Task<SiteExtractionDefinitionResponse> CreateAsync(SiteExtractionDefinitionRequest request, CancellationToken cancellationToken = default)
     {
-        var defintion = new SiteExtractionDefinition(request.SiteName, request.HostName, request.PathPattern, request.Version);
+        var version = await repository.GetNextVersionAsync(request.HostName, request.PathPattern, cancellationToken);
+        var defintion = new SiteExtractionDefinition(request.SiteName, request.HostName, request.PathPattern,version);
 
         await repository.CreateAsync(defintion, cancellationToken);
         return MapToResponse(defintion);
@@ -53,7 +54,7 @@ internal sealed class SiteExtractionDefinitionService(ISiteExtractionDefinitionR
             throw new NotFoundException($"Site extraction definition with ID {id} was not found.");
         }
 
-        definition.Update(request.SiteName, request.HostName, request.PathPattern, request.Version, request.IsEnabled);
+        definition.Update(request.SiteName, request.HostName, request.PathPattern, request.IsEnabled);
 
         await repository.UpdateAsync(definition, cancellationToken);
     }

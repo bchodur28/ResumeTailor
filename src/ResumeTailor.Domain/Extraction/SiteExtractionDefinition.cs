@@ -26,12 +26,11 @@ public sealed class SiteExtractionDefinition : Entity
         IsEnabled = true;
     }
 
-    public void Update(string siteName, string hostName, string pathPattern, int version, bool isEnabled)
+    public void Update(string siteName, string hostName, string pathPattern, bool isEnabled)
     {
         SiteName = siteName;
         Hostname = hostName;
         PathPattern = pathPattern;
-        Version = version;
         IsEnabled = isEnabled;
         MarkUpdated();
     }

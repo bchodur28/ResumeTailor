@@ -36,6 +36,8 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ISiteExtractionDefinitionRepository, SiteExtractionDefinitionRepository>();
+        services.AddScoped<IFieldExtractionDefinitionRepository, FieldExtractionDefinitionRepository>();
+        services.AddScoped<IFieldSelectorRepository, FieldSelectorRepository>();
 
         return services;
     }

@@ -9,6 +9,8 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddScoped<ISiteExtractionDefinitionService, SiteExtractionDefinitionService>();
+        services.AddScoped<IFieldExtractionDefinitionService, FieldExtractionDefinitionService>();
+        services.AddScoped<IFieldSelectorService, FieldSelectorService>();
 
         return services;
     }

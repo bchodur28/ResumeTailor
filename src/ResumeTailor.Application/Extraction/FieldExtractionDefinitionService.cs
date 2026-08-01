@@ -50,7 +50,7 @@ internal sealed class FieldExtractionDefinitionService(
 
     public async Task UpdateAsync(int id, FieldExtractionDefinitionRequest request, CancellationToken cancellationToken = default)
     {
-        var definition = await fieldRepository.GetByIdAsync(id, cancellationToken);
+        var definition = await fieldRepository.GetByIdForUpdateAsync(id, cancellationToken);
 
         if (definition is null)
         {
