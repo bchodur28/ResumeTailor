@@ -8,7 +8,7 @@ namespace ResumeTailor.Api.Controllers
     [Route("api/[controller]")]
     public class FieldExtractionDefinitionController(IFieldExtractionDefinitionService service) : ControllerBase
     {
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}", Name = "GetFieldExtractionDefintionById")]
         public async Task<ActionResult<FieldExtractionDefinitionResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             var response = await service.GetByIdAsync(id, cancellationToken);
@@ -29,7 +29,7 @@ namespace ResumeTailor.Api.Controllers
         {
             var response = await service.CreateAsync(request, cancellationToken);
 
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = response.Id }, response);
+            return CreatedAtRoute("GetFieldExtractionDefintionById", new { id = response.Id }, response);
         }
 
         [HttpPut("{id:int}")]

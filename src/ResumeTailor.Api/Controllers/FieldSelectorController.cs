@@ -8,7 +8,7 @@ namespace ResumeTailor.Api.Controllers;
 [Route("api/[controller]")]
 public class FieldSelectorController(IFieldSelectorService service) : ControllerBase
 {
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int}", Name = "GetFieldSelectorById")]
     public async Task<ActionResult<FieldSelectorResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var response = await service.GetByIdAsync(id, cancellationToken);
@@ -29,7 +29,7 @@ public class FieldSelectorController(IFieldSelectorService service) : Controller
     {
         var response = await service.CreateAsync(request, cancellationToken);
 
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = response.Id }, response);
+        return CreatedAtRoute("GetFieldSelectorById", new { id = response.Id }, response);
     }
 
     [HttpPut("{id:int}")]

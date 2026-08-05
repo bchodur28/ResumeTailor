@@ -34,6 +34,7 @@ internal class FieldExtractionDefinitionRepository(ResumeTailorDbContext dbConte
     public async Task CreateAsync(FieldExtractionDefinition definition, CancellationToken cancellationToken = default)
     {
         await dbContext.FieldExtractionDefinitions.AddAsync(definition, cancellationToken);
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(FieldExtractionDefinition definition, CancellationToken cancellationToken = default)
