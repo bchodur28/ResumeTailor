@@ -72,9 +72,9 @@ internal sealed class SiteExtractionDefinitionService(ISiteExtractionDefinitionR
                 .OrderBy(field => field.SortOrder)
                 .Select(field => new FieldExtractionDefinitionResponse(
                     field.Id,
-                    field.FieldName.ToString(),
+                    field.FieldName,
                     field.DisplayLabel,
-                    field.ExtractionType.ToString(),
+                    field.ExtractionType,
                     field.AttributeName,
                     field.IsRequired,
                     field.SortOrder,

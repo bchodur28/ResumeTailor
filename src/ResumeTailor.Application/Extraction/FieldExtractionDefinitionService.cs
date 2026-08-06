@@ -42,7 +42,9 @@ internal sealed class FieldExtractionDefinitionService(
             request.FieldName,
             request.DisplayLabel,
             request.ExtractionType,
-            request.IsRequired, request.AttributeName);
+            request.IsRequired,
+            request.SortOrder,
+            request.AttributeName);
 
         await fieldRepository.CreateAsync(definition, cancellationToken);
         return MapToResponse(definition);
@@ -63,6 +65,7 @@ internal sealed class FieldExtractionDefinitionService(
             request.DisplayLabel,
             request.ExtractionType,
             request.IsRequired,
+            request.SortOrder,
             request.AttributeName);
 
         await fieldRepository.UpdateAsync(definition, cancellationToken);
@@ -72,9 +75,9 @@ internal sealed class FieldExtractionDefinitionService(
     {
         return new FieldExtractionDefinitionResponse(
             definition.Id,
-            definition.FieldName.ToString(),
+            definition.FieldName,
             definition.DisplayLabel,
-            definition.ExtractionType.ToString(),
+            definition.ExtractionType,
             definition.AttributeName,
             definition.IsRequired,
             definition.SortOrder,

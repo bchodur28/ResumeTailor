@@ -6,7 +6,7 @@ export const extractFieldValue = (
   document: Document,
 ): ExtractedFieldValue => {
   for (const selector of definition.selectors) {
-    const element = findElement(document, selector);
+    const element = findElement(document, selector.selector);
 
     if (!element) {
       continue;
@@ -22,7 +22,7 @@ export const extractFieldValue = (
       fieldName: definition.fieldName,
       displayLabel: definition.displayLabel,
       value,
-      matchedSelector: selector,
+      matchedSelector: selector.selector,
       required: definition.required,
     };
   }
@@ -40,7 +40,7 @@ const findElement = (document: Document, selector: string): Element | null => {
   try {
     return document.querySelector(selector);
   } catch {
-    console.warn(`Invalid extraction selector: ${selector}`);
+    console.log(`Invalid extraction selector: ${selector}`);
     return null;
   }
 };

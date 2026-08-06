@@ -4,6 +4,6 @@ export type JobFieldName =
   | "location"
   | "description"
   | "salary"
-  | "EmploymentType"
+  | "employmentType"
   | "postedDate"
   | "applicationCount";

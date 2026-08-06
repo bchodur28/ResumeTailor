@@ -29,7 +29,7 @@ internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext d
         return await dbContext.SiteExtractionDefinitions
             .AsNoTracking()
             .Where(definition => definition.IsEnabled)
-            .Include(definition => definition.Fields)
+            .Include(definition => definition.Fields.OrderBy(field => field.SortOrder))
                 .ThenInclude(field => field.Selectors)
             .ToListAsync(cancellationToken);
     }

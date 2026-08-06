@@ -19,7 +19,7 @@ public sealed class FieldExtractionDefinition : Entity
 
     private FieldExtractionDefinition() { }
 
-    public FieldExtractionDefinition(int siteExtractionDefinitionId, JobFieldName fieldName, string displayLabel, ExtractionValueType extractionType, bool isRequired, string? attributeName = null)
+    public FieldExtractionDefinition(int siteExtractionDefinitionId, JobFieldName fieldName, string displayLabel, ExtractionValueType extractionType, bool isRequired, int sortOrder, string? attributeName = null)
     {
         SiteExtractionDefinitionId = siteExtractionDefinitionId;
         FieldName = fieldName;
@@ -27,9 +27,10 @@ public sealed class FieldExtractionDefinition : Entity
         ExtractionType = extractionType;
         IsRequired = isRequired;
         AttributeName = attributeName;
+        SortOrder = sortOrder;
     }
 
-    public void Update(int siteExtractionDefinitionId, JobFieldName fieldName, string displayLabel, ExtractionValueType extractionType, bool isRequired, string? attributeName = null)
+    public void Update(int siteExtractionDefinitionId, JobFieldName fieldName, string displayLabel, ExtractionValueType extractionType, bool isRequired, int sortOrder, string? attributeName = null)
     {
         SiteExtractionDefinitionId = siteExtractionDefinitionId;
         FieldName = fieldName;
@@ -37,6 +38,7 @@ public sealed class FieldExtractionDefinition : Entity
         ExtractionType = extractionType;
         IsRequired = isRequired;
         AttributeName = attributeName;
+        SortOrder = sortOrder;
         MarkUpdated();
     }
 }

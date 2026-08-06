@@ -16,29 +16,11 @@ export const extractPageData = (
     extractFieldValue(fieldDefinition, document),
   );
 
-  const values = createValueMap(fields);
-
   return {
     sourceUrl: normalizedUrl.toString(),
     siteName: definition.siteName,
     definitionId: definition.id,
     definitionVersion: definition.version,
     fields,
-    values,
   };
-};
-
-const createValueMap = (
-  fields: ExtractedFieldValue[],
-): Partial<Record<JobFieldName, string>> => {
-  return fields.reduce<Partial<Record<JobFieldName, string>>>(
-    (values, field) => {
-      if (field.value !== null) {
-        values[field.fieldName] = field.value;
-      }
-
-      return values;
-    },
-    {},
-  );
 };

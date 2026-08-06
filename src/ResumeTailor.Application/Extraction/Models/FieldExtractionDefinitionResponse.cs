@@ -1,10 +1,12 @@
+using ResumeTailor.Domain.Extraction;
+
 namespace ResumeTailor.Application.Extraction.Models;
 
 public sealed record FieldExtractionDefinitionResponse(
     int Id,
-    string FieldName,
+    JobFieldName FieldName,
     string DisplayLabel,
-    string ExtractionType,
+    ExtractionValueType ExtractionType,
     string? AttributeName,
     bool IsRequired,
     int SortOrder,
