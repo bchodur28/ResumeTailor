@@ -1,0 +1,131 @@
+.btn{
+  padding: .4rem;
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid hsl(206, 40%, 80%);
+  background: hsl(206, 40%, 90%);;
+  color: hsl(206, 40%, 30%);
+  transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+  font-weight: 500;
+}
+
+.btn:hover{
+  -webkit-box-shadow: 0px 0px 18px -4px rgba(0,0,0,0.2); 
+  box-shadow: 0px 0px 18px -4px rgba(0,0,0,0.2);
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.btn-container{
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.nav{
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.nav-button{
+  flex: 1;
+  padding: 0.75rem;
+  text-align: center;
+  text-decoration: none;
+  color: #333;
+  background: #f3f3f3;
+  border: 1px solid #ccc;
+  transition: background 0.2s;
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+.nav-button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.nav-button:last-child {
+  border-radius: 0 6px 6px 0;
+  border-left: none;
+}
+
+.nav-button:hover {
+  background: #e6e6e6;
+}
+
+.nav-button.active {
+  background: hsl(206, 40%, 80%);
+  color: hsl(206, 40%, 30%);
+}
+
+.field-container{
+  background-color: hsl(0, 0%, 98%);
+  border: 1px solid hsl(0, 0%, 80%);
+  padding: .4rem;
+  border-radius: 6px;
+  margin: .6rem;
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.input-container{
+  display: flex;
+  gap: .5rem;
+  margin: .3rem;
+  align-items: baseline;
+  border-bottom: 1px solid hsl(206, 40%, 30%);
+}
+
+.selector-container{
+  margin: .3rem;
+  color:hsl(0, 0%, 15%);
+  font-weight: 700;
+}
+
+.input-container > label{
+  color:hsl(0, 0%, 15%);
+  font-weight: 700;
+}
+
+.input-container > input,
+.input-container > select
+{
+  border: none;
+  background-color: transparent;
+  color: hsl(206, 40%, 30%);
+}
+
+.input-container > input:hover{
+  cursor: pointer;
+}
+
+.input-container > input:focus,
+.input-container > select:focus{
+  outline: none;
+}
+
+option{
+  background-color: hsl(206, 40%, 90%);
+  color: hsl(206, 40%, 30%);
+}
+
+.submit-btn-container{
+  display: flex;
+  justify-content: end;
+}
+
+.submit-btn{
+  padding: .2rem .5rem;
+  border-radius: 5px;
+  border: 1px solid hsl(206, 40%, 80%);
+  background: hsl(206, 40%, 90%);
+  color: hsl(206, 40%, 30%);
+  font-weight: 700;
+  transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.submit-btn:hover{
+  -webkit-box-shadow: 0px 0px 18px -4px rgba(0,0,0,0.2); 
+  box-shadow: 0px 0px 18px -4px rgba(0,0,0,0.2);
+}

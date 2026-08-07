@@ -1,10 +1,10 @@
 import type { FieldExtractionDefinition } from "./FieldExtractionDefinition";
 
 export type SiteExtractionDefinition = {
-  id: string;
+  id: number;
   siteName: string;
-  hostnamePatterns: string[];
-  pathPatterns: string[];
+  hostname: string[];
+  pathPattern: string[];
   fields: FieldExtractionDefinition[];
   version: number;
   enabled: boolean;

@@ -1,32 +1,8 @@
-import type { ExtractedFieldValue } from "../extraction/types/ExtractedFieldValue";
+import { fetchSiteExtractionDefintion } from "../api/extraction";
 import type { ExtractedPageData } from "../extraction/types/ExtractedPageData";
-import type { SiteExtractionDefinition } from "../extraction/types/SiteExtractionDefinition";
 import { useState } from "react";
 
-const API_BASE_URL = "https://localhost:7139/api";
-
-const fetchSiteExtractionDefintion: (
-  pageUrl: URL,
-) => Promise<SiteExtractionDefinition> = async (pageUrl: URL) => {
-  const query = new URLSearchParams({
-    hostname: pageUrl.hostname,
-    path: pageUrl.pathname,
-  });
-
-  const response = await fetch(
-    `${API_BASE_URL}/SiteExtractionDefinition/match?${query}`,
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch the site extraction definition: ${response.status}`,
-    );
-  }
-
-  return await (response.json() as Promise<SiteExtractionDefinition>);
-};
-
-export const Extraction = () => {
+const PageExtraction = () => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedPageData, setExtractedPageData] =
     useState<ExtractedPageData | null>(null);
@@ -90,3 +66,5 @@ export const Extraction = () => {
     </main>
   );
 };
+
+export default PageExtraction;

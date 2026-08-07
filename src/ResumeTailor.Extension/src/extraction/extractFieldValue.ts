@@ -23,7 +23,7 @@ export const extractFieldValue = (
       displayLabel: definition.displayLabel,
       value,
       matchedSelector: selector.selector,
-      required: definition.required,
+      required: definition.isRequired,
     };
   }
 
@@ -32,7 +32,7 @@ export const extractFieldValue = (
     displayLabel: definition.displayLabel,
     value: null,
     matchedSelector: null,
-    required: definition.required,
+    required: definition.isRequired,
   };
 };
 
@@ -80,7 +80,7 @@ const normalizeHtml = (value: string): string | null => {
 
 const readAttributeValue = (
   element: Element,
-  attributeName?: string,
+  attributeName?: string | null,
 ): string | null => {
   if (!attributeName) {
     return null;
