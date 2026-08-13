@@ -1,5 +1,5 @@
 import { fetchSiteExtractionDefintion } from "../api/extraction";
-import type { ExtractedPageData } from "../extraction/types/ExtractedPageData";
+import type { ExtractedPageData } from "../extraction/types/results/ExtractedPageData";
 import { useState } from "react";
 
 const PageExtraction = () => {

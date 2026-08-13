@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchSiteExtractionDefintion } from "../api/extraction";
-import CreateFieldForm from "../components/CreateFieldForm";
-import UpdateFieldForm from "../components/UpdateFieldForm";
+import CreateFieldForm from "../components/forms/CreateFieldForm";
+import UpdateFieldForm from "../components/forms/UpdateFieldForm";
 
 const ExtractionDefinition = () => {
   const {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -58,7 +58,7 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FieldSelector",
+                name: "FieldPattern",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -87,14 +87,14 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_FieldSelector_FieldExtractionDefinitionId_Priority",
-                table: "FieldSelector",
+                table: "FieldPattern",
                 columns: new[] { "FieldExtractionDefinitionId", "Priority" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_FieldSelector_FieldExtractionDefinitionId_Selector",
-                table: "FieldSelector",
-                columns: new[] { "FieldExtractionDefinitionId", "Selector" },
+                table: "FieldPattern",
+                columns: new[] { "FieldExtractionDefinitionId", "Pattern" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -108,7 +108,7 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "FieldSelector");
+                name: "FieldPattern");
 
             migrationBuilder.DropTable(
                 name: "FieldExtractionDefinitions");

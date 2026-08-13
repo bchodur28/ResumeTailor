@@ -58,7 +58,7 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
                     b.ToTable("FieldExtractionDefinitions");
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldSelector", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldPattern", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -70,12 +70,15 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
                     b.Property<int>("FieldExtractionDefinitionId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("MatchPattern")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Priority")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Selector")
-                        .IsRequired()
-                        .HasMaxLength(100)
+                    b.Property<string>("ScopePattern")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
@@ -83,13 +86,13 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FieldExtractionDefinitionId", "MatchPattern")
+                        .IsUnique();
+
                     b.HasIndex("FieldExtractionDefinitionId", "Priority")
                         .IsUnique();
 
-                    b.HasIndex("FieldExtractionDefinitionId", "Selector")
-                        .IsUnique();
-
-                    b.ToTable("FieldSelector", (string)null);
+                    b.ToTable("FieldPattern", (string)null);
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.Extraction.SiteExtractionDefinition", b =>
@@ -142,10 +145,10 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
                     b.Navigation("SiteExtractionDefinition");
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldSelector", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldPattern", b =>
                 {
                     b.HasOne("ResumeTailor.Domain.Extraction.FieldExtractionDefinition", "FieldExtractionDefinition")
-                        .WithMany("Selectors")
+                        .WithMany("Patterns")
                         .HasForeignKey("FieldExtractionDefinitionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -155,7 +158,7 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldExtractionDefinition", b =>
                 {
-                    b.Navigation("Selectors");
+                    b.Navigation("Patterns");
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.Extraction.SiteExtractionDefinition", b =>

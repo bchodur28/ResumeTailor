@@ -10,7 +10,7 @@ public sealed class ResumeTailorDbContext(DbContextOptions<ResumeTailorDbContext
 {
     public DbSet<SiteExtractionDefinition> SiteExtractionDefinitions => Set<SiteExtractionDefinition>();
     public DbSet<FieldExtractionDefinition> FieldExtractionDefinitions => Set<FieldExtractionDefinition>();
-    public DbSet<FieldSelector> FieldSelectors => Set<FieldSelector>();
+    public DbSet<FieldPattern> FieldPatterns => Set<FieldPattern>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

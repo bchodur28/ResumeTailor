@@ -5,24 +5,26 @@ using System.Text;
 
 namespace ResumeTailor.Domain.Extraction;
 
-public class FieldSelector : Entity
+public class FieldPattern : Entity
 {
     public int FieldExtractionDefinitionId { get; private set; }
-    public string Selector { get; private set; } = string.Empty;
+    public string? ScopePattern { get; private set; }
+    public string MatchPattern { get; private set; } = string.Empty;
     public int Priority { get; private set; }
     public FieldExtractionDefinition FieldExtractionDefinition { get; private set; } = null!;
 
-    public FieldSelector(int fieldExtractionDefinitionId, string selector, int priority)
+    public FieldPattern(int fieldExtractionDefinitionId, string matchPattern, int priority, string? scopePattern = null)
     {
         FieldExtractionDefinitionId = fieldExtractionDefinitionId;
-        Selector = selector;
+        ScopePattern = scopePattern;
+        MatchPattern = matchPattern;
         Priority = priority;
     }
 
-    public void Update(int fieldExtractionDefinitionId, string selector, int priority)
+    public void Update(int fieldExtractionDefinitionId, string matchPattern, int priority, string? scopePattern = null)
     {
         FieldExtractionDefinitionId = fieldExtractionDefinitionId;
-        Selector = selector;
+        MatchPattern = matchPattern;
         Priority = priority;
         MarkUpdated();
     }

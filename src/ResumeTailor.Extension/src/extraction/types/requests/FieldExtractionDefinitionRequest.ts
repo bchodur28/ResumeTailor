@@ -1,5 +1,5 @@
-import type { ExtractionType } from "./ExtractionType";
-import type { JobFieldName } from "./JobFieldName";
+import type { ExtractionType } from "../definitions/ExtractionType";
+import type { JobFieldName } from "../definitions/JobFieldName";
 
 export type FieldExtractionDefinitionRequest = {
   siteExtractionDefinitionId: number;

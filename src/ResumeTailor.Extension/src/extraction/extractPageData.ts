@@ -1,9 +1,7 @@
 import { extractFieldValue } from "./extractFieldValue";
 import { normalizeUrl } from "./normalizeUrl";
-import type { ExtractedFieldValue } from "./types/ExtractedFieldValue";
-import type { ExtractedPageData } from "./types/ExtractedPageData";
-import type { JobFieldName } from "./types/JobFieldName";
-import type { SiteExtractionDefinition } from "./types/SiteExtractionDefinition";
+import type { ExtractedPageData } from "./types/results/ExtractedPageData";
+import type { SiteExtractionDefinition } from "./types/definitions/SiteExtractionDefinition";
 
 export const extractPageData = (
   definition: SiteExtractionDefinition,

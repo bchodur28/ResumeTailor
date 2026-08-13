@@ -1,4 +1,4 @@
-import type { SiteExtractionDefinition } from "./types/SiteExtractionDefinition";
+import type { SiteExtractionDefinition } from "./types/definitions/SiteExtractionDefinition";
 
 export const findMatchingDefinition = (
   currentUrl: string,
@@ -7,12 +7,12 @@ export const findMatchingDefinition = (
   const url = new URL(currentUrl);
 
   return definitions.find((definitions) => {
-    const hostnameMatches = definitions.hostnamePatterns.some(
+    const hostnameMatches = definitions.hostname.some(
       (hostname) =>
         url.hostname === hostname || url.hostname.endsWith(`.${hostname}`),
     );
 
-    const pathMatches = definitions.pathPatterns.some((pattern) =>
+    const pathMatches = definitions.pathPattern.some((pattern) =>
       matchesPathPattern(url.pathname, pattern),
     );
 

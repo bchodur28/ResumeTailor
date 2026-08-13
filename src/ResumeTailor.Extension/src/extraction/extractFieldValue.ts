@@ -1,18 +1,21 @@
-import type { ExtractedFieldValue } from "./types/ExtractedFieldValue";
-import type { FieldExtractionDefinition } from "./types/FieldExtractionDefinition";
+import type { ExtractedFieldValue } from "./types/results/ExtractedFieldValue";
+import type { FieldExtractionDefinition } from "./types/definitions/FieldExtractionDefinition";
 
 export const extractFieldValue = (
   definition: FieldExtractionDefinition,
   document: Document,
 ): ExtractedFieldValue => {
   for (const selector of definition.selectors) {
-    const element = findElement(document, selector.selector);
+    const element =
+      definition.extractionType === "textMatch"
+        ? document.body
+        : findElement(document, selector.selector);
 
     if (!element) {
       continue;
     }
 
-    const value = readElementValue(element, definition);
+    const value = readElementValue(element, definition, selector.selector);
 
     if (!value) {
       continue;
@@ -36,7 +39,10 @@ export const extractFieldValue = (
   };
 };
 
-const findElement = (document: Document, selector: string): Element | null => {
+const findElement = (
+  document: Document,
+  selector: string,
+): HTMLElement | null => {
   try {
     return document.querySelector(selector);
   } catch {
@@ -48,6 +54,7 @@ const findElement = (document: Document, selector: string): Element | null => {
 const readElementValue = (
   element: Element,
   definition: FieldExtractionDefinition,
+  startsWith?: string,
 ): string | null => {
   switch (definition.extractionType) {
     case "text":
@@ -56,7 +63,20 @@ const readElementValue = (
       return normalizeHtml(element.innerHTML);
     case "attribute":
       return readAttributeValue(element, definition.attributeName);
+    case "textMatch":
+      return startsWith
+        ? findTextMatch(element as HTMLElement, startsWith)
+        : null;
   }
+};
+
+const findTextMatch = (
+  element: HTMLElement,
+  startsWith: string,
+): string | null => {
+  const words = element.innerText.split(/\s+/) || [];
+
+  return words.find((word) => word.startsWith(startsWith)) || null;
 };
 
 const normalizeText = (value: string | null): string | null => {

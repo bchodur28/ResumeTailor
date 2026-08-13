@@ -2,17 +2,18 @@ import { useForm } from "react-hook-form";
 import {
   extractionTypes,
   type ExtractionType,
-} from "../extraction/types/ExtractionType";
-import type { FieldSelector } from "../extraction/types/FieldSelector";
+} from "../../extraction/types/definitions/ExtractionType";
+import type { FieldSelector } from "../../extraction/types/definitions/FieldSelector";
 import {
   jobFieldNames,
   type JobFieldName,
-} from "../extraction/types/JobFieldName";
-import Selector from "./Selector";
-import type { FieldExtractionDefinition } from "../extraction/types/FieldExtractionDefinition";
+} from "../../extraction/types/definitions/JobFieldName";
+import Selector from "./UpdateSelectorForm";
+import type { FieldExtractionDefinition } from "../../extraction/types/definitions/FieldExtractionDefinition";
 import { useMutation } from "@tanstack/react-query";
-import { updateFieldExtractionDefinition } from "../api/extraction";
-import type { FieldExtractionDefinitionRequest } from "../extraction/types/FieldExtractionDefinitionRequest";
+import { updateFieldExtractionDefinition } from "../../api/extraction";
+import type { FieldExtractionDefinitionRequest } from "../../extraction/types/requests/FieldExtractionDefinitionRequest";
+import CreateSelectorForm from "./CreateSelectorForm";
 
 type UpdateFieldFormProps = {
   id: number;
@@ -136,12 +137,18 @@ const UpdateFieldForm = ({
       </div>
 
       <div className="selector-container">
-        <p>Selectors:</p>
+        <p>Create New Selector:</p>
+        <CreateSelectorForm fieldExtractionDefintionId={id} />
+      </div>
+
+      <div className="selector-container">
+        <p>Existing Selectors:</p>
         {selectors.map((selector) => {
           return (
             <Selector
               key={selector.id}
               id={selector.id}
+              fieldExtractionDefinitionId={id}
               rule={selector.selector}
               priority={selector.priority}
             />

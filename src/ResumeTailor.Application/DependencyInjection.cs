@@ -10,7 +10,7 @@ public static class DependencyInjection
     {
         services.AddScoped<ISiteExtractionDefinitionService, SiteExtractionDefinitionService>();
         services.AddScoped<IFieldExtractionDefinitionService, FieldExtractionDefinitionService>();
-        services.AddScoped<IFieldSelectorService, FieldSelectorService>();
+        services.AddScoped<IFieldPatternService, FieldPatternService>();
 
         return services;
     }

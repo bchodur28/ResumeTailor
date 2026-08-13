@@ -1,4 +1,4 @@
-import type { JobFieldName } from "./JobFieldName";
+import type { JobFieldName } from "../definitions/JobFieldName";
 
 export type ExtractedFieldValue = {
   fieldName: JobFieldName;

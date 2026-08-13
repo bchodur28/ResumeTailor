@@ -2,9 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ResumeTailor.Domain.Extraction;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace ResumeTailor.Infrastructure.Persistence.Configurations;
 

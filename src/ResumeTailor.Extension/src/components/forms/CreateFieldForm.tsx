@@ -1,10 +1,10 @@
 import { useForm } from "react-hook-form";
-import { extractionTypes } from "../extraction/types/ExtractionType";
-import { jobFieldNames } from "../extraction/types/JobFieldName";
-import type { FieldExtractionDefinition } from "../extraction/types/FieldExtractionDefinition";
+import { extractionTypes } from "../../extraction/types/definitions/ExtractionType";
+import { jobFieldNames } from "../../extraction/types/definitions/JobFieldName";
+import type { FieldExtractionDefinition } from "../../extraction/types/definitions/FieldExtractionDefinition";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { FieldExtractionDefinitionRequest } from "../extraction/types/FieldExtractionDefinitionRequest";
-import { createFieldExtractionDefinition } from "../api/extraction";
+import type { FieldExtractionDefinitionRequest } from "../../extraction/types/requests/FieldExtractionDefinitionRequest";
+import { createFieldExtractionDefinition } from "../../api/extraction";
 
 type CreateFieldFormProps = {
   siteId: number;
@@ -57,9 +57,9 @@ const CreateFieldForm = ({ siteId }: CreateFieldFormProps) => {
   return (
     <form className="field-container" onSubmit={handleSubmit(onSubmit)}>
       <div className="input-container">
-        <label htmlFor={`fieldName_-1`}>Field Name:</label>
+        <label htmlFor={`fieldName_0`}>Field Name:</label>
         <select
-          id={`fieldName_-1`}
+          id={`fieldName_0`}
           {...register("fieldName", { required: true })}
         >
           {jobFieldNames.map((name) => (
@@ -79,7 +79,7 @@ const CreateFieldForm = ({ siteId }: CreateFieldFormProps) => {
       </div>
 
       <div className="input-container">
-        <label htmlFor={`extractionType_0`}>Field Name:</label>
+        <label htmlFor={`extractionType_0`}>Extraction Type:</label>
         <select
           id={`extractionType_0`}
           {...register("extractionType", { required: true })}

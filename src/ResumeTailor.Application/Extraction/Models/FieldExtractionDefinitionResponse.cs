@@ -10,4 +10,4 @@ public sealed record FieldExtractionDefinitionResponse(
     string? AttributeName,
     bool IsRequired,
     int SortOrder,
-    IReadOnlyCollection<FieldSelectorResponse> Selectors);
+    IReadOnlyCollection<FieldPatternResponse> Patterns);

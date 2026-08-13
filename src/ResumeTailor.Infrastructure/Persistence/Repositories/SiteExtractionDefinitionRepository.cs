@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Domain.Extraction;
-using System.Formats.Asn1;
 
 namespace ResumeTailor.Infrastructure.Persistence.Repositories;
 
@@ -11,7 +10,7 @@ internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext d
     {
         return await dbContext.SiteExtractionDefinitions
             .Include(definition => definition.Fields)
-                .ThenInclude(field => field.Selectors)
+                .ThenInclude(field => field.Patterns)
             .SingleOrDefaultAsync(definition => definition.Id == id, cancellationToken);
     }
 
@@ -20,7 +19,7 @@ internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext d
         return await dbContext.SiteExtractionDefinitions
             .AsNoTracking()
             .Include(definition => definition.Fields)
-                .ThenInclude(field => field.Selectors)
+                .ThenInclude(field => field.Patterns)
             .SingleOrDefaultAsync(definition => definition.Id == id, cancellationToken);
     }
 
@@ -30,7 +29,7 @@ internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext d
             .AsNoTracking()
             .Where(definition => definition.IsEnabled)
             .Include(definition => definition.Fields.OrderBy(field => field.SortOrder))
-                .ThenInclude(field => field.Selectors)
+                .ThenInclude(field => field.Patterns)
             .ToListAsync(cancellationToken);
     }
 
@@ -39,7 +38,7 @@ internal sealed class SiteExtractionDefinitionRepository(ResumeTailorDbContext d
         return await dbContext.SiteExtractionDefinitions
             .AsNoTracking()
             .Include(definition => definition.Fields)
-                .ThenInclude(field => field.Selectors)
+                .ThenInclude(field => field.Patterns)
             .Where(definition =>
                 definition.IsEnabled &&
                 definition.Hostname == hostName &&

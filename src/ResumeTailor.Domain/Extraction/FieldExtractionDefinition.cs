@@ -14,8 +14,8 @@ public sealed class FieldExtractionDefinition : Entity
     public bool IsRequired { get; private set; }
     public int SortOrder { get; private set; }
 
-    private readonly List<FieldSelector> _selectors = [];
-    public IReadOnlyCollection<FieldSelector> Selectors => _selectors.AsReadOnly();
+    private readonly List<FieldPattern> _patterns = [];
+    public IReadOnlyCollection<FieldPattern> Patterns => _patterns.AsReadOnly();
 
     private FieldExtractionDefinition() { }
 

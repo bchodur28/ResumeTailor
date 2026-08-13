@@ -5,7 +5,8 @@ namespace ResumeTailor.Domain.Extraction;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ExtractionValueType
 {
-    Text = 1,
-    Html = 2,
-    Attribute = 3
+    ElementText = 1,
+    ElementHtml = 2,
+    Attribute = 3,
+    TextMatch = 4
 }

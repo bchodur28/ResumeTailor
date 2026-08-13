@@ -1,6 +1,8 @@
-import type { FieldExtractionDefinition } from "../extraction/types/FieldExtractionDefinition";
-import type { FieldExtractionDefinitionRequest } from "../extraction/types/FieldExtractionDefinitionRequest";
-import type { SiteExtractionDefinition } from "../extraction/types/SiteExtractionDefinition";
+import type { FieldExtractionDefinition } from "../extraction/types/definitions/FieldExtractionDefinition";
+import type { FieldExtractionDefinitionRequest } from "../extraction/types/requests/FieldExtractionDefinitionRequest";
+import type { FieldSelector } from "../extraction/types/definitions/FieldSelector";
+import type { FieldSelectorRequest } from "../extraction/types/requests/FieldSelectorRequest";
+import type { SiteExtractionDefinition } from "../extraction/types/definitions/SiteExtractionDefinition";
 
 const API_BASE_URL = "https://localhost:7139/api";
 
@@ -43,6 +45,24 @@ export const createFieldExtractionDefinition = async (
   return await (response.json() as Promise<SiteExtractionDefinition>);
 };
 
+export const createFieldSelector = async (request: FieldSelectorRequest) => {
+  const response = await fetch(`${API_BASE_URL}/FieldSelector`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to create field selector. Status: ${response.status}`,
+    );
+  }
+
+  return await (response.json() as Promise<FieldSelector>);
+};
+
 export const updateFieldExtractionDefinition = async (
   id: number,
   field: FieldExtractionDefinitionRequest,
@@ -61,6 +81,25 @@ export const updateFieldExtractionDefinition = async (
   if (!response.ok) {
     throw new Error(
       `Failed to update field definition. Status: ${response.status}`,
+    );
+  }
+};
+
+export const updateFieldSelector = async (
+  id: number,
+  request: FieldSelectorRequest,
+): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/FieldSelector/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to update field selector. Status: ${response.status}`,
     );
   }
 };

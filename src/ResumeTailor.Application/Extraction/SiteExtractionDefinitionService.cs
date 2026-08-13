@@ -78,12 +78,13 @@ internal sealed class SiteExtractionDefinitionService(ISiteExtractionDefinitionR
                     field.AttributeName,
                     field.IsRequired,
                     field.SortOrder,
-                    field.Selectors
-                        .OrderBy(selector => selector.Priority)
-                        .Select(selector => new FieldSelectorResponse(
-                            selector.Id,
-                            selector.Selector,
-                            selector.Priority)
+                    field.Patterns
+                        .OrderBy(pattern => pattern.Priority)
+                        .Select(pattern => new FieldPatternResponse(
+                            pattern.Id,
+                            pattern.ScopePattern,
+                            pattern.MatchPattern,
+                            pattern.Priority)
                         ).ToList())
                 ).ToList());
     }

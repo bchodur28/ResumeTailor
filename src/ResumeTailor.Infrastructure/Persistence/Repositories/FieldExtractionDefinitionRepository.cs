@@ -12,7 +12,7 @@ internal class FieldExtractionDefinitionRepository(ResumeTailorDbContext dbConte
     {
         return await dbContext.FieldExtractionDefinitions
             .Where(definition => definition.SiteExtractionDefinitionId == siteId)
-            .Include(definition => definition.Selectors)
+            .Include(definition => definition.Patterns)
             .ToListAsync(cancellationToken);
     }
 
