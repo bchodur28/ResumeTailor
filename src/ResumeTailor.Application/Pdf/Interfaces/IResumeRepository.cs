@@ -6,8 +6,7 @@ namespace ResumeTailor.Application.Pdf.Interfaces
     {
         Task<Resume?> GetResumeById(int id, CancellationToken cancellationToken = default);
         Task CreateCompany(Company company, CancellationToken cancellationToken = default);
-        Task UpdateCompany(Company company, CancellationToken cancellationToken = default);
         Task CreateBullet(Bullet bullet, CancellationToken cancellationToken = default);
-        Task UpdateBullet(Bullet bullet, CancellationToken cancellationToken = default);
+        Task SaveAsync(CancellationToken cancellationToken = default);
     }
 }
