@@ -1,7 +1,7 @@
 using ResumeTailor.Domain.Common;
 
 
-namespace ResumeTailor.Domain.Resume;
+namespace ResumeTailor.Domain.Resumes;
 
 public class Company : Entity
 {

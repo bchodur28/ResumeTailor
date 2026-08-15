@@ -1,28 +1,42 @@
 using Microsoft.EntityFrameworkCore;
-using ResumeTailor.Application.Pdf.Interfaces;
-using ResumeTailor.Domain.Resume;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ResumeTailor.Application.Resumes.Interfaces;
+using ResumeTailor.Domain.Resumes;
+
 
 namespace ResumeTailor.Infrastructure.Persistence.Repositories;
 
 public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeRepository
 {
-    public async Task<Resume?> GetResumeById(int id, CancellationToken cancellationToken = default)
+    public async Task<Resume?> GetResumeByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await dbContext.Resumes
-            .Include(r => r.Company)
+            .AsNoTracking()
+            .Include(r => r.Companies)
                 .ThenInclude(c => c.Bullets)
             .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
     }
 
-    public async Task CreateCompany(Company company, CancellationToken cancellationToken = default)
+    public async Task CreateResume(Resume resume, CancellationToken cancellationToken = default)
+    {
+        await dbContext.AddAsync(resume);
+    }
+
+    public async Task<bool> ResumeExistsAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Resumes.AnyAsync(r => r.Id == id, cancellationToken);
+    }
+
+    public async Task CreateCompanyAsync(Company company, CancellationToken cancellationToken = default)
     {
         await dbContext.AddAsync(company);
     }
 
-    public async Task CreateBullet(Bullet bullet, CancellationToken cancellationToken = default)
+    public async Task<bool> CompanyExistsAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Companys.AnyAsync(r => r.Id == id, cancellationToken);
+    }
+
+    public async Task CreateBulletAsync(Bullet bullet, CancellationToken cancellationToken = default)
     {
         await dbContext.AddAsync(bullet);
     }

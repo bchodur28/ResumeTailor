@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ResumeTailor.Domain.Extraction;
-using ResumeTailor.Domain.Resume;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ResumeTailor.Domain.Resumes;
 
 namespace ResumeTailor.Infrastructure.Persistence;
 

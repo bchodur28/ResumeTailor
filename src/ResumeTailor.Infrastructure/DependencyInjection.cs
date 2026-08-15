@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ResumeTailor.Application.Extraction.Interfaces;
+using ResumeTailor.Application.Resumes.Interfaces;
 using ResumeTailor.Infrastructure.Persistence;
 using ResumeTailor.Infrastructure.Persistence.Repositories;
 
@@ -38,6 +39,7 @@ public static class DependencyInjection
         services.AddScoped<ISiteExtractionDefinitionRepository, SiteExtractionDefinitionRepository>();
         services.AddScoped<IFieldExtractionDefinitionRepository, FieldExtractionDefinitionRepository>();
         services.AddScoped<IFieldPatternRepository, FieldPatternRepository>();
+        services.AddScoped<IResumeRepository, ResumeRepository>();
 
         return services;
     }
