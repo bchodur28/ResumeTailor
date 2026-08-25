@@ -58,7 +58,7 @@ const ExtractionDefinition = () => {
                 attributeName={field.attributeName}
                 isRequired={field.isRequired}
                 sortOrder={field.sortOrder}
-                selectors={field.selectors}
+                selectors={field.patterns}
               />
             );
           })}

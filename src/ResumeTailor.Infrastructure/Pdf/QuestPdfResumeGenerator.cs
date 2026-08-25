@@ -1,4 +1,4 @@
-using ResumeTailor.Application.Pdf.Interfaces;
+using ResumeTailor.Application.Resumes.Interfaces;
 using System.Reflection.Metadata;
 
 namespace ResumeTailor.Infrastructure.Pdf;

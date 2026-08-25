@@ -1,7 +1,7 @@
 import type { FieldExtractionDefinition } from "../extraction/types/definitions/FieldExtractionDefinition";
 import type { FieldExtractionDefinitionRequest } from "../extraction/types/requests/FieldExtractionDefinitionRequest";
-import type { FieldSelector } from "../extraction/types/definitions/FieldSelector";
-import type { FieldSelectorRequest } from "../extraction/types/requests/FieldSelectorRequest";
+import type { FieldPattern } from "../extraction/types/definitions/FieldPattern";
+import type { FieldPatternRequest } from "../extraction/types/requests/FieldPattternRequest";
 import type { SiteExtractionDefinition } from "../extraction/types/definitions/SiteExtractionDefinition";
 
 const API_BASE_URL = "https://localhost:7139/api";
@@ -45,7 +45,7 @@ export const createFieldExtractionDefinition = async (
   return await (response.json() as Promise<SiteExtractionDefinition>);
 };
 
-export const createFieldSelector = async (request: FieldSelectorRequest) => {
+export const createFieldSelector = async (request: FieldPatternRequest) => {
   const response = await fetch(`${API_BASE_URL}/FieldSelector`, {
     method: "POST",
     headers: {
@@ -60,7 +60,7 @@ export const createFieldSelector = async (request: FieldSelectorRequest) => {
     );
   }
 
-  return await (response.json() as Promise<FieldSelector>);
+  return await (response.json() as Promise<FieldPattern>);
 };
 
 export const updateFieldExtractionDefinition = async (
@@ -87,7 +87,7 @@ export const updateFieldExtractionDefinition = async (
 
 export const updateFieldSelector = async (
   id: number,
-  request: FieldSelectorRequest,
+  request: FieldPatternRequest,
 ): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/FieldSelector/${id}`, {
     method: "PUT",

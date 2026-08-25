@@ -1,5 +1,5 @@
 import type { ExtractionType } from "./ExtractionType";
-import type { FieldSelector } from "./FieldSelector";
+import type { FieldPattern } from "./FieldPattern";
 import type { JobFieldName } from "./JobFieldName";
 
 export type FieldExtractionDefinition = {
@@ -11,5 +11,5 @@ export type FieldExtractionDefinition = {
   attributeName: string | null;
   isRequired: boolean;
   sortOrder: number;
-  selectors: FieldSelector[];
+  patterns: FieldPattern[];
 };

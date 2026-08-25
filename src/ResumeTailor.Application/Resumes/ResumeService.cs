@@ -35,6 +35,7 @@ internal sealed class ResumeService(IResumeRepository repository) : IResumeServi
             request.PersonalSite3
         );
         await repository.CreateResume(resume, cancellationToken);
+        await repository.SaveAsync(cancellationToken);
     }
 
     public async Task CreateCompanyAsync(CompanyRequest request, CancellationToken cancellationToken = default)

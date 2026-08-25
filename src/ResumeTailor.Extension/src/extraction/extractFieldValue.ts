@@ -5,17 +5,17 @@ export const extractFieldValue = (
   definition: FieldExtractionDefinition,
   document: Document,
 ): ExtractedFieldValue => {
-  for (const selector of definition.selectors) {
+  for (const pattern of definition.patterns) {
     const element =
       definition.extractionType === "textMatch"
         ? document.body
-        : findElement(document, selector.selector);
+        : findElement(document, pattern.matchPattern);
 
     if (!element) {
       continue;
     }
 
-    const value = readElementValue(element, definition, selector.selector);
+    const value = readElementValue(element, definition, pattern.matchPattern);
 
     if (!value) {
       continue;
@@ -25,7 +25,7 @@ export const extractFieldValue = (
       fieldName: definition.fieldName,
       displayLabel: definition.displayLabel,
       value,
-      matchedSelector: selector.selector,
+      matchedSelector: pattern.matchPattern,
       required: definition.isRequired,
     };
   }

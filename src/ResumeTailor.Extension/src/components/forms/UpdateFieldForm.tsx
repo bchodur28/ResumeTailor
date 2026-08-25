@@ -3,7 +3,7 @@ import {
   extractionTypes,
   type ExtractionType,
 } from "../../extraction/types/definitions/ExtractionType";
-import type { FieldSelector } from "../../extraction/types/definitions/FieldSelector";
+import type { FieldPattern } from "../../extraction/types/definitions/FieldPattern";
 import {
   jobFieldNames,
   type JobFieldName,
@@ -24,7 +24,7 @@ type UpdateFieldFormProps = {
   attributeName: string | null;
   isRequired: boolean;
   sortOrder: number;
-  selectors: FieldSelector[];
+  selectors: FieldPattern[];
 };
 
 const UpdateFieldForm = ({
@@ -149,7 +149,7 @@ const UpdateFieldForm = ({
               key={selector.id}
               id={selector.id}
               fieldExtractionDefinitionId={id}
-              rule={selector.selector}
+              rule={selector.matchPattern}
               priority={selector.priority}
             />
           );

@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { updateFieldSelector } from "../../api/extraction";
-import type { FieldSelectorRequest } from "../../extraction/types/requests/FieldSelectorRequest";
+import type { FieldPatternRequest } from "../../extraction/types/requests/FieldPattternRequest";
 import { useForm } from "react-hook-form";
-import type { FieldSelector } from "../../extraction/types/definitions/FieldSelector";
+import type { FieldPattern } from "../../extraction/types/definitions/FieldPattern";
 
 type UpdateSelectorFormProps = {
   id: number;
@@ -17,15 +17,16 @@ const UpdateSelectorForm = ({
   rule,
   priority,
 }: UpdateSelectorFormProps) => {
-  const { register, handleSubmit } = useForm<FieldSelectorRequest>({
+  const { register, handleSubmit } = useForm<FieldPatternRequest>({
     defaultValues: {
-      selector: rule,
+      matchPattern: rule,
+      scopePattern: "",
       priority: priority,
     },
   });
 
   const updateSelectorMutation = useMutation({
-    mutationFn: (selector: FieldSelectorRequest) =>
+    mutationFn: (selector: FieldPatternRequest) =>
       updateFieldSelector(id, selector),
     onSuccess: () => {
       console.log("Selector updated successfully");
@@ -35,10 +36,11 @@ const UpdateSelectorForm = ({
     },
   });
 
-  const onSubmit = (fieldSelector: FieldSelector) => {
-    const request: FieldSelectorRequest = {
+  const onSubmit = (fieldSelector: FieldPattern) => {
+    const request: FieldPatternRequest = {
       fieldExtractionDefinitionId: fieldExtractionDefinitionId,
-      selector: fieldSelector.selector,
+      matchPattern: fieldSelector.matchPattern,
+      scopePattern: fieldSelector.scopePattern,
       priority: fieldSelector.priority,
     };
     updateSelectorMutation.mutate(request);
@@ -48,7 +50,7 @@ const UpdateSelectorForm = ({
     <form className="field-container">
       <div className="input-container">
         <label htmlFor={`rule_${id}`}>Selector Rule:</label>
-        <input id={`rule_${id}`} {...register("selector")} />
+        <input id={`rule_${id}`} {...register("matchPattern")} />
       </div>
 
       <div className="input-container">

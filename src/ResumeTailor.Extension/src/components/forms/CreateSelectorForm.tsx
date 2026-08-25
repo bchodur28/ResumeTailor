@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFieldSelector, updateFieldSelector } from "../../api/extraction";
-import type { FieldSelectorRequest } from "../../extraction/types/requests/FieldSelectorRequest";
+import type { FieldPatternRequest } from "../../extraction/types/requests/FieldPattternRequest";
 import { useForm } from "react-hook-form";
-import type { FieldSelector } from "../../extraction/types/definitions/FieldSelector";
+import type { FieldPattern } from "../../extraction/types/definitions/FieldPattern";
 
 type CreateSelectorFormProps = {
   fieldExtractionDefintionId: number;
@@ -12,16 +12,17 @@ const CreateSelectorForm = ({
   fieldExtractionDefintionId,
 }: CreateSelectorFormProps) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit } = useForm<FieldSelector>({
+  const { register, handleSubmit } = useForm<FieldPattern>({
     defaultValues: {
-      selector: "",
+      matchPattern: "",
+      scopePattern: "",
       priority: 0,
     },
   });
 
   const createSelectorMutation = useMutation({
     mutationFn: createFieldSelector,
-    onSuccess: async (createdFieldSelector: FieldSelector) => {
+    onSuccess: async (createdFieldSelector: FieldPattern) => {
       console.log("Selector created successfully:", createdFieldSelector);
       // Invalidate the query to refresh the list of selectors
       await queryClient.invalidateQueries({
@@ -33,10 +34,11 @@ const CreateSelectorForm = ({
     },
   });
 
-  const onSubmit = (selector: FieldSelector) => {
-    const request: FieldSelectorRequest = {
+  const onSubmit = (selector: FieldPattern) => {
+    const request: FieldPatternRequest = {
       fieldExtractionDefinitionId: fieldExtractionDefintionId,
-      selector: selector.selector,
+      matchPattern: selector.matchPattern,
+      scopePattern: selector.scopePattern,
       priority: selector.priority,
     };
     createSelectorMutation.mutate(request);
@@ -46,7 +48,7 @@ const CreateSelectorForm = ({
     <form className="field-container" onSubmit={handleSubmit(onSubmit)}>
       <div className="input-container">
         <label htmlFor={`rule_0`}>Selector Rule:</label>
-        <input id={`rule_0`} {...register("selector")} />
+        <input id={`rule_0`} {...register("matchPattern")} />
       </div>
 
       <div className="input-container">

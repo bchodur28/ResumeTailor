@@ -1,7 +1,7 @@
 namespace ResumeTailor.Application.Resumes.Models;
 
 public record ResumeResponse(
-    int Id,
+    int? Id,
     string PersonName,
     string Profession,
     string Email,

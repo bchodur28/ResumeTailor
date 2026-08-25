@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OpenAI.Responses;
 using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Application.Resumes.Interfaces;
+using ResumeTailor.Infrastructure.AI;
 using ResumeTailor.Infrastructure.Persistence;
 using ResumeTailor.Infrastructure.Persistence.Repositories;
 
@@ -35,6 +37,21 @@ public static class DependencyInjection
         {
             options.UseSqlite($"Data Source={databasePath}");
         });
+
+        var openAiApiKey = configuration["OpenAI:ApiKey"];
+
+        services.Configure<OpenAIOptions>(configuration.GetSection(OpenAIOptions.SectionName));
+
+        if (!string.IsNullOrWhiteSpace(openAiApiKey))
+        {
+#pragma warning disable OPENAI001
+            services.AddSingleton(new ResponsesClient(openAiApiKey));
+#pragma warning restore OPENAI001
+            services.AddScoped<IAiBulletChooser, OpenAIBulletChooser>();
+        } else
+        {
+            services.AddScoped<IAiBulletChooser, OpenAIBulletChooser>();
+        }
 
         services.AddScoped<ISiteExtractionDefinitionRepository, SiteExtractionDefinitionRepository>();
         services.AddScoped<IFieldExtractionDefinitionRepository, FieldExtractionDefinitionRepository>();
