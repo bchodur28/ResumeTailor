@@ -2,7 +2,7 @@ using ResumeTailor.Application.Resumes.Models;
 
 namespace ResumeTailor.Application.Resumes.Interfaces;
 
-public interface IResumeService
+public interface IResumeManagementService
 {
     Task<ResumeResponse> GetResumeByIdAsync(int id, CancellationToken cancellationToken = default);
     Task CreateResumeAsync(ResumeRequest request, CancellationToken cancellationToken = default);

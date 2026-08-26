@@ -6,7 +6,7 @@ namespace ResumeTailor.Infrastructure.AI;
 
 internal sealed class UnabailableAiBulletChooser : IAiBulletChooser
 {
-    public Task<Dictionary<string, IReadOnlyList<string>>> ChooseBullets(IReadOnlyList<BulletSelectionContext> contexts, string jobDescription)
+    public Task<BulletSelectionResult> ChooseBullets(IReadOnlyList<BulletSelectionContext> contexts, string jobDescription, CancellationToken cancellationToken = default)
     {
         throw new AiNotConfiguredException();
     }

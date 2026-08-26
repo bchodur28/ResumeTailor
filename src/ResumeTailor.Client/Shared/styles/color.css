@@ -1,0 +1,12 @@
+:root {
+    --primary-color: hsl(267, 57%, 45%);
+    --primary-color-dark: hsl(267, 57%, 35%);
+}
+.primary-color{
+  color: var(--primary-color);
+}
+.primary-color-dark{
+  color: var(--primary-color-dark);
+}
+
+

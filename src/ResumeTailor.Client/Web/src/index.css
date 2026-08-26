@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@source "../../Shared/";
+@import "@shared/styles/color.css";
+@import "@shared/styles/ui.css";
+
+.root-nav{
+  background: hsl(0, 0%, 94%);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--primary-color);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+

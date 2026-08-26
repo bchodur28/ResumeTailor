@@ -4,6 +4,6 @@ namespace ResumeTailor.Application.Resumes.Interfaces
 {
     public interface IAiBulletChooser
     {
-        Task<Dictionary<string, IReadOnlyList<string>>> ChooseBullets(IReadOnlyList<BulletSelectionContext> contexts, string jobDescription);
+        Task<BulletSelectionResult> ChooseBullets(IReadOnlyList<BulletSelectionContext> contexts, string jobDescription, CancellationToken cancellationToken = default);
     }
 }

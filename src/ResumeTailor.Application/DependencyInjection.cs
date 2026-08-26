@@ -13,7 +13,8 @@ public static class DependencyInjection
         services.AddScoped<ISiteExtractionDefinitionService, SiteExtractionDefinitionService>();
         services.AddScoped<IFieldExtractionDefinitionService, FieldExtractionDefinitionService>();
         services.AddScoped<IFieldPatternService, FieldPatternService>();
-        services.AddScoped<IResumeService, ResumeService>();
+        services.AddScoped<IResumeManagementService, ResumeManagementService>();
+        services.AddScoped<IResumeGeneratorService, ResumeGeneratorService>();
 
         return services;
     }

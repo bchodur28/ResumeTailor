@@ -1,17 +1,17 @@
 #pragma warning disable OPENAI001
 
-
 using ResumeTailor.Application.Resumes.Interfaces;
 using ResumeTailor.Application.Resumes.Models;
 using OpenAI.Responses;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using System.ClientModel;
 
 namespace ResumeTailor.Infrastructure.AI;
 
 public sealed class OpenAIBulletChooser(ResponsesClient client, IOptions<OpenAIOptions> options) : IAiBulletChooser
 {
-    public async Task<Dictionary<string, IReadOnlyList<string>>> ChooseBullets(IReadOnlyList<BulletSelectionContext> contexts, string jobDescription)
+    public async Task<BulletSelectionResult> ChooseBullets(IReadOnlyList<BulletSelectionContext> contexts, string jobDescription, CancellationToken cancellationToken = default)
     {
         var prompt = BuildPrompt(contexts, jobDescription);
 
@@ -60,27 +60,40 @@ public sealed class OpenAIBulletChooser(ResponsesClient client, IOptions<OpenAIO
 
         responseOptions.InputItems.Add(ResponseItem.CreateUserMessageItem(prompt));
 
-        var response = await client.CreateResponseAsync(responseOptions);
+        var response = await client.CreateResponseAsync(responseOptions, cancellationToken);
 
         var json = response.Value.GetOutputText();
 
-        var result = JsonSerializer.Deserialize<BulletSelectionResponse>(
+        var bulletSelection = JsonSerializer.Deserialize<BulletSelection>(
             json,
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             }) ?? throw new InvalidOperationException("OpenAI returned an empty bullet selection response.");
 
-        return ValidateAndMap(result, contexts);
+        var companyBullets = ValidateAndMap(bulletSelection, contexts);
+
+        var usage = CreateAiUsage(response);
+
+        return new BulletSelectionResult(companyBullets, usage);
     }
 
-    private static Dictionary<string, IReadOnlyList<string>> ValidateAndMap(BulletSelectionResponse response, IReadOnlyList<BulletSelectionContext> contexts)
+    private static AiUsage CreateAiUsage(ClientResult<ResponseResult> response)
+    {
+        return new AiUsage(
+            InputTokens: response.Value.Usage.InputTokenCount,
+            OutputTokens: response.Value.Usage.OutputTokenCount,
+            TotalTokens: response.Value.Usage.TotalTokenCount,
+            EstimatedCost: null);
+    }
+
+    private static Dictionary<string, IReadOnlyList<string>> ValidateAndMap(BulletSelection bulletSelection, IReadOnlyList<BulletSelectionContext> contexts)
     {
         var result = new Dictionary<string, IReadOnlyList<string>>();
 
         foreach (var context in contexts)
         {
-            var companyResult = response.Companies.FirstOrDefault(
+            var companyResult = bulletSelection.Companies.FirstOrDefault(
                 c => string.Equals(c.Company, context.Company, StringComparison.OrdinalIgnoreCase));
 
             if(companyResult is null)
@@ -122,19 +135,11 @@ public sealed class OpenAIBulletChooser(ResponsesClient client, IOptions<OpenAIO
             - Follow AdditionalInstruction if provided.
             - Do not move bullets between campanies.
 
-            Return ONLY valid JSON.
-
-            The JSON must have this shape:
-            {
-                "Company Name": [
-                    "Selected original bullet",
-                    "Selected original bullet"
-                ]
-            }
+            Return the selected bullets for each company.
             """;
     }
 
-    private sealed record BulletSelectionResponse(IReadOnlyList<CompanyBulletSelection> Companies);
+    private sealed record BulletSelection(IReadOnlyList<CompanyBulletSelection> Companies);
 
     private sealed record CompanyBulletSelection(string Company, IReadOnlyList<string> Bullets);
 }

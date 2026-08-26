@@ -5,7 +5,7 @@ using ResumeTailor.Domain.Resumes;
 
 namespace ResumeTailor.Application.Resumes;
 
-internal sealed class ResumeService(IResumeRepository repository) : IResumeService
+internal sealed class ResumeManagementService(IResumeRepository repository) : IResumeManagementService
 {
     public async Task<ResumeResponse> GetResumeByIdAsync(int id, CancellationToken cancellationToken = default)
     {

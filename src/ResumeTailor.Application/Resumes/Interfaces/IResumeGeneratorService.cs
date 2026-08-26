@@ -4,5 +4,5 @@ namespace ResumeTailor.Application.Resumes.Interfaces;
 
 public interface IResumeGeneratorService
 {
-    Task<ResumeResponse> GenerateResumeReviewAsync(int resumeId, string jobDescription);
+    Task<ResumeGenerationResult> GenerateResumeReviewAsync(int resumeId, string jobDescription, CancellationToken cancellationToken = default);
 }
