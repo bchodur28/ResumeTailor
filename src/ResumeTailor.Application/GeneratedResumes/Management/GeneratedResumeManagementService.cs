@@ -7,7 +7,6 @@ using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management.Models;
 using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.GeneratedResumes.AI;
-using ResumeTailor.Domain.GeneratedResumes.Content;
 
 
 namespace ResumeTailor.Application.GeneratedResumes.Management;

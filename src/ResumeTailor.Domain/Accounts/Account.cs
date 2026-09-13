@@ -4,7 +4,7 @@ namespace ResumeTailor.Domain.Accounts;
 
 public sealed class Account : Entity
 {
-    public required string Auth0UserId { get; set; }
+    public string Auth0UserId { get; private set; } = string.Empty;
 
     public string Email { get; private set; } = string.Empty;
     public string DisplayName { get; private set; } = string.Empty;
@@ -39,4 +39,25 @@ public sealed class Account : Entity
         MarkUpdated();
     }
 
+    public void AddPersonalLink(string value, string url)
+    {
+        var personalLink = new PersonalLink(value, url);
+        _personalLinks.Add(personalLink);
+    }
+
+    public void AddTitle(string value, bool isPrimary)
+    {
+        var title = new Title(value, isPrimary);
+        _titles.Add(title);
+    }
+
+    public void RemovePersonalLink(PersonalLink personalLink)
+    {
+        _personalLinks.Remove(personalLink);
+    }
+
+    public void RemoveTitle(Title title)
+    {
+        _titles.Remove(title);
+    }
 }

@@ -9,9 +9,8 @@ public sealed class PersonalLink : Entity
     public string DisplayName { get; private set; } = string.Empty;
     public string Url { get; private set; } = string.Empty;
 
-    public PersonalLink(int accountId, string displayName, string url)
+    public PersonalLink(string displayName, string url)
     {
-        AccountId = accountId;
         DisplayName = displayName;
         Url = url;
     }

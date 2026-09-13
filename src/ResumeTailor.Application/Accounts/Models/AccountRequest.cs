@@ -8,5 +8,7 @@ public sealed record AccountRequest(
     string DisplayName,
     string City,
     string State,
-    string Country
+    string Country,
+    IReadOnlyCollection<PersonalLinkRequest> PersonalLinks,
+    IReadOnlyCollection<TitleRequest> Titles
     );
