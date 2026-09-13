@@ -8,7 +8,6 @@ public interface IFieldExtractionDefinitionRepository
     Task<FieldExtractionDefinition?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<FieldExtractionDefinition?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default);
     Task CreateAsync(FieldExtractionDefinition definition, CancellationToken cancellationToken = default);
-    Task UpdateAsync(FieldExtractionDefinition definition, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default);
-
+    Task SaveAsync(CancellationToken cancellationToken = default);
 }

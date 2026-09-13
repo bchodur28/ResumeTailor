@@ -6,7 +6,7 @@ namespace ResumeTailor.Domain.Extraction;
 public sealed class FieldExtractionDefinition : Entity
 {
     public int SiteExtractionDefinitionId { get; private set; }
-    public SiteExtractionDefinition SiteExtractionDefinition { get; private set; } = null!;
+
     public JobFieldName FieldName { get; private set; }
     public string DisplayLabel { get; private set; } = string.Empty;
     public ExtractionValueType ExtractionType { get; private set;  }

@@ -3,10 +3,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenAI.Responses;
 using ResumeTailor.Application.Extraction.Interfaces;
-using ResumeTailor.Application.Resumes.Interfaces;
+using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
+using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Infrastructure.AI;
 using ResumeTailor.Infrastructure.Persistence;
-using ResumeTailor.Infrastructure.Persistence.Repositories;
+using ResumeTailor.Infrastructure.Persistence.Repositories.Extraction;
+using ResumeTailor.Infrastructure.Persistence.Repositories.GeneratedResumes;
 
 
 namespace ResumeTailor.Infrastructure;
@@ -47,16 +49,16 @@ public static class DependencyInjection
 #pragma warning disable OPENAI001
             services.AddSingleton(new ResponsesClient(openAiApiKey));
 #pragma warning restore OPENAI001
-            services.AddScoped<IAiBulletChooser, OpenAIBulletChooser>();
+            services.AddScoped<IResumeAiGenerator, OpenAIResumeGenerator>();
         } else
         {
-            services.AddScoped<IAiBulletChooser, OpenAIBulletChooser>();
+            services.AddScoped<IResumeAiGenerator, OpenAIResumeGenerator>();
         }
 
         services.AddScoped<ISiteExtractionDefinitionRepository, SiteExtractionDefinitionRepository>();
         services.AddScoped<IFieldExtractionDefinitionRepository, FieldExtractionDefinitionRepository>();
         services.AddScoped<IFieldPatternRepository, FieldPatternRepository>();
-        services.AddScoped<IResumeRepository, ResumeRepository>();
+        services.AddScoped<IGeneratedResumeRepository, GeneratedResumeRepository>();
 
         return services;
     }

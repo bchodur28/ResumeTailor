@@ -1,12 +1,12 @@
-using ResumeTailor.Application.Resumes.Exceptions;
-using ResumeTailor.Application.Resumes.Interfaces;
-using ResumeTailor.Application.Resumes.Models;
+using ResumeTailor.Application.GeneratedResumes.Common.Exceptions;
+using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
+using ResumeTailor.Application.GeneratedResumes.Generation.Models;
 
 namespace ResumeTailor.Infrastructure.AI;
 
-internal sealed class UnabailableAiBulletChooser : IAiBulletChooser
+internal sealed class UnabailableAiBulletChooser : IResumeAiGenerator
 {
-    public Task<BulletSelectionResult> ChooseBullets(IReadOnlyList<BulletSelectionContext> contexts, string jobDescription, CancellationToken cancellationToken = default)
+    public Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiGenerationContext context, CancellationToken cancellationToken = default)
     {
         throw new AiNotConfiguredException();
     }

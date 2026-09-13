@@ -47,6 +47,7 @@ internal sealed class FieldExtractionDefinitionService(
             request.AttributeName);
 
         await fieldRepository.CreateAsync(definition, cancellationToken);
+        await fieldRepository.SaveAsync(cancellationToken);
         return MapToResponse(definition);
     }
 
@@ -68,7 +69,7 @@ internal sealed class FieldExtractionDefinitionService(
             request.SortOrder,
             request.AttributeName);
 
-        await fieldRepository.UpdateAsync(definition, cancellationToken);
+        await fieldRepository.SaveAsync(cancellationToken);
     }
 
     private static FieldExtractionDefinitionResponse MapToResponse(FieldExtractionDefinition definition)

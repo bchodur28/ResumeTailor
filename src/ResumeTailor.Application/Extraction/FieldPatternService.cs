@@ -16,7 +16,7 @@ namespace ResumeTailor.Application.Extraction
             return definition.Select(MapToResponse).ToList();
         }
 
-        public async Task<FieldPatternResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<FieldPatternResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             var definition = await fieldPatternRepository.GetByIdAsync(id, cancellationToken);
 
@@ -40,6 +40,7 @@ namespace ResumeTailor.Application.Extraction
             var definition = new FieldPattern(request.FieldExtractionDefinitionId, request.MatchPattern, request.Priority);
 
             await fieldPatternRepository.CreateAsync(definition, cancellationToken);
+            await fieldPatternRepository.SaveAsync(cancellationToken);
             return MapToResponse(definition);
         }
 
@@ -53,6 +54,7 @@ namespace ResumeTailor.Application.Extraction
             }
 
             definition.Update(request.FieldExtractionDefinitionId, request.MatchPattern, request.Priority);
+            await fieldPatternRepository.SaveAsync(cancellationToken);
         }
 
         private static FieldPatternResponse MapToResponse(FieldPattern pattern)

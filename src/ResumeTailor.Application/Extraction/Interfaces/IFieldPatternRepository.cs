@@ -8,5 +8,5 @@ public interface IFieldPatternRepository
     Task<FieldPattern?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<FieldPattern?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default);
     Task CreateAsync(FieldPattern definition, CancellationToken cancellationToken = default);
-    Task UpdateAsync(FieldPattern definition, CancellationToken cancellationToken = default);
+    Task SaveAsync(CancellationToken cancellationToken = default);
 }

@@ -1,0 +1,64 @@
+.resume{
+    font-family: calibri, sans-serif;
+    font-size: 10pt;
+    line-height: 1.0;
+}
+
+.resume h1,
+.resume h2,
+.resume h3,
+.resume p,
+.resume ul {
+  margin: 0;
+}
+
+.topHeader{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.topHeader h1 {
+    font-size: 18pt;
+    font-weight: bold;
+}
+
+.topHeader h2 {
+    font-size: 12pt;
+}
+
+.contactList{
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resumeSection{
+  font-size: 11pt;
+}
+
+.resumeSection h2 {
+  font-size: 14pt;
+  font-weight: bold;
+  border-bottom: 1px solid #000;
+  color: hsl(222, 55%, 23%);
+}
+
+.resumeTwoColumn {
+    display: flex;
+    justify-content: space-between;
+}
+
+.resumeBulletList{
+    list-style-type: disc;
+    padding-left: .25in;
+    display: flex;
+    flex-direction: column;
+}
+
+.resumeBulletList li {
+    margin: 0;
+}

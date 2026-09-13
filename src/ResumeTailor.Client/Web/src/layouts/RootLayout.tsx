@@ -3,7 +3,7 @@ import { NavLink, Outlet } from "react-router-dom";
 const RootLayout = () => {
   return (
     <div>
-      <header className="root-nav">
+      <header className="root-nav box-shadow">
         <div className="flex justify-between w-9/12 mx-auto">
           <div>
             <h1 className="primary-color text-2xl font-bold">Resumade</h1>
@@ -21,7 +21,7 @@ const RootLayout = () => {
           </nav>
         </div>
       </header>
-      <main className="w-9/12 mx-auto bg-white my-6">
+      <main className="w-9/12 mx-auto my-6">
         <Outlet />
       </main>
     </div>
