@@ -8,18 +8,22 @@ namespace ResumeTailor.Application.Accounts;
 public class AccountService(IAccountRepository accountRepository) : IAccountService
 {
     //Accounts
-    public async Task<AccountResponse> GetAccountByAuth0UserIdAsync(string auth0UserId, CancellationToken cancellationToken = default)
+    public async Task<AccountResponse?> GetAccountByAuth0UserIdAsync(string auth0UserId, CancellationToken cancellationToken = default)
     {
-        var account = await accountRepository.GetAccountByAuth0UserIdAsync(auth0UserId, cancellationToken)
-            ?? throw new NotFoundException($"Account with Auth0 User ID {auth0UserId} was not found.");
+        var account = await accountRepository.GetAccountByAuth0UserIdAsync(auth0UserId, cancellationToken);
 
-        return MapAccountDomainToResponse(account);
+        return account is null
+            ? null
+            : MapAccountDomainToResponse(account);
     }
 
-    public async Task CreateAccountAsync(AccountRequest request, CancellationToken cancellationToken = default)
+    public async Task<int> CreateAccountAsync(AccountRequest request, CancellationToken cancellationToken = default)
     {
-        await accountRepository.CreateAccoutAsync(MapAccountRequestToDomain(request), cancellationToken);
+        var account = MapAccountRequestToDomain(request);
+        await accountRepository.CreateAccoutAsync(account, cancellationToken);
         await accountRepository.SaveAsync(cancellationToken);
+
+        return account.Id;
     }
 
     //Personal Links

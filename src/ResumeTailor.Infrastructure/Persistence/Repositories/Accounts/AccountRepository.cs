@@ -7,6 +7,15 @@ namespace ResumeTailor.Infrastructure.Persistence.Repositories.Accounts;
 internal class AccountRepository(ResumeTailorDbContext dbContext) : IAccountRepository
 {
     // Account
+    public async Task<Account?> GetAccountByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Accounts
+            .AsNoTracking()
+            .Include(a => a.Titles)
+            .Include(a => a.PersonalLinks)
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+    }
+
     public async Task<Account?> GetAccountByAuth0UserIdAsync(string auth0UserId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Accounts

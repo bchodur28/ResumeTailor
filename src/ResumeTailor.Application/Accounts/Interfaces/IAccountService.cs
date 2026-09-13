@@ -4,8 +4,8 @@ namespace ResumeTailor.Application.Accounts.Interfaces;
 
 public interface IAccountService
 {
-    Task<AccountResponse> GetAccountByAuth0UserIdAsync(string auth0UserId, CancellationToken cancellationToken = default);
-    Task CreateAccountAsync(AccountRequest request, CancellationToken cancellationToken = default);
+    Task<AccountResponse?> GetAccountByAuth0UserIdAsync(string auth0UserId, CancellationToken cancellationToken = default);
+    Task<int> CreateAccountAsync(AccountRequest request, CancellationToken cancellationToken = default);
 
     Task CreatePersonalLinksAsync(int accountId, IEnumerable<PersonalLinkRequest> requests, CancellationToken cancellationToken = default);
     Task UpdatePersonalLinkAsync(int id, PersonalLinkRequest request, CancellationToken cancellationToken = default);
