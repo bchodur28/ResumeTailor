@@ -97,24 +97,17 @@ internal sealed class GeneratedResumeManagementService(
 
     public async Task UpdateGeneratedResumeAsync(int id, GeneratedResumeRequest request, CancellationToken cancellationToken = default)
     {
-        var existingResume = await repository.GetGeneratedResumeForUpdatingAsync(id, cancellationToken);
-        if (existingResume is null)
-        {
-            throw new InvalidOperationException($"Generated resume with ID {id} was not found while updating.");
-        }
-
+        var existingResume = await repository.GetGeneratedResumeForUpdatingAsync(id, cancellationToken)
+            ?? throw new NotFoundException($"Generated resume with ID {id} was not found while updating.");
+        
         existingResume.Update(request.Name, request.JobApplicatonId);
         await repository.SaveAsync(cancellationToken);
     }
 
     public async Task DeleteGeneratedResumeAsync(int id, CancellationToken cancellationToken = default)
     {
-        var generatedResume = await repository.GetGeneratedResumeForUpdatingAsync(id, cancellationToken);
-
-        if (generatedResume is null)
-        {
-            throw new NotFoundException($"Generated resume with ID {id} was not found while deleting.");
-        }
+        var generatedResume = await repository.GetGeneratedResumeForUpdatingAsync(id, cancellationToken)
+            ?? throw new NotFoundException($"Generated resume with ID {id} was not found while deleting.");
 
         repository.DeleteGeneratedResumeAsync(generatedResume);
         await repository.SaveAsync(cancellationToken);
@@ -124,40 +117,39 @@ internal sealed class GeneratedResumeManagementService(
     // Company Selection Management
     public async Task CreateCompanySelectionsAsync(int generatedResumeId, IEnumerable<ResumeCompanySelectionRequest> requests, CancellationToken cancellationToken = default)
     {
-        var generatedResumeExists = await repository.GeneratedResumeExistsAsync(generatedResumeId, cancellationToken);
+        var generatedResume = await repository.GetGeneratedResumeForUpdatingAsync(generatedResumeId, cancellationToken)
+            ?? throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found while creating company selections.");
 
-        if (!generatedResumeExists)
+
+        foreach (var request in requests)
         {
-            throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found while creating company selection.");
+            var companySelection = generatedResume.AddCompanySelection(request.CompanyId, request.SortOrder);
+            foreach (var bulletRequest in request.Bullets)
+            {
+                companySelection.AddResumeBullet(
+                    bulletRequest.SourceBulletId,
+                    bulletRequest.Value,
+                    bulletRequest.AlternativeValue,
+                    bulletRequest.SortOrder);
+            }
         }
 
-        var companySelections = requests
-            .Select(MapCompanySelectionRequestToDomain)
-            .ToList();
-
-        await repository.CreateCompanySelectionsAsync(companySelections, cancellationToken);
         await repository.SaveAsync(cancellationToken);
     }
 
     public async Task UpdateCompanySelectionAsync(int id, ResumeCompanySelectionRequest request, CancellationToken cancellationToken = default)
     {
-        var existingSelection = await repository.GetCompanySelectionForUpdating(id, cancellationToken);
-        if (existingSelection is null)
-        {
-            throw new InvalidOperationException($"Company selection with ID {id} was not found while updating.");
-        }
+        var existingSelection = await repository.GetCompanySelectionForUpdating(id, cancellationToken)
+            ?? throw new NotFoundException($"Company selection with ID {id} was not found while updating.");
+        
         existingSelection.Update(request.CompanyId, request.SortOrder);
         await repository.SaveAsync(cancellationToken);
     }
 
     public async Task DeleteCompanySelectionAsync(int id, CancellationToken cancellationToken = default)
     {
-        var companySelection = await repository.GetCompanySelectionForUpdating(id, cancellationToken);
-
-        if(companySelection is null)
-        {
-            throw new NotFoundException($"Company selection with ID {id} was not found while deleting.");
-        }
+        var companySelection = await repository.GetCompanySelectionForUpdating(id, cancellationToken)
+            ?? throw new NotFoundException($"Company selection with ID {id} was not found while deleting.");
 
         repository.DeleteCompanySelection(companySelection);
         await repository.SaveAsync(cancellationToken);
@@ -167,40 +159,30 @@ internal sealed class GeneratedResumeManagementService(
     // Education Selection Management
     public async Task CreateEducationSelectionsAsync(int generatedResumeId, IEnumerable<ResumeEducationSelectionRequest> requests, CancellationToken cancellationToken = default)
     {
-        var generatedResumeExists = await repository.GeneratedResumeExistsAsync(generatedResumeId, cancellationToken);
+        var generatedResume = await repository.GetGeneratedResumeForUpdatingAsync(generatedResumeId, cancellationToken)
+            ?? throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found while creating education selections.");
 
-        if (!generatedResumeExists)
+        foreach(var request in requests)
         {
-            throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found when creating education selections.");
+            generatedResume.AddEducationSelection(request.EducationId, request.SortOrder);
         }
 
-        var educationSelections = requests
-            .Select(MapEducationSelectionRequestToDomain)
-            .ToList();
-
-        await repository.CreateEducationSelectionsAsync(educationSelections, cancellationToken);
         await repository.SaveAsync(cancellationToken);
     }
 
     public async Task UpdateEducationSelectionAsync(int id, ResumeEducationSelectionRequest request, CancellationToken cancellationToken = default)
     {
-        var existingSelection = await repository.GetEducationSelectionForUpdating(id, cancellationToken);
-        if (existingSelection is null)
-        {
-            throw new InvalidOperationException($"Company selection with ID {id} was not found when updating.");
-        }
+        var existingSelection = await repository.GetEducationSelectionForUpdating(id, cancellationToken)
+            ?? throw new NotFoundException($"Education selection with ID {id} was not found when updating.");
+        
         existingSelection.Update(request.EducationId, request.SortOrder);
         await repository.SaveAsync(cancellationToken);
     }
 
     public async Task DeleteEducationSelectionAsync(int id, CancellationToken cancellationToken = default)
     {
-        var educationSelection = await repository.GetEducationSelectionForUpdating(id, cancellationToken);
-
-        if (educationSelection is null)
-        {
-            throw new NotFoundException($"Company selection with ID {id} was not found when deleting.");
-        }
+        var educationSelection = await repository.GetEducationSelectionForUpdating(id, cancellationToken)
+            ?? throw new NotFoundException($"Education selection with ID {id} was not found when deleting.");
 
         repository.DeleteEducationSelection(educationSelection);
 
@@ -210,40 +192,30 @@ internal sealed class GeneratedResumeManagementService(
     // Project Selection Management
     public async Task CreateProjectSelectionsAsync(int generatedResumeId, IEnumerable<ResumeProjectSelectionRequest> requests, CancellationToken cancellationToken = default)
     {
-        var generatedResumeExists = await repository.GeneratedResumeExistsAsync(generatedResumeId, cancellationToken);
+        var generatedResume = await repository.GetGeneratedResumeForUpdatingAsync(generatedResumeId, cancellationToken)
+            ?? throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found when creating project selections.");
 
-        if (!generatedResumeExists)
+        foreach(var request in requests)
         {
-            throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found when creating project selections.");
+            generatedResume.AddProjectSelection(request.ProjectId, request.SortOrder);
         }
 
-        var projectSelections = requests
-            .Select(MapProjectSelectionRequestToDomain)
-            .ToList();
-
-        await repository.CreateProjectSelectionsAsync(projectSelections, cancellationToken);
         await repository.SaveAsync(cancellationToken);
     }
 
     public async Task UpdateProjectSelectionAsync(int id, ResumeProjectSelectionRequest request, CancellationToken cancellationToken = default)
     {
-        var existingSelection = await repository.GetProjectSelectionForUpdating(id, cancellationToken);
-        if (existingSelection is null)
-        {
-            throw new InvalidOperationException($"Company selection with ID {id} was not found when updating.");
-        }
+        var existingSelection = await repository.GetProjectSelectionForUpdating(id, cancellationToken)
+            ?? throw new NotFoundException($"Company selection with ID {id} was not found when updating.");
+        
         existingSelection.Update(request.ProjectId, request.SortOrder);
         await repository.SaveAsync(cancellationToken);
     }
 
     public async Task DeleteProjectSelectionAsync(int id, CancellationToken cancellationToken = default)
     {
-        var projectSelection = await repository.GetProjectSelectionForUpdating(id, cancellationToken);
-
-        if (projectSelection is null)
-        {
-            throw new NotFoundException($"Company selection with ID {id} was not found while deleting.");
-        }
+        var projectSelection = await repository.GetProjectSelectionForUpdating(id, cancellationToken)
+            ?? throw new NotFoundException($"Company selection with ID {id} was not found while deleting.");
 
         repository.DeleteProjectSelection(projectSelection);
 
@@ -253,39 +225,35 @@ internal sealed class GeneratedResumeManagementService(
     // Resume Bullets
     public async Task CreateResumeBulletsAsycn(int resumeCompanyId, IEnumerable<ResumeBulletRequest> requests, CancellationToken cancellationToken = default)
     {
-        var companySelectionExists = await repository.CompanySelectionExistsAsync(resumeCompanyId, cancellationToken);
+        var companySelection = await repository.GetCompanySelectionForUpdating(resumeCompanyId, cancellationToken)
+            ?? throw new NotFoundException($"Company selection with ID {resumeCompanyId} was not found when creating resume bullets.");
 
-        if (!companySelectionExists)
+        foreach (var request in requests)
         {
-            throw new NotFoundException($"Company selection with ID {resumeCompanyId} was not found when creating resume bullets.");
+            companySelection.AddResumeBullet(
+                request.SourceBulletId,
+                request.Value,
+                request.AlternativeValue,
+                request.SortOrder);
         }
 
-        var resumeBullets = requests
-            .Select(MapResumeBulletRequestToDomain)
-            .ToList();
-
-        await repository.CreateResumeBulletsAysnc(resumeBullets, cancellationToken);
         await repository.SaveAsync(cancellationToken);
     }
 
     public async Task UpdateResumeBulletAsync(int id, ResumeBulletRequest request, CancellationToken cancellationToken = default)
     {
-        var existingBullet = await repository.GetResumeBulletForUpdating(id, cancellationToken);
-        if (existingBullet is null)
-        {
-            throw new InvalidOperationException($"Resume bullet with ID {id} was not found when updating.");
-        }
+        var existingBullet = await repository.GetResumeBulletForUpdating(id, cancellationToken)
+            ?? throw new NotFoundException($"Resume bullet with ID {id} was not found when updating.");
+        
         existingBullet.Update(request.Value, request.AlternativeValue, request.SortOrder);
         await repository.SaveAsync(cancellationToken);
     }
 
     public async Task DeleteResumeBulletAsync(int id, CancellationToken cancellationToken = default)
     {
-        var resumeBullet = await repository.GetResumeBulletForUpdating(id, cancellationToken);
-        if (resumeBullet is null)
-        {
-            throw new NotFoundException($"Resume bullet with ID {id} was not found when deleting.");
-        }
+        var resumeBullet = await repository.GetResumeBulletForUpdating(id, cancellationToken)
+            ?? throw new NotFoundException($"Resume bullet with ID {id} was not found when deleting.");
+        
         repository.DeleteResumeBullet(resumeBullet);
         await repository.SaveAsync(cancellationToken);
     }
@@ -298,40 +266,6 @@ internal sealed class GeneratedResumeManagementService(
             generatedResume.Id,
             generatedResume.AccountId,
             generatedResume.Name
-            );
-    }
-
-    private static ResumeCompanySelection MapCompanySelectionRequestToDomain(ResumeCompanySelectionRequest request)
-    {
-        return new ResumeCompanySelection(
-            request.CompanyId,
-            request.SortOrder
-            );
-    }
-
-    private static ResumeEducationSelection MapEducationSelectionRequestToDomain(ResumeEducationSelectionRequest request)
-    {
-        return new ResumeEducationSelection(
-            request.EducationId,
-            request.SortOrder
-            );
-    }
-
-    private static ResumeProjectSelection MapProjectSelectionRequestToDomain(ResumeProjectSelectionRequest request)
-    {
-        return new ResumeProjectSelection(
-            request.ProjectId,
-            request.SortOrder
-            );
-    }
-
-    private static ResumeBullet MapResumeBulletRequestToDomain(ResumeBulletRequest request)
-    {
-        return new ResumeBullet(
-            request.SourceBulletId,
-            request.Value,
-            request.AlternativeValue,
-            request.SortOrder
             );
     }
 
