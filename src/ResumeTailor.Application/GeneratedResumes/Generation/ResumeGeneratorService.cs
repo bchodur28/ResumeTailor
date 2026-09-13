@@ -4,7 +4,6 @@ using ResumeTailor.Application.GeneratedResumes.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Generation.Models;
 using ResumeTailor.Domain.Accounts;
-using ResumeTailor.Domain.GeneratedResumes;
 
 namespace ResumeTailor.Application.GeneratedResumes.Generation;
 

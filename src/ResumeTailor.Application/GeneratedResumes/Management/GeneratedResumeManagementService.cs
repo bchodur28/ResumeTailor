@@ -88,16 +88,11 @@ internal sealed class GeneratedResumeManagementService(
         var generatedResumeSourceData = await generatedResumeDataProvider.GetAsync(id, cancellationToken);
         return MapToGeneratedResumeDetailsResponse(generatedResumeSourceData);
     }
+
     public async Task<IReadOnlyCollection<GeneratedResumeListItemResponse>> GetGeneratedResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
         var generatedResumes = await repository.GetGeneratedResumesByAccountIdAsync(accountId, cancellationToken);
         return generatedResumes.Select(MapGeneratedResumeDomainToListItemResponse).ToList();
-    }
-
-    public async Task CreateGeneratedResumeAsync(GeneratedResumeRequest request, CancellationToken cancellationToken = default)
-    {
-        await repository.CreateGeneratedResumeAsync(MapGeneratedResumeRequestToDomain(request), cancellationToken);
-        await repository.SaveAsync(cancellationToken);
     }
 
     public async Task UpdateGeneratedResumeAsync(int id, GeneratedResumeRequest request, CancellationToken cancellationToken = default)
@@ -127,19 +122,6 @@ internal sealed class GeneratedResumeManagementService(
 
 
     // Company Selection Management
-    public async Task CreateCompanySelectionAsync(int generatedResumeId, ResumeCompanySelectionRequest request, CancellationToken cancellationToken = default)
-    {
-        var generatedResumeExists = await repository.GeneratedResumeExistsAsync(generatedResumeId, cancellationToken);
-
-        if (!generatedResumeExists)
-        {
-            throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found while creating company selection.");
-        }
-
-        await repository.CreateCompanySelectionAsync(MapCompanySelectionRequestToDomain(request), cancellationToken);
-        await repository.SaveAsync(cancellationToken);
-    }
-
     public async Task CreateCompanySelectionsAsync(int generatedResumeId, IEnumerable<ResumeCompanySelectionRequest> requests, CancellationToken cancellationToken = default)
     {
         var generatedResumeExists = await repository.GeneratedResumeExistsAsync(generatedResumeId, cancellationToken);
@@ -183,19 +165,6 @@ internal sealed class GeneratedResumeManagementService(
 
 
     // Education Selection Management
-    public async Task CreateEducationSelectionAsync(int generatedResumeId, ResumeEducationSelectionRequest request, CancellationToken cancellationToken = default)
-    {
-        var generatedResumeExists = await repository.GeneratedResumeExistsAsync(generatedResumeId, cancellationToken);
-
-        if (!generatedResumeExists)
-        {
-            throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found when creating education selection.");
-        }
-
-        await repository.CreateEducationSelectionAsync(MapEducationSelectionRequestToDomain(request), cancellationToken);
-        await repository.SaveAsync(cancellationToken);
-    }
-
     public async Task CreateEducationSelectionsAsync(int generatedResumeId, IEnumerable<ResumeEducationSelectionRequest> requests, CancellationToken cancellationToken = default)
     {
         var generatedResumeExists = await repository.GeneratedResumeExistsAsync(generatedResumeId, cancellationToken);
@@ -239,19 +208,6 @@ internal sealed class GeneratedResumeManagementService(
     }
 
     // Project Selection Management
-    public async Task CreateProjectSelectionAsync(int generatedResumeId, ResumeProjectSelectionRequest request, CancellationToken cancellationToken = default)
-    {
-        var generatedResumeExists = await repository.GeneratedResumeExistsAsync(generatedResumeId, cancellationToken);
-
-        if (!generatedResumeExists)
-        {
-            throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found when creating project selection.");
-        }
-
-        await repository.CreateProjectSelectionAsync(MapProjectSelectionRequestToDomain(request), cancellationToken);
-        await repository.SaveAsync(cancellationToken);
-    }
-
     public async Task CreateProjectSelectionsAsync(int generatedResumeId, IEnumerable<ResumeProjectSelectionRequest> requests, CancellationToken cancellationToken = default)
     {
         var generatedResumeExists = await repository.GeneratedResumeExistsAsync(generatedResumeId, cancellationToken);
@@ -295,19 +251,6 @@ internal sealed class GeneratedResumeManagementService(
     }
 
     // Resume Bullets
-    public async Task CreateResumeBulletAsync(int resumeCompanyId, ResumeBulletRequest request, CancellationToken cancellationToken = default)
-    {
-        var companySelectionExists = await repository.CompanySelectionExistsAsync(resumeCompanyId, cancellationToken);
-
-        if(!companySelectionExists)
-        {
-            throw new NotFoundException($"Company selection with ID {resumeCompanyId} was not found when creating resume bullet.");
-        }
-
-        await repository.CreateResumeBulletAsync(MapResumeBulletRequestToDomain(request), cancellationToken);
-        await repository.SaveAsync(cancellationToken);
-    }
-
     public async Task CreateResumeBulletsAsycn(int resumeCompanyId, IEnumerable<ResumeBulletRequest> requests, CancellationToken cancellationToken = default)
     {
         var companySelectionExists = await repository.CompanySelectionExistsAsync(resumeCompanyId, cancellationToken);
@@ -349,15 +292,6 @@ internal sealed class GeneratedResumeManagementService(
 
 
     // Mapping Methods
-    private static GeneratedResume MapGeneratedResumeRequestToDomain(GeneratedResumeRequest request)
-    {
-        return new GeneratedResume(
-            request.AccountId,
-            request.Name,
-            request.JobApplicatonId
-            );
-    }
-
     private static GeneratedResumeListItemResponse MapGeneratedResumeDomainToListItemResponse(GeneratedResume generatedResume)
     {
         return new GeneratedResumeListItemResponse(
