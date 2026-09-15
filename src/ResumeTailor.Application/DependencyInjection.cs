@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using ResumeTailor.Application.Accounts;
+using ResumeTailor.Application.Accounts.Interfaces;
 using ResumeTailor.Application.Extraction;
 using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Common;
@@ -23,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<IResumeGeneratorService, ResumeGeneratorService>();
         services.AddScoped<IGeneratedResumeDataProvider, GeneratedResumeDataProvider>();
         services.AddScoped<IJobApplicationService, JobApplicationService>();
+        services.AddScoped<IAccountService, AccountService>();
 
         return services;
     }

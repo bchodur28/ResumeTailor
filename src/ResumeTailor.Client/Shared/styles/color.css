@@ -1,6 +1,6 @@
 :root {
-    --primary-color: hsl(217, 72%, 40%);
-    --primary-color-dark: hsl(217, 72%, 30%);
+    --primary-color: hsl(256, 55%, 54%);
+    --primary-color-dark: hsl(256, 50%, 39%);
 }
 .primary-color{
   color: var(--primary-color);

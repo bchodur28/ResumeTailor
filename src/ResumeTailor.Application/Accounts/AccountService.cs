@@ -17,9 +17,9 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
             : MapAccountDomainToResponse(account);
     }
 
-    public async Task<int> CreateAccountAsync(AccountRequest request, CancellationToken cancellationToken = default)
+    public async Task<int> CreateAccountAsync(string auth0UserId, AccountRequest request, CancellationToken cancellationToken = default)
     {
-        var account = MapAccountRequestToDomain(request);
+        var account = MapAccountRequestToDomain(request, auth0UserId);
         await accountRepository.CreateAccoutAsync(account, cancellationToken);
         await accountRepository.SaveAsync(cancellationToken);
 
@@ -129,10 +129,10 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
         );
     }
 
-    private static Account MapAccountRequestToDomain(AccountRequest request)
+    private static Account MapAccountRequestToDomain(AccountRequest request, string auth0UserId)
     {
         var account = new Account(
-            request.Auth0UserId,
+            auth0UserId,
             request.Email,
             request.DisplayName,
             request.City,

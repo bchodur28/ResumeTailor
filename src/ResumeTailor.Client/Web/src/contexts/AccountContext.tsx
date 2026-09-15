@@ -1,20 +1,17 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useState,
   useEffect,
   type PropsWithChildren,
 } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-
-type Account = {
-  id: number;
-  email: string;
-  displayName: string;
-};
+import { getAccount } from "../api/accounts";
+import type { AccountResponse } from "../models/api/AccountResponse";
 
 type AccountContextType = {
-  account: Account | null;
+  account: AccountResponse | null;
   isLoadingAccount: boolean;
   refreshAccount: () => Promise<void>;
 };
@@ -24,10 +21,10 @@ const AccountContext = createContext<AccountContextType | undefined>(undefined);
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
 
-  const [account, setAccount] = useState<Account | null>(null);
+  const [account, setAccount] = useState<AccountResponse | null>(null);
   const [isLoadingAccount, setIsLoadingAccount] = useState<boolean>(true);
 
-  const loadAccount = async () => {
+  const loadAccount = useCallback(async () => {
     if (!isAuthenticated) {
       setAccount(null);
       setIsLoadingAccount(false);
@@ -37,33 +34,21 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     setIsLoadingAccount(true);
 
     try {
-      const token = await getAccessTokenSilently();
-
-      const response = await fetch("/api/accounts/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const token = await getAccessTokenSilently({
+        authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
       });
 
-      if (response.status == 404) {
-        setAccount(null);
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to load account.");
-      }
-
-      const account = await response.json();
+      const account = await getAccount(token);
+      console.log("Loaded account:", account);
       setAccount(account);
     } finally {
       setIsLoadingAccount(false);
     }
-  };
+  }, [isAuthenticated, getAccessTokenSilently]);
 
   useEffect(() => {
     loadAccount();
-  }, [isAuthenticated]);
+  }, [loadAccount]);
 
   return (
     <AccountContext.Provider

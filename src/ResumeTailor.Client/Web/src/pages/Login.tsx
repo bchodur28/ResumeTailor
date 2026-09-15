@@ -2,7 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { Navigate } from "react-router-dom";
 
 const Login = () => {
-  const { isLoading, isAuthenticated, loginWithRedirect } = useAuth0();
+  const { isLoading, isAuthenticated, loginWithRedirect, error } = useAuth0();
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -17,7 +17,19 @@ const Login = () => {
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold">ResumeTailor</h1>
 
-        <button className="btn" onClick={() => loginWithRedirect()}>
+        {error && <p className="text-red-500">Error: {error.message}</p>}
+
+        <button
+          type="button"
+          className="btn"
+          onClick={() =>
+            loginWithRedirect({
+              authorizationParams: {
+                prompt: "login",
+              },
+            })
+          }
+        >
           Login
         </button>
 
@@ -33,6 +45,9 @@ const Login = () => {
         >
           Sign Up
         </button>
+        <p className="text-sm text-gray-500">
+          {import.meta.env.VITE_AUTH0_AUDIENCE}
+        </p>
       </div>
     </div>
   );

@@ -1,17 +1,21 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResumeTailor.Application.Accounts.Interfaces;
 using ResumeTailor.Application.Accounts.Models;
+using System.Security.Claims;
 
 namespace ResumeTailor.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/accounts")]
     public class AccountController(IAccountService accountService) : ControllerBase
     {
+        [Authorize]
         [HttpGet("me")]
         public async Task<ActionResult<AccountResponse>> GetCurrentAccountAsync(CancellationToken cancellationToken = default)
         {
-            var auth0UserId = User.FindFirst("sub")?.Value;
+            var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (auth0UserId is null)
             {
@@ -30,18 +34,25 @@ namespace ResumeTailor.Api.Controllers
             return Ok(account);
         }
 
-        [HttpGet("{auth0UserId:string}", Name = "GetAccountByAuth0UserId")]
+        [HttpGet("{auth0UserId}", Name = "GetAccountByAuth0UserId")]
         public async Task<ActionResult<AccountResponse?>> GetAccountByAuth0UserIdAsync(string auth0UserId, CancellationToken cancellationToken = default)
         {
             var account = await accountService.GetAccountByAuth0UserIdAsync(auth0UserId, cancellationToken);
             return Ok(account);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> CreateAccountAsync([FromBody] AccountRequest request, CancellationToken cancellationToken = default)
         {
-            var id = await accountService.CreateAccountAsync(request, cancellationToken);
-            return CreatedAtRoute("GetAccountByAuth0UserId", new { auth0UserId = request.Auth0UserId }, id);
+            var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrWhiteSpace(auth0UserId))
+            {
+                return Unauthorized();
+            }
+
+            var id = await accountService.CreateAccountAsync(auth0UserId, request, cancellationToken);
+            return CreatedAtRoute("GetAccountByAuth0UserId", new { auth0UserId }, id);
         }
 
         [HttpPost("{accountId:int}/personal-links")]
