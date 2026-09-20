@@ -1,10 +1,22 @@
 .nav-btn{
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   padding: 6px 10px;
-  background-color: var(--primary-color);
-  color: white;
+  /* background-color: var(--primary-color); */
+  color: var(--primary-color);
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s;
+  border: solid 1px white;
+  height: 100%;
+  /* border: solid 1px hsl(256, 55%, 80%); */
+}
+
+.nav-btn:hover{
+  /* background-color: var(--primary-color-dark); */
+  border: solid 1px var(--primary-color-light);
+  background-color: hsl(0, 0%, 95%);
 }
 
 .btn{
@@ -27,9 +39,7 @@
   cursor: not-allowed;
 }
 
-.nav-btn:hover{
-  background-color: var(--primary-color-dark);;
-}
+
 
 .btn-secondary {
   padding: 8px 10px;
@@ -46,9 +56,66 @@
   box-shadow: 0px 1px 2px 0px hsl(0, 0%, 80%);
 }
 
+.remove-btn {
+  padding: 8px 10px;
+  background-color: hsl(0, 61%, 54%);
+  color: hsl(0, 0%, 95%);
+  border: 2px solid hsl(0, 71%, 74%);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+
+  -webkit-box-shadow: 0px 1px 2px 0px hsl(0, 0%, 80%);
+  box-shadow: 0px 1px 2px 0px hsl(0, 0%, 80%);
+}
+
+.confirm-btn {
+  padding: 8px 10px;
+  background-color: hsl(226, 67%, 48%);
+  color: hsl(0, 0%, 95%);
+  border: 2px solid hsl(226, 77%, 68%);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+
+  -webkit-box-shadow: 0px 1px 2px 0px hsl(0, 0%, 80%);
+  box-shadow: 0px 1px 2px 0px hsl(0, 0%, 80%);
+}
+
+.confirm-btn:hover {
+  background-color: hsl(226, 67%, 33%);
+  border-color: hsl(226, 77%, 68%);
+}
+
+.remove-btn:hover {
+  background-color: hsl(0, 61%, 39%);
+  border-color: hsl(0, 80%, 80%);
+}
+
 .btn-secondary:hover {
   background-color: hsl(0, 0%, 96%);
   border-color: hsl(0, 0%, 60%);
+}
+
+.profile-btn{
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  padding: 6px 10px;
+  background-color: hsl(0, 0%, 95%);
+  color: hsl(0, 0%, 20%);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: 1px solid var(--gray-300);
+}
+
+.profile-btn:hover{
+  background-color: hsl(0, 0%, 85%);
 }
 
 .box-shadow{

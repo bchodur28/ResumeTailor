@@ -1,14 +1,18 @@
-using ResumeTailor.Application.Accounts.Interfaces;
-using ResumeTailor.Application.Accounts.Models;
 using ResumeTailor.Application.GeneratedResumes.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Generation.Models;
-using ResumeTailor.Domain.Accounts;
+using ResumeTailor.Application.Profile.Accounts.Interfaces;
+using ResumeTailor.Application.Profile.Accounts.Models;
+using ResumeTailor.Application.Profile.Education.Interfaces;
+using ResumeTailor.Application.Profile.Education.Models;
+using ResumeTailor.Application.Profile.Experience.Interfaces;
+using ResumeTailor.Domain.Profile;
 
 namespace ResumeTailor.Application.GeneratedResumes.Generation;
 
 public class ResumeGeneratorService(
     IAccountRepository accountRepository,
+    IEducationRepository educationRepository,
     IExperienceRepository experienceRepository,
     IResumeAiGenerator aiGenerator) : IResumeGeneratorService
 {
@@ -21,7 +25,7 @@ public class ResumeGeneratorService(
 
         var companiesToAlwaysInclude = companies.Where(c => !c.GenerateBullets).ToList();
 
-        var education = await experienceRepository.GetEducationByAccountIdAsync(accountId, cancellationToken);
+        var education = await educationRepository.GetEducationByAccountIdAsync(accountId, cancellationToken);
 
         var projects = await experienceRepository.GetProjectsByAccountIdAsync(accountId, cancellationToken);
 
@@ -83,13 +87,14 @@ public class ResumeGeneratorService(
                 Companies: allCompanies,
                 Education: education
                     .Where(e => e.UseForResume)
-                    .Select(e => new ResumeEducationResponse(
+                    .Select(e => new EducationResponse(
                         Id: e.Id,
                         SchoolName: e.SchoolName,
                         Degree: e.Degree,
                         Major: e.Major,
                         Started: e.Started,
-                        Ended: e.Ended
+                        Ended: e.Ended,
+                        UseForResume: e.UseForResume
                     ))
                     .ToList(),
                 Projects: projects

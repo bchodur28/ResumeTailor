@@ -1,10 +1,14 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 using ResumeTailor.Api.ErrorHandling;
+using ResumeTailor.Api.OpenApi;
 using ResumeTailor.Application;
 using ResumeTailor.Infrastructure;
 using Scalar.AspNetCore;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,7 +57,9 @@ builder.Services
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
     });
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options => {
+    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+});
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

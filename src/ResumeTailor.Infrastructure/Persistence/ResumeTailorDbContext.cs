@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ResumeTailor.Domain.Accounts;
+using ResumeTailor.Domain.Profile;
 using ResumeTailor.Domain.Extraction;
 using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.GeneratedResumes.Content;
@@ -23,11 +23,11 @@ public sealed class ResumeTailorDbContext(DbContextOptions<ResumeTailorDbContext
 
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Company> AccountCompanies => Set<Company>();
-    public DbSet<Bullet> AccountBullets => Set<Bullet>();
+    public DbSet<Bullet> Bullets => Set<Bullet>();
     public DbSet<Project> AccountProjects => Set<Project>();
     public DbSet<Title> AccountTitles => Set<Title>();
     public DbSet<PersonalLink> AccountPersonalLinks => Set<PersonalLink>();
-    public DbSet<Education> AccountEducations => Set<Education>();
+    public DbSet<Education> Education => Set<Education>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

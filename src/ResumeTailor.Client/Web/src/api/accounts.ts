@@ -26,7 +26,7 @@ export const getAccount = async (
       Authorization: `Bearer ${token}`,
     },
   });
-
+  console.log("TOKEN", token);
   if (response.status === 404) {
     return null;
   }
@@ -36,4 +36,22 @@ export const getAccount = async (
   }
 
   return await response.json();
+};
+
+export const updateAccountAsync = async (
+  request: AccountRequest,
+  token: string,
+) => {
+  const response = await fetch("https://localhost:7139/api/accounts/me", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update account");
+  }
 };

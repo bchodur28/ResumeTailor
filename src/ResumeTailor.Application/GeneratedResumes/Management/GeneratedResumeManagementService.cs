@@ -1,10 +1,11 @@
-using ResumeTailor.Application.Accounts.Models;
 using ResumeTailor.Application.Common.Exceptions;
 using ResumeTailor.Application.GeneratedResumes.Common.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Generation.Models;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management.Models;
+using ResumeTailor.Application.Profile.Accounts.Models;
+using ResumeTailor.Application.Profile.Education.Models;
 using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.GeneratedResumes.AI;
 
@@ -295,13 +296,14 @@ internal sealed class GeneratedResumeManagementService(
         var selectedEducations = data.Educations
             .Select(education =>
             {
-                return new ResumeEducationResponse(
+                return new EducationResponse(
                     education.Id,
                     education.SchoolName,
                     education.Degree,
                     education.Major,
                     education.Started,
-                    education.Ended);
+                    education.Ended,
+                    education.UseForResume);
             })
             .ToList();
 

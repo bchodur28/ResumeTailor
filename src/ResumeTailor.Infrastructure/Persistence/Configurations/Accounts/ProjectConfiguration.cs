@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ResumeTailor.Domain.Accounts;
+using ResumeTailor.Domain.Profile;
 using System;
 using System.Collections.Generic;
 using System.Text;

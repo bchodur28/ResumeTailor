@@ -1,7 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ResumeTailor.Domain.Accounts;
+using ResumeTailor.Domain.Profile;
 
 namespace ResumeTailor.Infrastructure.Persistence.Configurations.Accounts;
 

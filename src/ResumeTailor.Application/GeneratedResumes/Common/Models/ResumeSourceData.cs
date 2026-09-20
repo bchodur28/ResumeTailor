@@ -1,4 +1,4 @@
-using ResumeTailor.Domain.Accounts;
+using ResumeTailor.Domain.Profile;
 using ResumeTailor.Domain.GeneratedResumes;
 
 namespace ResumeTailor.Application.GeneratedResumes.Common.Models;

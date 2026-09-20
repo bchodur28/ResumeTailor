@@ -6,8 +6,8 @@ import {
   Controller,
   type FieldErrors,
 } from "react-hook-form";
-import type { AccountSetupForm } from "../models/forms/AccountSetupForm";
 import type { AccountRequest } from "../models/api/AccountRequest";
+import type { AccountSetupForm } from "../models/forms/AccountSetupForm";
 import Card from "../components/ui/Card";
 import Input from "../components/forms/Input";
 import SearchableSelect from "../components/forms/SearchableSelect";

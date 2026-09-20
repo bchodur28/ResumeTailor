@@ -1,6 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using ResumeTailor.Application.Accounts;
-using ResumeTailor.Application.Accounts.Interfaces;
 using ResumeTailor.Application.Extraction;
 using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Common;
@@ -11,6 +9,12 @@ using ResumeTailor.Application.GeneratedResumes.Management;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Application.JobApplications;
 using ResumeTailor.Application.JobApplications.Interfaces;
+using ResumeTailor.Application.Profile.Accounts;
+using ResumeTailor.Application.Profile.Accounts.Interfaces;
+using ResumeTailor.Application.Profile.Education;
+using ResumeTailor.Application.Profile.Education.Interfaces;
+using ResumeTailor.Application.Profile.Experience;
+using ResumeTailor.Application.Profile.Experience.Interfaces;
 
 namespace ResumeTailor.Application;
 
@@ -26,6 +30,8 @@ public static class DependencyInjection
         services.AddScoped<IGeneratedResumeDataProvider, GeneratedResumeDataProvider>();
         services.AddScoped<IJobApplicationService, JobApplicationService>();
         services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IEducationService, EducationService>();
+        services.AddScoped<IExperenceService, ExperienceService>();
 
         return services;
     }

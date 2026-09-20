@@ -9,6 +9,7 @@ import RootLayout from "./layouts/RootLayout";
 import Generate from "./pages/Generate";
 import Manage from "./pages/Manage";
 import Track from "./pages/Track";
+import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import Login from "./pages/Login";
 import AccountRequiredRoute from "./components/routes/AccountRequiredRoute";
@@ -25,6 +26,7 @@ const router = createBrowserRouter(
             <Route index element={<Generate />} />
             <Route path="manage" element={<Manage />} />
             <Route path="track" element={<Track />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Route>
       </Route>

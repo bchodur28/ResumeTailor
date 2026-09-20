@@ -1,14 +1,17 @@
-using ResumeTailor.Application.Accounts.Interfaces;
 using ResumeTailor.Application.Common.Exceptions;
 using ResumeTailor.Application.GeneratedResumes.Common.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
+using ResumeTailor.Application.Profile.Accounts.Interfaces;
+using ResumeTailor.Application.Profile.Education.Interfaces;
+using ResumeTailor.Application.Profile.Experience.Interfaces;
 
 namespace ResumeTailor.Application.GeneratedResumes.Common
 {
     public sealed class GeneratedResumeDataProvider(
         IGeneratedResumeRepository generatedResumeRepository,
         IAccountRepository accountRepository,
+        IEducationRepository educationRepository,
         IExperienceRepository experienceRepository) : IGeneratedResumeDataProvider
     {
         public async Task<ResumeSourceData> GetAsync(
@@ -47,7 +50,7 @@ namespace ResumeTailor.Application.GeneratedResumes.Common
                     cancellationToken);
 
             var educations =
-                await experienceRepository.GetEducationByIdsAsync(
+                await educationRepository.GetEducationByIdsAsync(
                     educationIds,
                     cancellationToken);
 
