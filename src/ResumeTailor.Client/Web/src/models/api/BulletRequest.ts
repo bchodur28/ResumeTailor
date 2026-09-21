@@ -1,6 +1,6 @@
 export type BulletRequest = {
   id: number | null;
-  companyId: string;
+  companyId: number;
   Value: string;
   AiScore?: number | null;
 };

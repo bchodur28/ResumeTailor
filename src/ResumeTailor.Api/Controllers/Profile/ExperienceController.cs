@@ -117,8 +117,8 @@ public class ExperienceController(IExperenceService service) : ControllerBase
         {
             return Unauthorized();
         }
-        var companiesWithBullets = await service.GetCompanyBulletsAsync(auth0UserId, cancellationToken);
-        return Ok(companiesWithBullets);
+        var companyBullets = await service.GetCompanyBulletsAsync(auth0UserId, cancellationToken);
+        return Ok(companyBullets);
     }
 
     [HttpPost("me/bullets")]
