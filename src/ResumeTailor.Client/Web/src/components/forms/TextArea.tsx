@@ -8,6 +8,7 @@ type TextAreaProps = {
   placeholder?: string;
   onFocus?: () => void;
   onBlur?: () => void;
+  rows?: number;
 };
 
 const TextArea = ({
@@ -18,6 +19,7 @@ const TextArea = ({
   placeholder,
   onFocus,
   onBlur,
+  rows,
 }: TextAreaProps) => {
   return (
     <div className="flex flex-col flex-1">
@@ -39,6 +41,7 @@ const TextArea = ({
           registration?.onBlur?.(e);
           onBlur?.();
         }}
+        rows={rows ?? 4}
       />
     </div>
   );

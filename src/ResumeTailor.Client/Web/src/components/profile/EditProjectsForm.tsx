@@ -14,6 +14,7 @@ import {
 import Input from "../forms/Input";
 import Checkbox from "../forms/Checkbox";
 import Message from "../ui/Message";
+import TextArea from "../forms/TextArea";
 
 const EditProjectsForm = () => {
   const { getAccessTokenSilently } = useAuth0();
@@ -44,29 +45,45 @@ const EditProjectsForm = () => {
   const saveProjectsMutation = useMutation({
     mutationFn: async (data: ProjectForm) => {
       const token = await getAccessTokenSilently({
-        authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
+        authorizationParams: {
+          audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        },
       });
+
       const normalizedData = data.projects.map((project) => ({
         ...project,
         ended: project.ended === "" ? null : project.ended,
         techStack: project.techStack === "" ? null : project.techStack,
         link: project.link === "" ? null : project.link,
       }));
+
       const existingProjects = projects ?? [];
+
       const toCreate: ProjectRequest[] = normalizedData.filter(
         (project) => project.id == null,
       );
+
       const toUpdate: ProjectRequest[] = normalizedData.filter(
         (project) => project.id != null,
       );
+
       const submittedIds = new Set(toUpdate.map((project) => project.id!));
+
       const toDelete = existingProjects
         .filter((project) => !submittedIds.has(project.id))
         .map((project) => project.id);
+
       const requests: Promise<void>[] = [];
-      if (toCreate.length > 0) requests.push(createProjects(toCreate, token));
-      if (toUpdate.length > 0) requests.push(updateProjects(toUpdate, token));
-      if (toDelete.length > 0) requests.push(deleteProjects(toDelete, token));
+
+      if (toCreate.length > 0) {
+        requests.push(createProjects(toCreate, token));
+      }
+      if (toUpdate.length > 0) {
+        requests.push(updateProjects(toUpdate, token));
+      }
+      if (toDelete.length > 0) {
+        requests.push(deleteProjects(toDelete, token));
+      }
       await Promise.all(requests);
     },
     onSuccess: () => {
@@ -126,14 +143,13 @@ const EditProjectsForm = () => {
             })}
             error={errors.projects?.[index]?.name?.message}
           />
-          <Input
+          <TextArea
             id={`projects[${index}].description`}
             label="Description"
             registration={register(`projects.${index}.description`, {
               required: "This field is required.",
             })}
             error={errors.projects?.[index]?.description?.message}
-            type="text"
           />
           <Input
             id={`projects[${index}].started`}
@@ -150,10 +166,11 @@ const EditProjectsForm = () => {
             type="date"
             registration={register(`projects.${index}.ended`)}
           />
-          <Input
+          <TextArea
             id={`projects[${index}].techStack`}
             label="Tech Stack"
             registration={register(`projects.${index}.techStack`)}
+            rows={2}
           />
           <Input
             id={`projects[${index}].link`}

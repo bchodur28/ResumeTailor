@@ -88,11 +88,7 @@ const EditEducationForm = () => {
         (item) => item.id != null,
       );
 
-      const submittedIds = new Set(
-        normalizedData
-          .filter((item) => item.id != null)
-          .map((item) => item.id!),
-      );
+      const submittedIds = new Set(normalizedData.map((item) => item.id!));
 
       const educationIdsToDelete = existingEducation
         .filter((item) => !submittedIds.has(item.id))

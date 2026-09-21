@@ -25,15 +25,6 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<Company>> GetCompaniesWithBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
-    {
-        return await dbContext.AccountCompanies
-            .AsNoTracking()
-            .Where(c => c.AccountId == accountId)
-            .Include(c => c.Bullets)
-            .ToListAsync(cancellationToken);
-    }
-
     public async Task<IReadOnlyCollection<Company>> GetCompaniesForUpdatingByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
         return await dbContext.AccountCompanies
@@ -96,6 +87,15 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
     }
 
     // Bullet
+    public async Task<IReadOnlyCollection<CompanyBullets>> GetCompanyBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.AccountCompanies
+            .AsNoTracking()
+            .Where(c => c.AccountId == accountId)
+            .Select(c => new CompanyBullets(c.Id, c.Name, c.Bullets.ToList()))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyCollection<Bullet>> GetBulletsForUpdatingByCompanyIdsAsync(int accountId, HashSet<int> companyIds, HashSet<int> bulletIds, CancellationToken cancellationToken = default)
     {
         return await dbContext.Bullets

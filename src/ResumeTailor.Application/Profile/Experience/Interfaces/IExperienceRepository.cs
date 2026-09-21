@@ -7,7 +7,7 @@ public interface IExperienceRepository
 {
     Task<IReadOnlyCollection<Company>> GetCompaniesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<CompanyWithBulletCount>> GetCompaniesWithCountByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyCollection<Company>> GetCompaniesWithBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
+    
     Task<IReadOnlyCollection<Company>> GetCompaniesForUpdatingByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<Company>> GetCompaniesByIdsAsync(HashSet<int> ids, CancellationToken cancellationToken = default);
     void AddCompanies(IEnumerable<Company> companies);
@@ -19,6 +19,7 @@ public interface IExperienceRepository
     void AddProjects(IEnumerable<Project> projects);
     void RemoveProjects(IEnumerable<Project> projects);
 
+    Task<IReadOnlyCollection<CompanyBullets>> GetCompanyBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<Bullet>> GetBulletsForUpdatingByCompanyIdsAsync(int accountId, HashSet<int> companyIds, HashSet<int> bulletIds, CancellationToken cancellationToken = default);
     void AddBullets(IEnumerable<Bullet> bullets);
     void RemoveBullets(IEnumerable<Bullet> bullets);

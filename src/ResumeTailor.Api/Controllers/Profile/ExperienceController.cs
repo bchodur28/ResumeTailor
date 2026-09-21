@@ -23,18 +23,6 @@ public class ExperienceController(IExperenceService service) : ControllerBase
         return Ok(companiesWithBullets);
     }
 
-    [HttpGet("me/companies/with-bullets")]
-    public async Task<ActionResult<IReadOnlyCollection<CompanyWithBulletsResponse>>> GetCompaniesWithBulletsAsync(CancellationToken cancellationToken)
-    {
-        var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (auth0UserId is null)
-        {
-            return Unauthorized();
-        }
-        var companiesWithBullets = await service.GetCompaniesWithBulletsAsync(auth0UserId, cancellationToken);
-        return Ok(companiesWithBullets);
-    }
-
     [HttpPost("me/companies")]
     public async Task<ActionResult> CreateCompaniesAsync([FromBody] IReadOnlyCollection<CompanyRequest> requests, CancellationToken cancellationToken)
     {
@@ -119,6 +107,18 @@ public class ExperienceController(IExperenceService service) : ControllerBase
         }
         await service.DeleteProjectsAsync(auth0UserId, projectIds, cancellationToken);
         return NoContent();
+    }
+
+    [HttpGet("me/bullets")]
+    public async Task<ActionResult<IReadOnlyCollection<CompanyBulletsResponse>>> GetCompanyBulletsAsync(CancellationToken cancellationToken)
+    {
+        var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (auth0UserId is null)
+        {
+            return Unauthorized();
+        }
+        var companiesWithBullets = await service.GetCompanyBulletsAsync(auth0UserId, cancellationToken);
+        return Ok(companiesWithBullets);
     }
 
     [HttpPost("me/bullets")]
