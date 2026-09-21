@@ -170,6 +170,16 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
     }
 
     // Bullets
+    public async Task<IReadOnlyCollection<CompanyBulletsResponse>> GetCompanyBulletsAsync(string Auth0UserId, CancellationToken cancellationToken = default)
+    {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+            ?? throw new NotFoundException($"Account was not found when fetching companies.");
+
+        var companies = await experienceRepository.GetCompanyBulletsByAccountIdAsync(accountId, cancellationToken);
+
+        return companies.Select(MapCompanyBulletToResponse).ToList();
+    }
+
     public async Task CreateBulletsAsync(string Auth0UserId, IReadOnlyCollection<BulletRequest> requests, CancellationToken cancellationToken = default)
     {
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
@@ -262,6 +272,15 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
             BulletCount: company.Bullets.Count
         ),
         Bullets: company.Bullets
+            .Select(b => new BulletReponse(Id: b.Id, CompanyId: b.CompanyId, Value: b.Value, AiScore: b.AiScore))
+            .ToList()
+    );
+
+    private static CompanyBulletsResponse MapCompanyBulletToResponse(CompanyBullets companyBullet) => new CompanyBulletsResponse
+    (
+        CompanyId: companyBullet.CompanyId,
+        CompanyName: companyBullet.CompanyName,
+        Bullets: companyBullet.Bullets
             .Select(b => new BulletReponse(Id: b.Id, CompanyId: b.CompanyId, Value: b.Value, AiScore: b.AiScore))
             .ToList()
     );

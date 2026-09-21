@@ -19,6 +19,7 @@ public interface IExperienceRepository
     void AddProjects(IEnumerable<Project> projects);
     void RemoveProjects(IEnumerable<Project> projects);
 
+    Task<IReadOnlyCollection<CompanyBullets>> GetCompanyBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<Bullet>> GetBulletsForUpdatingByCompanyIdsAsync(int accountId, HashSet<int> companyIds, HashSet<int> bulletIds, CancellationToken cancellationToken = default);
     void AddBullets(IEnumerable<Bullet> bullets);
     void RemoveBullets(IEnumerable<Bullet> bullets);

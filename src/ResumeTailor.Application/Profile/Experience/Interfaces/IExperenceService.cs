@@ -15,6 +15,7 @@ public interface IExperenceService
     Task UpdateProjectsAsync(string Auth0UserId, IReadOnlyCollection<ProjectRequest> requests, CancellationToken cancellationToken = default);
     Task DeleteProjectsAsync(string Auth0UserId, IReadOnlyCollection<int> projectIds, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyCollection<CompanyBulletsResponse>> GetCompanyBulletsAsync(string Auth0UserId, CancellationToken cancellationToken = default);
     Task CreateBulletsAsync(string Auth0UserId, IReadOnlyCollection<BulletRequest> requests, CancellationToken cancellationToken = default);
     Task UpdateBulletsAsync(string Auth0UserId, IReadOnlyCollection<BulletRequest> requests, CancellationToken cancellationToken = default);
     Task DeleteBulletsAsync(string Auth0UserId, IReadOnlyCollection<BulletDeleteRequest> requests, CancellationToken cancellationToken = default);

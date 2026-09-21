@@ -121,6 +121,18 @@ public class ExperienceController(IExperenceService service) : ControllerBase
         return NoContent();
     }
 
+    [HttpGet("me/bullets")]
+    public async Task<ActionResult<IReadOnlyCollection<CompanyBulletsResponse>>> GetCompanyBulletsAsync(CancellationToken cancellationToken)
+    {
+        var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (auth0UserId is null)
+        {
+            return Unauthorized();
+        }
+        var companyBullets = await service.GetCompanyBulletsAsync(auth0UserId, cancellationToken);
+        return Ok(companyBullets);
+    }
+
     [HttpPost("me/bullets")]
     public async Task<ActionResult> CreateBulletsAsync([FromBody] IReadOnlyCollection<BulletRequest> requests, CancellationToken cancellationToken)
     {
