@@ -13,7 +13,8 @@ namespace ResumeTailor.Infrastructure.AI;
 
 public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenAIOptions> options) : IResumeAiGenerator
 {
-
+    private const decimal InputCostPerMillionTokens = 2.00m;
+    private const decimal OutputCostPerMillionTokens = 12.00m;
     public async Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiGenerationContext context, CancellationToken cancellationToken = default)
     {
         var prompt = BuildPrompt(context);
@@ -29,6 +30,11 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
                     {
                       "type": "object",
                       "properties": {
+                        "score": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 100
+                        },
                         "summary": {
                           "type": "string"
                         },
@@ -83,6 +89,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
                         }
                       },
                       "required": [
+                        "score",
                         "summary",
                         "companies",
                         "strengths",
@@ -122,21 +129,31 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
         var usage = CreateAiUsage(response);
 
         return new ResumeAiGenerationResult(
+            aiResponse.Score,
             aiResponse.Summary,
             companies,
             strengths,
             weaknesses,
             usage);
     }
-    
+
 
     private static AiUsage CreateAiUsage(ClientResult<ResponseResult> response)
     {
+        var inputTokens = response.Value.Usage.InputTokenCount;
+        var outputTokens = response.Value.Usage.OutputTokenCount;
+        var totalTokens = response.Value.Usage.TotalTokenCount;
+
+        var estimatedCost = CalculateEstimatedCost(
+            inputTokens,
+            outputTokens);
+
         return new AiUsage(
-            InputTokens: response.Value.Usage.InputTokenCount,
-            OutputTokens: response.Value.Usage.OutputTokenCount,
-            TotalTokens: response.Value.Usage.TotalTokenCount
-            );
+            InputTokens: inputTokens,
+            OutputTokens: outputTokens,
+            TotalTokens: totalTokens,
+            EstimatedCost: estimatedCost
+        );
     }
 
     private static IReadOnlyList<ResumeCompanyResult> ValidateAndMapCompanies(
@@ -150,18 +167,14 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
         foreach (var context in contexts)
         {
             var companyResult = companyResults.FirstOrDefault(
-                result => string.Equals(
-                    result.Company,
-                    context.Name,
-                    StringComparison.OrdinalIgnoreCase));
+                result => string.Equals(result.Company, context.Name, StringComparison.OrdinalIgnoreCase));
 
             var bullets = new List<ResumeBulletResult>();
 
             if (companyResult is not null)
             {
                 var validBullets = companyResult.Bullets
-                    .Where(result =>
-                        context.Bullets.Contains(result.Value))
+                    .Where(result => context.Bullets.Contains(result.Value))
                     .Take(context.MaxBullets);
 
                 foreach (var bullet in validBullets)
@@ -231,11 +244,16 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
 
             SUMMARY:
 
-            - Write a professional resume summary tailored to the job description.
-            - Keep the summary between 150 and 200 words.
-            - Base it entirely on the supplied experience.
-            - Do not invent skills or experience.
-            - Emphasize the candidate's strongest qualifications for this role.
+            - Summarize the job description itself, not the candidate.
+            - Identify the role's primary responsibilities, technical focus, and recurring themes.
+            - Give extra weight to requirements or responsibilities that are mentioned repeatedly or emphasized in multiple parts of the job description.
+            - Highlight the technologies, engineering practices, and soft skills that appear most important to the employer.
+            - If a concept appears multiple times, such as testing, scalability, collaboration, ownership, security, or cloud development, reflect that importance in the summary.
+            - Do not describe the candidate's background, accomplishments, years of experience, or qualifications.
+            - Do not compare the candidate to the job.
+            - Do not include resume metrics or examples from the candidate's experience.
+            - Base the summary entirely on the job description.
+            - Keep the summary between 100 and 150 words.
 
             STRENGTHS:
 
@@ -251,19 +269,45 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
             - Do not assume missing experience exists.
             - Do not exaggerate gaps when closely related experience is present.
             - Rank weaknesses from most significant to least significant.
+
+            RESUME MATCH SCORE:
+
+            - Assign a score from 0 to 100 representing how strongly the supplied resume experience matches the job description.
+            - Score only demonstrated experience. Do not assume skills or experience that are not supplied.
+            - Give the most weight to requirements, responsibilities, technologies, and engineering practices that are emphasized or repeated in the job description.
+            - Consider both the importance of a requirement and the strength of the candidate's evidence for it.
+            - Closely related experience may receive partial credit when it demonstrates transferable knowledge.
+            - Do not heavily penalize minor or optional requirements.
+            - - The score should be consistent with the identified strengths and weaknesses.
             """;
     }
 
     private sealed record AiResumeResponse(
+        int Score,
         string Summary,
         IReadOnlyList<AiCompanyResult> Companies,
         IReadOnlyList<string> Strengths,
         IReadOnlyList<string> Weaknesses);
 
-    private sealed record AiCompanyResult(string Company, IReadOnlyList<AiBulletResult> Bullets);
+    private sealed record AiCompanyResult(int companyId, string Company, IReadOnlyList<AiBulletResult> Bullets);
 
     private sealed record AiBulletResult(string Value, string? Alternative);
+
+    private static decimal CalculateEstimatedCost(
+        int inputTokens,
+        int outputTokens)
+    {
+        var inputCost =
+            inputTokens / 1_000_000m * InputCostPerMillionTokens;
+
+        var outputCost =
+            outputTokens / 1_000_000m * OutputCostPerMillionTokens;
+
+        return inputCost + outputCost;
+    }
 }
+
+
 
 #pragma warning restore OPENAI001
 

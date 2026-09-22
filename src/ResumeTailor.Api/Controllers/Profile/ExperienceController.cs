@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ResumeTailor.Application.Contracts.Bullets;
+using ResumeTailor.Application.Contracts.Companies;
+using ResumeTailor.Application.Contracts.Projects;
 using ResumeTailor.Application.Profile.Experience.Interfaces;
 using ResumeTailor.Application.Profile.Experience.Models;
 using System.Security.Claims;

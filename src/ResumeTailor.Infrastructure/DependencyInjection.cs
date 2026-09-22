@@ -64,7 +64,7 @@ public static class DependencyInjection
         services.AddScoped<ISiteExtractionDefinitionRepository, SiteExtractionDefinitionRepository>();
         services.AddScoped<IFieldExtractionDefinitionRepository, FieldExtractionDefinitionRepository>();
         services.AddScoped<IFieldPatternRepository, FieldPatternRepository>();
-        services.AddScoped<IGeneratedResumeRepository, GeneratedResumeRepository>();
+        services.AddScoped<IResumeRepository, ResumeRepository>();
         services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
         services.AddScoped<IExperienceRepository, ExperienceRepository>();
         services.AddScoped<IAccountRepository, AccountRepository>();

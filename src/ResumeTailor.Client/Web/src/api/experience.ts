@@ -1,10 +1,10 @@
-import type { CompanyRequest } from "../models/api/CompanyRequest.ts";
-import type { CompanyResponse } from "../models/api/CompanyResponse.ts";
-import type { CompanyBulletsResponse } from "../models/api/CompanyBulletsResponse.ts";
-import type { ProjectRequest } from "../models/api/ProjectRequest.ts";
-import type { ProjectResponse } from "../models/api/ProjectResponse.ts";
-import type { BulletRequest } from "../models/api/BulletRequest.ts";
-import type { BulletDeleteRequest } from "../models/api/BulletDeleteRequest.ts";
+import type { CompanyRequest } from "../models/profile/CompanyRequest.ts";
+import type { CompanyResponse } from "../models/profile/CompanyResponse.ts";
+import type { CompanyBulletsResponse } from "../models/profile/CompanyBulletsResponse.ts";
+import type { ProjectRequest } from "../models/profile/ProjectRequest.ts";
+import type { ProjectResponse } from "../models/profile/ProjectResponse.ts";
+import type { BulletRequest } from "../models/profile/BulletRequest.ts";
+import type { BulletDeleteRequest } from "../models/profile/BulletDeleteRequest.ts";
 
 const companyUrl = "https://localhost:7139/api/experience/me/companies";
 const projectUrl = "https://localhost:7139/api/experience/me/projects";
@@ -153,7 +153,6 @@ export const deleteProjects = async (
 };
 
 // Bullets API functions
-
 export const getCompanyBullets = async (
   token: string,
 ): Promise<CompanyBulletsResponse[]> => {

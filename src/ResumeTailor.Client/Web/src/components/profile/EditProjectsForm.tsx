@@ -4,7 +4,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { Trash3 } from "react-bootstrap-icons";
 import type { ProjectForm } from "../../models/forms/ProjectForm";
-import type { ProjectRequest } from "../../models/api/ProjectRequest";
+import type { ProjectRequest } from "../../models/profile/ProjectRequest";
 import { useProjects } from "../../hooks/useProjects";
 import {
   createProjects,

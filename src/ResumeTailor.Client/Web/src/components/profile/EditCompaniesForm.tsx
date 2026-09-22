@@ -4,7 +4,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { Trash3 } from "react-bootstrap-icons";
 import type { CompanyForm } from "../../models/forms/CompanyForm";
-import type { CompanyRequest } from "../../models/api/CompanyRequest";
+import type { CompanyRequest } from "../../models/profile/CompanyRequest";
 import { useCompanies } from "../../hooks/useCompanies";
 import {
   createCompanies,
@@ -28,8 +28,11 @@ const EditCompaniesForm = () => {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<CompanyForm>({ defaultValues: { companies: companies ?? [] } });
+
+  const formCompanies = watch("companies");
 
   const {
     fields: companyFields,
@@ -112,82 +115,97 @@ const EditCompaniesForm = () => {
           onClose={() => setIsSavedSuccessfully(null)}
         />
       )}
-      {companyFields.map((field, index) => (
-        <div
-          key={field.id}
-          className="flex flex-col gap-4 border border-gray-300 p-4 rounded-md"
-        >
-          <div className="flex justify-between items-center">
-            <h4 className="text-lg font-semibold">
-              Company {companyFields.length > 1 ? index + 1 : ""}
-            </h4>
-            <button
-              type="button"
-              className="remove-btn"
-              onClick={() => removeCompany(index)}
-            >
-              <Trash3 />
-            </button>
+      {companyFields.map((field, index) => {
+        const companyId = formCompanies[index]?.id;
+
+        const companyResponse = companies?.find(
+          (company) => company.id === companyId,
+        );
+
+        const bulletCount = companyResponse?.bulletCount ?? 0;
+
+        return (
+          <div
+            key={field.id}
+            className="flex flex-col gap-4 border border-gray-300 p-4 rounded-md"
+          >
+            <div className="flex justify-between items-center">
+              <h4 className="text-lg font-semibold">
+                Company {companyFields.length > 1 ? index + 1 : ""}
+              </h4>
+              <button
+                type="button"
+                className="remove-btn"
+                onClick={() => removeCompany(index)}
+              >
+                <Trash3 />
+              </button>
+            </div>
+            <Input
+              id={`companies[${index}].name`}
+              label="Company Name"
+              registration={register(`companies.${index}.name`, {
+                required: "This field is required.",
+              })}
+              error={errors.companies?.[index]?.name?.message}
+            />
+            <Input
+              id={`companies[${index}].title`}
+              label="Title"
+              registration={register(`companies.${index}.title`, {
+                required: "This field is required.",
+              })}
+              error={errors.companies?.[index]?.title?.message}
+            />
+            <Input
+              id={`companies[${index}].location`}
+              label="Location"
+              registration={register(`companies.${index}.location`, {
+                required: "This field is required.",
+              })}
+              error={errors.companies?.[index]?.location?.message}
+            />
+            <Input
+              id={`companies[${index}].started`}
+              label="Started"
+              type="date"
+              registration={register(`companies.${index}.started`, {
+                required: "This field is required.",
+              })}
+              error={errors.companies?.[index]?.started?.message}
+            />
+            <Input
+              id={`companies[${index}].ended`}
+              label="Ended"
+              type="date"
+              registration={register(`companies.${index}.ended`)}
+            />
+            <Checkbox
+              id={`companies[${index}].generateBullets`}
+              label="Generate Bullets"
+              registration={register(`companies.${index}.generateBullets`)}
+            />
+            <Input
+              id={`companies[${index}].maxGeneratedBulletCount`}
+              label="Maximum Generated Bullets"
+              type="number"
+              registration={register(
+                `companies.${index}.maxGeneratedBulletCount`,
+                {
+                  valueAsNumber: true,
+                  min: { value: 0, message: "Must be zero or greater." },
+                },
+              )}
+              error={
+                errors.companies?.[index]?.maxGeneratedBulletCount?.message
+              }
+            />
+            <p className="font-semibold">
+              This company contains {bulletCount} bullets.
+            </p>
           </div>
-          <Input
-            id={`companies[${index}].name`}
-            label="Company Name"
-            registration={register(`companies.${index}.name`, {
-              required: "This field is required.",
-            })}
-            error={errors.companies?.[index]?.name?.message}
-          />
-          <Input
-            id={`companies[${index}].title`}
-            label="Title"
-            registration={register(`companies.${index}.title`, {
-              required: "This field is required.",
-            })}
-            error={errors.companies?.[index]?.title?.message}
-          />
-          <Input
-            id={`companies[${index}].location`}
-            label="Location"
-            registration={register(`companies.${index}.location`, {
-              required: "This field is required.",
-            })}
-            error={errors.companies?.[index]?.location?.message}
-          />
-          <Input
-            id={`companies[${index}].started`}
-            label="Started"
-            type="date"
-            registration={register(`companies.${index}.started`, {
-              required: "This field is required.",
-            })}
-            error={errors.companies?.[index]?.started?.message}
-          />
-          <Input
-            id={`companies[${index}].ended`}
-            label="Ended"
-            type="date"
-            registration={register(`companies.${index}.ended`)}
-          />
-          <Checkbox
-            id={`companies[${index}].generateBullets`}
-            label="Generate Bullets"
-            registration={register(`companies.${index}.generateBullets`)}
-          />
-          <Input
-            id={`companies[${index}].maxGeneratedBulletCount`}
-            label="Maximum Generated Bullets"
-            type="number"
-            registration={register(
-              `companies.${index}.maxGeneratedBulletCount`,
-              {
-                valueAsNumber: true,
-                min: { value: 0, message: "Must be zero or greater." },
-              },
-            )}
-            error={errors.companies?.[index]?.maxGeneratedBulletCount?.message}
-          />
-        </div>
-      ))}
+        );
+      })}
       {companyFields.length === 0 && (
         <div className="flex justify-center rounded-lg bg-gray-200 border border-gray-300 p-4 shadow-md">
           <p className="text-gray-700 font-semibold">

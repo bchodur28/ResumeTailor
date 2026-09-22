@@ -1,5 +1,5 @@
-import type { AccountRequest } from "../models/api/AccountRequest";
-import type { AccountResponse } from "../models/api/AccountResponse";
+import type { AccountRequest } from "../models/profile/AccountRequest";
+import type { AccountResponse } from "../models/profile/AccountResponse";
 
 export const createAccount = async (request: AccountRequest, token: string) => {
   const response = await fetch("https://localhost:7139/api/accounts", {

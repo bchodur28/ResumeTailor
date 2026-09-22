@@ -1,3 +1,6 @@
+using ResumeTailor.Application.Contracts.Bullets;
+using ResumeTailor.Application.Contracts.Companies;
+using ResumeTailor.Application.Contracts.Projects;
 using ResumeTailor.Application.Profile.Experience.Models;
 
 namespace ResumeTailor.Application.Profile.Experience.Interfaces;

@@ -25,9 +25,9 @@ public static class DependencyInjection
         services.AddScoped<ISiteExtractionDefinitionService, SiteExtractionDefinitionService>();
         services.AddScoped<IFieldExtractionDefinitionService, FieldExtractionDefinitionService>();
         services.AddScoped<IFieldPatternService, FieldPatternService>();
-        services.AddScoped<IGeneratedResumeManagementService, GeneratedResumeManagementService>();
+        services.AddScoped<IResumeManagementService, ResumeManagementService>();
         services.AddScoped<IResumeGeneratorService, ResumeGeneratorService>();
-        services.AddScoped<IGeneratedResumeDataProvider, GeneratedResumeDataProvider>();
+        services.AddScoped<IResumeDataProvider, ResumeDataProvider>();
         services.AddScoped<IJobApplicationService, JobApplicationService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IEducationService, EducationService>();

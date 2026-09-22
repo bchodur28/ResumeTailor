@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <File Path="src/ResumeTailor.Api/Resume Controller.mmd" />
     <Project Path="src/ResumeTailor.Api/ResumeTailor.Api.csproj" />
     <Project Path="src/ResumeTailor.Application/ResumeTailor.Application.csproj" />
     <Project Path="src/ResumeTailor.Domain/ResumeTailor.Domain.csproj" />

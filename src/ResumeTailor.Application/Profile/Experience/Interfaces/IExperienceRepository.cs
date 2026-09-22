@@ -6,6 +6,7 @@ namespace ResumeTailor.Application.Profile.Experience.Interfaces;
 public interface IExperienceRepository
 {
     Task<IReadOnlyCollection<Company>> GetCompaniesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<Company>> GetCompaniesWithBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<CompanyWithBulletCount>> GetCompaniesWithCountByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
     
     Task<IReadOnlyCollection<Company>> GetCompaniesForUpdatingByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);

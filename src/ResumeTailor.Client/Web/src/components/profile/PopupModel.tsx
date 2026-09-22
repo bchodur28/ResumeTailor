@@ -1,4 +1,4 @@
-import type { AccountRequest } from "../../models/api/AccountRequest";
+import type { AccountRequest } from "../../models/profile/AccountRequest";
 import { updateAccountAsync } from "../../api/accounts";
 import type { AccountEditForm } from "../../models/forms/AccountEditForm";
 import { useEffect, useState } from "react";

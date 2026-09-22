@@ -1,8 +1,8 @@
 
 using ResumeTailor.Application.Common.Exceptions;
+using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Education.Interfaces;
-using ResumeTailor.Application.Profile.Education.Models;
 using EducationEntity = ResumeTailor.Domain.Profile.Education;
 
 

@@ -6,9 +6,6 @@ import Resume from "../components/resume/Resume";
 import ListItem from "../components/ui/ListItem";
 import RatingBar from "../components/ui/RatingBar";
 import {
-  CheckCircleFill,
-  Map,
-  PinMap,
   PinMapFill,
   CashCoin,
   HouseDoor,

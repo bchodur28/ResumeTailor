@@ -7,7 +7,7 @@ import { countryOptions } from "../../data/countries";
 import type { AccountEditForm } from "../../models/forms/AccountEditForm";
 import { useAccount } from "../../contexts/AccountContext";
 import { useAuth0 } from "@auth0/auth0-react";
-import type { AccountRequest } from "../../models/api/AccountRequest";
+import type { AccountRequest } from "../../models/profile/AccountRequest";
 import Message from "../ui/Message";
 import Input from "../forms/Input";
 import SearchableSelect from "../forms/SearchableSelect";

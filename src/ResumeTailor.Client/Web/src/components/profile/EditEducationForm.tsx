@@ -5,7 +5,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useState } from "react";
 import type { EducationForm } from "../../models/forms/EducationForm";
 import { useEffect } from "react";
-import type { EducationRequest } from "../../models/api/EducationRequest";
+import type { EducationRequest } from "../../models/profile/EducationRequest";
 import Input from "../forms/Input";
 import { Trash3 } from "react-bootstrap-icons";
 import {

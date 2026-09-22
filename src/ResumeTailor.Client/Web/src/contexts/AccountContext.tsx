@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { getAccount } from "../api/accounts";
-import type { AccountResponse } from "../models/api/AccountResponse";
+import type { AccountResponse } from "../models/profile/AccountResponse";
 
 type AccountContextType = {
   account: AccountResponse | null;

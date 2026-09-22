@@ -4,8 +4,8 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { Trash3 } from "react-bootstrap-icons";
 import type { BulletForm } from "../../models/forms/BulletForm";
-import type { BulletRequest } from "../../models/api/BulletRequest";
-import type { BulletDeleteRequest } from "../../models/api/BulletDeleteRequest";
+import type { BulletRequest } from "../../models/profile/BulletRequest";
+import type { BulletDeleteRequest } from "../../models/profile/BulletDeleteRequest";
 import { useCompanyBullets } from "../../hooks/useCompanyBullet";
 import {
   createBullets,
@@ -32,7 +32,7 @@ const EditCompanyBulletsForm = () => {
     reset,
     formState: { errors },
   } = useForm<BulletForm>({
-    defaultValues: { Bullets: [] },
+    defaultValues: { bullets: [] },
   });
 
   const {
@@ -41,7 +41,8 @@ const EditCompanyBulletsForm = () => {
     remove: removeBullet,
   } = useFieldArray({
     control,
-    name: "Bullets",
+    name: "bullets",
+    keyName: "fieldId",
   });
 
   useEffect(() => {
@@ -50,12 +51,12 @@ const EditCompanyBulletsForm = () => {
     }
 
     reset({
-      Bullets: companyBullets.flatMap((company) =>
+      bullets: companyBullets.flatMap((company) =>
         company.bullets.map((bullet) => ({
           id: bullet.id,
           companyId: bullet.companyId,
-          Value: bullet.Value,
-          AiScore: bullet.AiScore,
+          value: bullet.value,
+          aiScore: bullet.aiScore,
         })),
       ),
     });
@@ -73,16 +74,31 @@ const EditCompanyBulletsForm = () => {
         (company) => company.bullets,
       );
 
-      const bulletsToCreate: BulletRequest[] = data.Bullets.filter(
+      const bulletsToCreate: BulletRequest[] = data.bullets.filter(
         (bullet) => bullet.id == null,
       );
 
-      const bulletsToUpdate: BulletRequest[] = data.Bullets.filter(
-        (bullet) => bullet.id != null,
+      const existingBulletMap = new Map(
+        existingBullets.map((bullet) => [bullet.id, bullet]),
       );
 
+      const bulletsToUpdate: BulletRequest[] = data.bullets.filter((bullet) => {
+        if (bullet.id == null) {
+          return false;
+        }
+        const existingBullet = existingBulletMap.get(bullet.id);
+
+        if (!existingBullet) {
+          return false;
+        }
+
+        return existingBullet.value !== bullet.value;
+      });
+
       const submittedIds = new Set(
-        bulletsToUpdate.map((bullet) => bullet.id!),
+        data.bullets
+          .filter((bullet) => bullet.id != null)
+          .map((bullet) => bullet.id!),
       );
 
       const bulletsToDelete: BulletDeleteRequest[] = existingBullets
@@ -103,6 +119,9 @@ const EditCompanyBulletsForm = () => {
       if (bulletsToDelete.length > 0) {
         requests.push(deleteBullets(bulletsToDelete, token));
       }
+      console.log("Create: ", bulletsToCreate);
+      console.log("Update: ", bulletsToUpdate);
+      console.log("Delete: ", bulletsToDelete);
       await Promise.all(requests);
     },
     onSuccess: () => {
@@ -126,7 +145,9 @@ const EditCompanyBulletsForm = () => {
   return (
     <form
       className="flex flex-col gap-2"
-      onSubmit={handleSubmit((data) => saveBulletsMutation.mutate(data))}
+      onSubmit={handleSubmit((data) => {
+        saveBulletsMutation.mutate(data);
+      })}
     >
       {isSavedSuccessfully && (
         <Message
@@ -154,9 +175,9 @@ const EditCompanyBulletsForm = () => {
           >
             <h4 className="text-lg font-semibold">{company.companyName}</h4>
             {companyBulletIndexes.map(({ field, index }) => (
-              <div key={field.id} className="flex gap-2 items-start">
+              <div key={field.fieldId} className="flex gap-2 items-start">
                 <TextArea
-                  id={`bullets[${index}].Value`}
+                  id={`bullets[${index}].value`}
                   label={`Bullet ${
                     companyBulletIndexes.length > 1
                       ? companyBulletIndexes.findIndex(
@@ -164,10 +185,10 @@ const EditCompanyBulletsForm = () => {
                         ) + 1
                       : ""
                   }`}
-                  registration={register(`Bullets.${index}.Value`, {
+                  registration={register(`bullets.${index}.value`, {
                     required: "This field is required.",
                   })}
-                  error={errors.Bullets?.[index]?.Value?.message}
+                  error={errors.bullets?.[index]?.value?.message}
                   rows={2}
                 />
                 <button
@@ -194,8 +215,8 @@ const EditCompanyBulletsForm = () => {
                   appendBullet({
                     id: null,
                     companyId: company.companyId,
-                    Value: "",
-                    AiScore: null,
+                    value: "",
+                    aiScore: null,
                   })
                 }
               >

@@ -1,18 +1,22 @@
 using ResumeTailor.Application.Common.Exceptions;
+using ResumeTailor.Application.Contracts.Education;
+using ResumeTailor.Application.Contracts.Projects;
+using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Common.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Generation.Models;
 using ResumeTailor.Application.JobApplications.Interfaces;
 using ResumeTailor.Application.JobApplications.Models;
 using ResumeTailor.Application.Profile.Accounts.Models;
-using ResumeTailor.Application.Profile.Education.Models;
+using ResumeTailor.Application.Resumes.Common.Models;
+using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.JobApplications;
 
 namespace ResumeTailor.Application.JobApplications;
 
 public class JobApplicationService(
     IJobApplicationRepository jobApplicationRepository,
-    IGeneratedResumeDataProvider generatedResumeDataProvider) : IJobApplicationService
+    IResumeDataProvider generatedResumeDataProvider) : IJobApplicationService
 {
     public async Task<IReadOnlyCollection<JobApplicationListItemResponse>> GetJobApplicationListItemsByAccountIdAsync(int accountId, CancellationToken cancellationToken)
     {
@@ -26,12 +30,12 @@ public class JobApplicationService(
         var jobApplication = await jobApplicationRepository.GetJobApplicationByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Job application with ID {id} was not found.");
 
-        var generatedResume = jobApplication.GeneratedResume
+        var resume = jobApplication.GeneratedResume
             ?? throw new NotFoundException($"Job applicaton with ID {id} does not ahve a generated resume.");
 
-        var generatedResumeSourceData = await generatedResumeDataProvider.GetAsync(generatedResume.Id, cancellationToken);
+        var resumeSourceData = await generatedResumeDataProvider.GetResumeSourceDataForExistingResumeAsync(resume, cancellationToken);
 
-        return MapToJobApplicationResponse(jobApplication, generatedResumeSourceData);
+        return MapToJobApplicationResponse(jobApplication, resume, resumeSourceData);
     }
 
     public async Task CreateJobApplicationAsync(JobApplicationRequest request, CancellationToken cancellationToken)
@@ -76,12 +80,12 @@ public class JobApplicationService(
             jobApplication.Status);
     }
 
-    private static JobApplicationResponse MapToJobApplicationResponse(JobApplication jobApplicaton, ResumeSourceData data)
+    private static JobApplicationResponse MapToJobApplicationResponse(JobApplication jobApplicaton, GeneratedResume resume, ResumeSourceData data)
     {
         var selectedCompanies = data.Companies
             .Select(company =>
             {
-                var selection = data.GeneratedResume.CompanySelections
+                var selection = resume.CompanySelections
                     .Single(x => x.CompanyId == company.Id);
 
                 return new ResumeCompanyResult(
@@ -100,7 +104,7 @@ public class JobApplicationService(
             })
             .ToList();
 
-        var selectedEducations = data.Educations
+        var selectedEducations = data.Education
             .Select(education =>
             {
                 return new EducationResponse(
@@ -117,27 +121,28 @@ public class JobApplicationService(
         var selectedProjects = data.Projects
             .Select(project =>
             {
-                return new ResumeProjectResponse(
+                return new ProjectResponse(
                     project.Id,
                     project.Name,
                     project.Description,
                     project.Started,
                     project.Ended,
                     project.TechStack,
-                    project.Link);
+                    project.Link,
+                    project.UseForResume);
             })
             .ToList();
 
-        var resumeDetails = new GeneratedResumeDetailsResponse(
-            new GeneratedResumeResponse(
-                data.GeneratedResume.Id,
+        var resumeDetails = new ResumeDetailsResponse(
+            new ResumeResponse(
+                resume.Id,
                 data.Account.Id,
                 data.Account.DisplayName,
                 data.Account.Titles
                     .FirstOrDefault(t => t.IsPrimary)?.Value ?? string.Empty,
                 data.Account.Email,
                 data.Account.PhoneNumber,
-                $"{data.Account.City}, {data.Account.State}, {data.Account.Country}",
+                $"{data.Account.City}, {data.Account.State}",
                 data.Account.PersonalLinks
                     .Select(link => new PersonalLinkResponse(
                         link.Id,
@@ -148,23 +153,26 @@ public class JobApplicationService(
                 selectedEducations,
                 selectedProjects),
 
-            new GeneratedSummaryResponse(
-                data.GeneratedResume.AiAnalysis?.Summary ?? string.Empty,
-                data.GeneratedResume.AiAnalysis?.Strengths
+            new ResumeSummaryResponse(
+                0,
+                resume.AiAnalysis?.Summary ?? string.Empty,
+                resume.AiAnalysis?.Strengths
                     .Select(x => new ResumeAiInsightResult(
                         x.Type,
                         x.Value))
                     .ToList() ?? [],
-                data.GeneratedResume.AiAnalysis?.Weaknesses
+                resume.AiAnalysis?.Weaknesses
                     .Select(x => new ResumeAiInsightResult(
                         x.Type,
                         x.Value))
                     .ToList() ?? []),
 
             new AiUsage(
-                data.GeneratedResume.AiMetaData?.InputTokens ?? 0,
-                data.GeneratedResume.AiMetaData?.OutputTokens ?? 0,
-                data.GeneratedResume.AiMetaData?.TotalTokens ?? 0));
+                resume.AiMetaData?.InputTokens ?? 0,
+                resume.AiMetaData?.OutputTokens ?? 0,
+                resume.AiMetaData?.TotalTokens ?? 0,
+                0)
+            );
 
         return new JobApplicationResponse(
             jobApplicaton.Id,

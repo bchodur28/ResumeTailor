@@ -1,4 +1,4 @@
-import type { ProjectRequest } from "../api/ProjectRequest";
+import type { ProjectRequest } from "../profile/ProjectRequest";
 
 export type ProjectForm = {
   projects: ProjectRequest[];

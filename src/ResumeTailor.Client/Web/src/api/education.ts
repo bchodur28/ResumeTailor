@@ -1,5 +1,5 @@
-import type { EducationRequest } from "../models/api/EducationRequest.ts";
-import type { EducationResponse } from "../models/api/EducationResponse.ts";
+import type { EducationRequest } from "../models/profile/EducationRequest.ts";
+import type { EducationResponse } from "../models/profile/EducationResponse.ts";
 
 const educationUrl = "https://localhost:7139/api/education/me";
 

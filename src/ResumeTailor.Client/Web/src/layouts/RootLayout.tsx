@@ -53,7 +53,7 @@ const RootLayout = () => {
             </NavLink>
             <NavLink className="nav-btn" to="/manage">
               <Pen size={24} />
-              Manage
+              Bullets
             </NavLink>
             <button
               onClick={() => setIsProfileOpen(!isProfileOpen)}

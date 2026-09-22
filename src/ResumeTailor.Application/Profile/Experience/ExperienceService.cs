@@ -1,4 +1,7 @@
 using ResumeTailor.Application.Common.Exceptions;
+using ResumeTailor.Application.Contracts.Bullets;
+using ResumeTailor.Application.Contracts.Companies;
+using ResumeTailor.Application.Contracts.Projects;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Experience.Interfaces;
 using ResumeTailor.Application.Profile.Experience.Models;
@@ -176,7 +179,7 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
             ?? throw new NotFoundException($"Account was not found when creating bullets.");
 
         var bullets = requests
-            .Select(p => MapBulletToDomain(p, accountId))
+            .Select(MapBulletToDomain)
             .ToList();
 
         experienceRepository.AddBullets(bullets);
@@ -300,9 +303,9 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
         AiScore: bullet.AiScore
     );
 
-    private static Bullet MapBulletToDomain(BulletRequest request, int companyId) => new Bullet
+    private static Bullet MapBulletToDomain(BulletRequest request) => new Bullet
     (
-        companyId: companyId,
+        companyId: request.CompanyId,
         value: request.Value,
         aiScore: request.AiScore
     );

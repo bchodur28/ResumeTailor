@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Profile.Education.Interfaces;
-using ResumeTailor.Application.Profile.Education.Models;
 using System.Security.Claims;
 
 namespace ResumeTailor.Api.Controllers.Profile

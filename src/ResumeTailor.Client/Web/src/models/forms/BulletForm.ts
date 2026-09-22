@@ -1,5 +1,5 @@
-import type { BulletRequest } from "../api/BulletRequest";
+import type { BulletRequest } from "../profile/BulletRequest";
 
 export type BulletForm = {
-  Bullets: BulletRequest[];
+  bullets: BulletRequest[];
 };

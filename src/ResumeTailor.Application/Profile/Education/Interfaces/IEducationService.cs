@@ -1,4 +1,4 @@
-using ResumeTailor.Application.Profile.Education.Models;
+using ResumeTailor.Application.Contracts.Education;
 
 namespace ResumeTailor.Application.Profile.Education.Interfaces;
 

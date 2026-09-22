@@ -6,7 +6,7 @@ import {
   Controller,
   type FieldErrors,
 } from "react-hook-form";
-import type { AccountRequest } from "../models/api/AccountRequest";
+import type { AccountRequest } from "../models/profile/AccountRequest";
 import type { AccountSetupForm } from "../models/forms/AccountSetupForm";
 import Card from "../components/ui/Card";
 import Input from "../components/forms/Input";
