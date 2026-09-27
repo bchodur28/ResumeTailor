@@ -43,13 +43,13 @@ const RootLayout = () => {
             <h1 className="primary-color text-2xl font-bold">Resumade</h1>
           </div>
           <nav className="relative flex gap-4">
-            <NavLink className="nav-btn" to="/">
+            <NavLink className="nav-btn" to="/generate">
               <Openai size={24} />
               Generate
             </NavLink>
-            <NavLink className="nav-btn" to="/track">
+            <NavLink className="nav-btn" to="/">
               <CardList size={24} />
-              Track
+              Tracker
             </NavLink>
             <NavLink className="nav-btn" to="/manage">
               <Pen size={24} />

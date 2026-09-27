@@ -4,13 +4,13 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { Trash3 } from "react-bootstrap-icons";
 import type { CompanyForm } from "../../models/forms/CompanyForm";
-import type { CompanyRequest } from "../../models/profile/CompanyRequest";
+import type { CompanyRequest } from "../../api/contracts/companies/CompanyRequest";
 import { useCompanies } from "../../hooks/useCompanies";
 import {
   createCompanies,
   deleteCompanies,
   updateCompanies,
-} from "../../api/experience";
+} from "../../api/experienceApi";
 import Input from "../forms/Input";
 import Checkbox from "../forms/Checkbox";
 import Message from "../ui/Message";

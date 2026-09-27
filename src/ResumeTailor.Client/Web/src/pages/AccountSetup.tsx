@@ -6,7 +6,6 @@ import {
   Controller,
   type FieldErrors,
 } from "react-hook-form";
-import type { AccountRequest } from "../models/profile/AccountRequest";
 import type { AccountSetupForm } from "../models/forms/AccountSetupForm";
 import Card from "../components/ui/Card";
 import Input from "../components/forms/Input";
@@ -16,8 +15,9 @@ import { countryOptions } from "../data/countries";
 import { PlusLg, Trash3 } from "react-bootstrap-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth0 } from "@auth0/auth0-react";
-import { createAccount } from "../api/accounts";
+import { createAccount } from "../api/accountsApi";
 import { useState } from "react";
+import type { AccountRequest } from "../api/contracts/accounts/AccountRequest";
 
 const AccountSetup = () => {
   const { getAccessTokenSilently } = useAuth0();

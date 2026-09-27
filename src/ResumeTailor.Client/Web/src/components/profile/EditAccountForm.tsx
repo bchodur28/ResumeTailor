@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { updateAccountAsync } from "../../api/accounts";
+import { updateAccountAsync } from "../../api/accountsApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { stateOptions } from "../../data/states";

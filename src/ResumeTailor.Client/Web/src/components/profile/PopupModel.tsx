@@ -1,5 +1,5 @@
 import type { AccountRequest } from "../../models/profile/AccountRequest";
-import { updateAccountAsync } from "../../api/accounts";
+import { updateAccountAsync } from "../../api/accountsApi";
 import type { AccountEditForm } from "../../models/forms/AccountEditForm";
 import { useEffect, useState } from "react";
 import Input from "../forms/Input";

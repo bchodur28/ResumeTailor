@@ -4,7 +4,7 @@ namespace ResumeTailor.Domain.GeneratedResumes.Content;
 
 public sealed class ResumeEducationSelection : Entity
 {
-    public int GeneratedResumeId { get; private set; }
+    public int ResumeId { get; private set; }
     public int EducationId { get; private set; }
     public int SortOrder { get; private set; }
 

@@ -13,7 +13,7 @@ namespace ResumeTailor.Application.GeneratedResumes.Common
         IEducationRepository educationRepository,
         IExperienceRepository experienceRepository) : IResumeDataProvider
     {
-        public async Task<ResumeSourceData> GetResumeSourceDataForExistingResumeAsync(GeneratedResume resume, CancellationToken cancellationToken = default)
+        public async Task<ResumeSourceData> GetResumeSourceDataForExistingResumeAsync(Resume resume, CancellationToken cancellationToken = default)
         {
             
             var account = await accountRepository.GetAccountByIdAsync(resume.AccountId, cancellationToken)
@@ -46,6 +46,9 @@ namespace ResumeTailor.Application.GeneratedResumes.Common
                 ?? throw new NotFoundException($"Account with ID {accountId} not found.");
 
             var companies = await experienceRepository.GetCompaniesWithBulletsByAccountIdAsync(account.Id, cancellationToken);
+            var companiesToAlwaysInclude = companies.Where(c => !c.GenerateBullets).ToList();
+
+
             var educations = await educationRepository.GetEducationByAccountIdAsync(account.Id, cancellationToken);
             var projects = await experienceRepository.GetProjectsByAccountIdAsync(account.Id, cancellationToken);
 

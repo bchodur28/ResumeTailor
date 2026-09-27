@@ -1,13 +1,17 @@
 #pragma warning disable OPENAI001
 
-using OpenAI.Responses;
-using System.Text.Json;
 using Microsoft.Extensions.Options;
-using System.ClientModel;
+using OpenAI.Responses;
+using ResumeTailor.Application.GeneratedResumes.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Generation.Models;
-using ResumeTailor.Application.GeneratedResumes.Common.Models;
+using ResumeTailor.Application.Resumes.Common.Models;
 using ResumeTailor.Domain.GeneratedResumes.AI;
+using ResumeTailor.Domain.Resumes.JobApplications;
+using ResumeTailor.Domain.Resumes.JobPositing;
+using System.ClientModel;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ResumeTailor.Infrastructure.AI;
 
@@ -86,6 +90,31 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
                             "type": "string"
                           },
                           "maxItems": 5
+                        },
+                        "jobPosting": {
+                          "type": "object",
+                          "properties": {
+                            "companyName": { "type": ["string", "null"] },
+                            "jobTitle": { "type": ["string", "null"] },
+                            "location": { "type": ["string", "null"] },
+                            "workStyle": {"type": ["string", "null"],"enum": ["OnSite", "Hybrid", "Remote", null]},
+                            "salaryMin": { "type": ["number", "null"] },
+                            "salaryMax": { "type": ["number", "null"] },
+                            "salary": { "type": ["number", "null"] },
+                            "salaryPeriod": {"type": ["string", "null"],"enum": ["Hourly", "Weekly", "Monthly", "Yearly", null]},
+                            "salaryCurrency": { "type": ["string", "null"] }
+                          },
+                          "required": [
+                            "companyName",
+                            "jobTitle",
+                            "location",
+                            "workStyle",
+                            "salaryMin",
+                            "salaryMax",
+                            "salary",
+                            "salaryCurrency"
+                          ],
+                          "additionalProperties": false
                         }
                       },
                       "required": [
@@ -93,7 +122,8 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
                         "summary",
                         "companies",
                         "strengths",
-                        "weaknesses"
+                        "weaknesses",
+                        "jobPosting"
                       ],
                       "additionalProperties": false
                     }
@@ -111,22 +141,23 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
             json,
             new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
             }) ?? throw new InvalidOperationException("OpenAI returned an empty resume analysis response.");
 
         var companies = ValidateAndMapCompanies(aiResponse.Companies, context.CompanyBulletContexts);
 
         var strengths = aiResponse.Strengths
             .Take(5)
-            .Select(strength => new ResumeAiInsightResult(ResumeAiInsightType.Strength, strength))
             .ToList();
 
         var weaknesses = aiResponse.Weaknesses
             .Take(5)
-            .Select(weakness => new ResumeAiInsightResult(ResumeAiInsightType.Weakness, weakness))
             .ToList();
 
-        var usage = CreateAiUsage(response);
+        var metaData = CreateAiMetaData(response);
+
+        var jobPosting = CreateJobPosting(aiResponse.JobPosting);
 
         return new ResumeAiGenerationResult(
             aiResponse.Score,
@@ -134,30 +165,47 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
             companies,
             strengths,
             weaknesses,
-            usage);
+            metaData,
+            jobPosting
+            );
+    }
+
+    private static JobPostingResult CreateJobPosting(AiJobPostingResponse jobPostingResponse)
+    {
+        return new JobPostingResult(
+            Id: null,
+            CompanyName: jobPostingResponse.CompanyName,
+            JobTitle: jobPostingResponse.JobTitle,
+            Location: jobPostingResponse.Location,
+            WorkStyle: jobPostingResponse.WorkStyle,
+            SalaryMin: jobPostingResponse.SalaryMin,
+            SalaryMax: jobPostingResponse.SalaryMax,
+            Salary: jobPostingResponse.Salary,
+            SalaryPeriod: jobPostingResponse.SalaryPeriod,
+            SalaryCurrency: jobPostingResponse.SalaryCurrency
+        );
     }
 
 
-    private static AiUsage CreateAiUsage(ClientResult<ResponseResult> response)
+    private static AiMetaDataResult CreateAiMetaData(ClientResult<ResponseResult> response)
     {
         var inputTokens = response.Value.Usage.InputTokenCount;
         var outputTokens = response.Value.Usage.OutputTokenCount;
         var totalTokens = response.Value.Usage.TotalTokenCount;
 
-        var estimatedCost = CalculateEstimatedCost(
-            inputTokens,
-            outputTokens);
+        var estimatedCost = CalculateEstimatedCost(inputTokens, outputTokens);
 
-        return new AiUsage(
+        return new AiMetaDataResult(
+            Model: response.Value.Model,
             InputTokens: inputTokens,
             OutputTokens: outputTokens,
             TotalTokens: totalTokens,
-            EstimatedCost: estimatedCost
+            Cost: estimatedCost
         );
     }
 
     private static IReadOnlyList<ResumeCompanyResult> ValidateAndMapCompanies(
-    IReadOnlyList<AiCompanyResult> companyResults,
+    IReadOnlyList<AiCompanyResponse> companyResponse,
     IReadOnlyList<CompanyBulletContext> contexts)
     {
         var results = new List<ResumeCompanyResult>();
@@ -166,32 +214,39 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
 
         foreach (var context in contexts)
         {
-            var companyResult = companyResults.FirstOrDefault(
+            var companyResult = companyResponse.FirstOrDefault(
                 result => string.Equals(result.Company, context.Name, StringComparison.OrdinalIgnoreCase));
 
             var bullets = new List<ResumeBulletResult>();
 
             if (companyResult is not null)
             {
-                var validBullets = companyResult.Bullets
-                    .Where(result => context.Bullets.Contains(result.Value))
-                    .Take(context.MaxBullets);
-
-                foreach (var bullet in validBullets)
+                foreach (var bullet in companyResult.Bullets)
                 {
+                    var sourceBullet = context.Bullets.FirstOrDefault(b => b.Value == bullet.Value);
+
+                    if(sourceBullet is null)
+                    {
+                        continue;
+                    }
+
                     string? alternative = null;
 
-                    if (alternativeCount < 3 &&
-                        !string.IsNullOrWhiteSpace(bullet.Alternative))
+                    if (alternativeCount < 3 && !string.IsNullOrWhiteSpace(bullet.Alternative))
                     {
                         alternative = bullet.Alternative;
                         alternativeCount++;
                     }
 
-                    bullets.Add(
-                        new ResumeBulletResult(
-                            bullet.Value,
-                            alternative));
+                    bullets.Add(new ResumeBulletResult(
+                        SourceBulletId: sourceBullet.SourceBulletId,
+                        Value: bullet.Value,
+                        AlternativeValue: alternative));
+
+                    if(bullets.Count >= context.MaxBullets)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -278,20 +333,90 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
             - Consider both the importance of a requirement and the strength of the candidate's evidence for it.
             - Closely related experience may receive partial credit when it demonstrates transferable knowledge.
             - Do not heavily penalize minor or optional requirements.
-            - - The score should be consistent with the identified strengths and weaknesses.
+            - The score should be consistent with the identified strengths and weaknesses.
+
+            JOB POSTING EXTRACTION:
+
+            Extract structured information about the job from the JOB DESCRIPTION.
+
+            - CompanyName:
+                - Extract the employer/company name when explicitly stated.
+                - Return null if the company cannot be reliably determined.
+                - Do not infer the company from the candidate's resume experience.
+
+            - JobTitle:
+                - Extract the title of the position being advertised.
+                - Return null if no job title can be reliably determined.
+
+            - Location:
+                - Extract the office or job location when explicitly stated.
+                - Prefer a concise location such as "Minneapolis, MN".
+                - For remote positions, still return the associated geographic or office
+                location if one is provided.
+                - Return null if no location is provided.
+
+            - WorkStyle:
+                - Return "Remote" when the position is explicitly remote.
+                - Return "Hybrid" when the position requires a combination of remote and in-office work.
+                - Return "OnSite" when the position is expected to be performed in-office.
+                - Return null when the work arrangement cannot be reliably determined.
+
+            - SalaryMin and SalaryMax:
+                - For a salary range, return the lower value as SalaryMin and the upper value as SalaryMax.
+                - Return null for both when no salary range is provided.
+                - Preserve the compensation period from the posting; do not convert hourly compensation to annual compensation or vice versa.
+
+            - Salary:
+                - Use Salary only when the posting provides a single compensation amount rather than a range.
+                - When a range is provided, return null for Salary.
+                - Do not estimate or convert compensation.
+
+            - SalaryCurrency:
+                - Return the currency when it can be determined from the posting.
+                - Use standard currency codes such as "USD".
+                - Return null if the currency cannot be reliably determined.
+
+            - SalaryPeriod:
+                - Return "Hourly" for compensation stated per hour.
+                - Return "Daily" for compensation stated per day.
+                - Return "Weekly" for compensation stated per week.
+                - Return "Monthly" for compensation stated per month.
+                - Return "Yearly" for annual or yearly compensation.
+                - Return null if the compensation period cannot be reliably determined.
+                - Do not infer or convert the compensation period.
+
+            GENERAL EXTRACTION RULES:
+
+            - Extract information only from the JOB DESCRIPTION.
+            - Do not use RESUME EXPERIENCE to populate job posting information.
+            - Do not guess or fabricate missing values.
+            - When information cannot be reliably determined, return null.
             """;
     }
 
     private sealed record AiResumeResponse(
         int Score,
         string Summary,
-        IReadOnlyList<AiCompanyResult> Companies,
+        IReadOnlyList<AiCompanyResponse> Companies,
         IReadOnlyList<string> Strengths,
-        IReadOnlyList<string> Weaknesses);
+        IReadOnlyList<string> Weaknesses,
+        AiJobPostingResponse JobPosting
+);
 
-    private sealed record AiCompanyResult(int companyId, string Company, IReadOnlyList<AiBulletResult> Bullets);
+    private sealed record AiCompanyResponse(int companyId, string Company, IReadOnlyList<AiBulletResponse> Bullets);
 
-    private sealed record AiBulletResult(string Value, string? Alternative);
+    private sealed record AiBulletResponse(string Value, string? Alternative);
+
+    private sealed record AiJobPostingResponse(
+        string? CompanyName,
+        string? JobTitle,
+        string? Location,
+        WorkStyle? WorkStyle,
+        decimal? SalaryMin,
+        decimal? SalaryMax,
+        decimal? Salary,
+        SalaryPeriod? SalaryPeriod,
+        string? SalaryCurrency);
 
     private static decimal CalculateEstimatedCost(
         int inputTokens,

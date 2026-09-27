@@ -61,12 +61,8 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
             {
                 var existingTitle = account.Titles.FirstOrDefault(t => t.Id == request.Id.Value)
                     ?? throw new NotFoundException($"Title with ID {request.Id.Value} was not found when updating.");
-                if (existingTitle != null)
-                {
-                    existingTitle.Update(request.Value, request.IsPrimary);
-                }
-            }
-            else
+                existingTitle.Update(request.Value, request.IsPrimary);
+            }else
             {
                 account.AddTitle(request.Value, request.IsPrimary);
             }

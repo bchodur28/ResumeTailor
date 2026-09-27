@@ -4,12 +4,12 @@ namespace ResumeTailor.Domain.GeneratedResumes.Content;
 
 public sealed class ResumeCompanySelection : Entity
 {
-    public int GeneratedResumeId { get; private set; }
+    public int ResumeId { get; private set; }
     public int CompanyId { get; private set; }
     public int SortOrder { get; private set; }
 
-    private readonly List<ResumeBullet> _bullets = new();
-    public IReadOnlyCollection<ResumeBullet> Bullets => _bullets.AsReadOnly();
+    private readonly List<ResumeCompanyBullet> _bullets = new();
+    public IReadOnlyCollection<ResumeCompanyBullet> Bullets => _bullets.AsReadOnly();
 
     public ResumeCompanySelection(int companyId, int sortOrder)
     {
@@ -26,8 +26,12 @@ public sealed class ResumeCompanySelection : Entity
 
     public void AddResumeBullet(int? sourceBulletId, string value, string? alternativeValue, int sortOrder)
     {
-        var bullet = new ResumeBullet(sourceBulletId, value, alternativeValue, sortOrder);
+        var bullet = new ResumeCompanyBullet(sourceBulletId, value, alternativeValue, sortOrder);
         _bullets.Add(bullet);
-        MarkUpdated();
+    }
+
+    public void RemoveResumeBullet(ResumeCompanyBullet bullet)
+    {
+        _bullets.Remove(bullet);
     }
 }

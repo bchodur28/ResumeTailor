@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import Login from "./pages/Login";
 import AccountRequiredRoute from "./components/routes/AccountRequiredRoute";
+import ResumeDetails from "./pages/ResumeDetails";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,9 +24,10 @@ const router = createBrowserRouter(
 
         <Route element={<AccountRequiredRoute />}>
           <Route path="/" element={<RootLayout />}>
-            <Route index element={<Generate />} />
+            <Route index element={<Track />} />
+            <Route path="generate" element={<Generate />} />
             <Route path="manage" element={<Manage />} />
-            <Route path="track" element={<Track />} />
+            <Route path="resumes/:id" element={<ResumeDetails />} />
             <Route path="profile" element={<Profile />} />
           </Route>
         </Route>

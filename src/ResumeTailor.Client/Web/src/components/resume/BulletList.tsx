@@ -1,7 +1,8 @@
+import type { ResumeBulletResult } from "../../models/resumes/ResumeBulletResult";
 import styles from "./Resume.module.css";
 
 type BulletListProps = {
-  items: string[];
+  items: ResumeBulletResult[];
   topListPtSpacing: number;
   verticalItemPtSpacing: number;
 };
@@ -20,7 +21,7 @@ const BulletList = ({
       }}
     >
       {items.map((item, index) => (
-        <li key={index}>{item}</li>
+        <li key={index}>{item.value}</li>
       ))}
     </ul>
   );

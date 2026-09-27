@@ -7,8 +7,6 @@ using ResumeTailor.Application.GeneratedResumes.Generation;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
-using ResumeTailor.Application.JobApplications;
-using ResumeTailor.Application.JobApplications.Interfaces;
 using ResumeTailor.Application.Profile.Accounts;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Education;
@@ -28,7 +26,6 @@ public static class DependencyInjection
         services.AddScoped<IResumeManagementService, ResumeManagementService>();
         services.AddScoped<IResumeGeneratorService, ResumeGeneratorService>();
         services.AddScoped<IResumeDataProvider, ResumeDataProvider>();
-        services.AddScoped<IJobApplicationService, JobApplicationService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IEducationService, EducationService>();
         services.AddScoped<IExperenceService, ExperienceService>();

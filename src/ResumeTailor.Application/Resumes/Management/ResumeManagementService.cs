@@ -5,13 +5,14 @@ using ResumeTailor.Application.Contracts.Projects;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Common.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Common.Models;
-using ResumeTailor.Application.GeneratedResumes.Generation.Models;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management.Models;
 using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Application.Resumes.Common.Models;
 using ResumeTailor.Domain.GeneratedResumes;
-using ResumeTailor.Domain.GeneratedResumes.AI;
+using ResumeTailor.Domain.GeneratedResumes.Content;
+using ResumeTailor.Domain.Resumes;
+using ResumeTailor.Domain.Resumes.ApplicationTracking;
 
 
 namespace ResumeTailor.Application.GeneratedResumes.Management;
@@ -20,73 +21,6 @@ internal sealed class ResumeManagementService(
     IResumeRepository repository,
     IResumeDataProvider resumeDataProvider) : IResumeManagementService
 {
-    // Save Generated Resume
-    public async Task<int> SaveGeneratedResumeAsync(ResumeRequest request, CancellationToken cancellationToken = default)
-    {
-        var generatedResume = new GeneratedResume(
-            request.AccountId,
-            request.Name,
-            request.JobApplicationId
-        );
-
-        foreach(var companyRequest in request.Companies)
-        {
-            var companySelection = generatedResume.AddCompanySelection(companyRequest.CompanyId, companyRequest.SortOrder);
-
-            foreach(var bulletRequest in companyRequest.Bullets)
-            {
-                companySelection.AddResumeBullet(
-                    bulletRequest.SourceBulletId,
-                    bulletRequest.Value,
-                    bulletRequest.AlternativeValue,
-                    bulletRequest.SortOrder);
-            }
-        }
-
-        foreach(var educationRequest in request.Education)
-        {
-            generatedResume.AddEducationSelection(
-                educationRequest.EducationId,
-                educationRequest.SortOrder);
-        }
-
-        foreach(var projectRequest in request.Projects)
-        {
-            generatedResume.AddProjectSelection(
-                projectRequest.ProjectId,
-                projectRequest.SortOrder);
-        }
-
-        var aiAnalysis = new ResumeAiAnalysis(
-            request.AiAnalysis.Summary,
-            request.AiAnalysis.Score);
-
-        foreach(var insightRequest in request.AiAnalysis.Strengths)
-        {
-            aiAnalysis.AddInsight(ResumeAiInsightType.Strength, insightRequest.Value);
-        }
-
-        foreach (var insightRequest in request.AiAnalysis.Weaknesses)
-        {
-            aiAnalysis.AddInsight(ResumeAiInsightType.Weakness, insightRequest.Value);
-        }
-
-        generatedResume.SetAiAnalysis(aiAnalysis);
-
-        generatedResume.SetAiMetaData(
-            new ResumeAiMetaData(
-                request.AiMetaData.InputTokens,
-                request.AiMetaData.OutputTokens,
-                request.AiMetaData.TotalTokens));
-
-        await repository.CreateResumeAsync(generatedResume, cancellationToken);
-        await repository.SaveAsync(cancellationToken);
-
-        return generatedResume.Id;
-    }
-
-
-    // Generated Resume Management
     public async Task<ResumeDetailsResponse> GetResumeDetailsAsync(int id, CancellationToken cancellationToken = default)
     {
         var resume = await repository.GetResumeAsync(id, cancellationToken)
@@ -96,22 +30,26 @@ internal sealed class ResumeManagementService(
         return MapToGeneratedResumeDetailsResponse(sourceData, resume);
     }
 
-    public async Task<IReadOnlyCollection<ResumeListItemResponse>> GetGeneratedResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<ResumeListItemResponse>> GetResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
         var generatedResumes = await repository.GetResumesByAccountIdAsync(accountId, cancellationToken);
         return generatedResumes.Select(MapGeneratedResumeDomainToListItemResponse).ToList();
     }
 
-    public async Task UpdateGeneratedResumeAsync(int id, GeneratedResumeRequest request, CancellationToken cancellationToken = default)
+    public async Task UpdateResumeAsync(int id, UpdateResumeRequest request, CancellationToken cancellationToken = default)
     {
         var existingResume = await repository.GetResumeForUpdatingAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Generated resume with ID {id} was not found while updating.");
         
-        existingResume.Update(request.Name, request.JobApplicatonId);
+        existingResume.Update(request.Name);
+        UpdateCompanySelections(existingResume, request.Companies);
+        UpdateEducationSelections(existingResume, request.Education);
+        UpdateProjectSelections(existingResume, request.Projects);
+
         await repository.SaveAsync(cancellationToken);
     }
 
-    public async Task DeleteGeneratedResumeAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteResumeDetailsAsync(int id, CancellationToken cancellationToken = default)
     {
         var generatedResume = await repository.GetResumeForUpdatingAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Generated resume with ID {id} was not found while deleting.");
@@ -120,154 +58,196 @@ internal sealed class ResumeManagementService(
         await repository.SaveAsync(cancellationToken);
     }
 
-
-    // Company Selection Management
-    public async Task CreateCompanySelectionsAsync(int generatedResumeId, IEnumerable<ResumeCompanySelectionRequest> requests, CancellationToken cancellationToken = default)
+    public async Task UpdateResumeJobPostingAsync(int resumeId, ResumeJobPostingRequest request, CancellationToken cancellationToken = default)
     {
-        var generatedResume = await repository.GetResumeForUpdatingAsync(generatedResumeId, cancellationToken)
-            ?? throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found while creating company selections.");
+        var existingJobPosting = await repository.GetResumeJobPostingForUpdatingAsync(resumeId, cancellationToken)
+            ?? throw new NotFoundException($"Resume job posting with resume ID {resumeId} was not found while updating job posting.");
 
+        existingJobPosting.Update(
+            request.CompanyName,
+            request.JobTitle,
+            request.Location,
+            request.WorkStyle,
+            request.SalaryMin,
+            request.SalaryMax,
+            request.Salary,
+            request.SalaryPeriod,
+            request.SalaryCurrency);
 
-        foreach (var request in requests)
+        await repository.SaveAsync(cancellationToken);
+    }
+
+    public async Task UpdateResumeApplicationTrackingAsync(int resumeId, ResumeApplicationTrackingRequest request, CancellationToken cancellationToken = default)
+    {
+        var existingApplicationTracking = await repository.GetResumeApplicationTrackingForUpdatingAsync(resumeId, cancellationToken)
+            ?? throw new NotFoundException($"Resume application tracking with resume ID {resumeId} was not found while updating application tracking.");
+
+        existingApplicationTracking.Update(
+            request.Status,
+            request.Applied,
+            request.Interviewed,
+            request.OfferReceived,
+            request.OfferAccepted,
+            request.Rejected);
+
+        await repository.SaveAsync(cancellationToken);
+    }
+
+    private static void UpdateCompanySelections(Resume resume, IReadOnlyCollection<ResumeCompanySelectionRequest> companySelectionRequests)
+    {
+
+        var requestedCompanyIds = companySelectionRequests
+            .Select(r => r.CompanyId)
+            .ToHashSet();
+
+        var companySelectionsToDelete = resume.CompanySelections
+            .Where(s => !requestedCompanyIds.Contains(s.CompanyId))
+            .ToList();
+
+        foreach (var selection in companySelectionsToDelete)
         {
-            var companySelection = generatedResume.AddCompanySelection(request.CompanyId, request.SortOrder);
-            foreach (var bulletRequest in request.Bullets)
+            resume.MarkAiScoreStale(AiScoreStaleness.High);
+            resume.RemoveCompanySelection(selection);
+        }
+
+        foreach (var companyRequest in companySelectionRequests)
+        {
+            if (companyRequest.Id.HasValue)
             {
-                companySelection.AddResumeBullet(
-                    bulletRequest.SourceBulletId,
-                    bulletRequest.Value,
-                    bulletRequest.AlternativeValue,
-                    bulletRequest.SortOrder);
+                var existingCompanySelection = resume.CompanySelections.FirstOrDefault(s => s.Id == companyRequest.Id.Value)
+                    ?? throw new NotFoundException($"Company selection with ID {companyRequest.Id.Value} was not found while updating.");
+
+                if (existingCompanySelection.CompanyId != companyRequest.CompanyId)
+                {
+                    resume.MarkAiScoreStale(AiScoreStaleness.High);
+                }
+                else if (existingCompanySelection.SortOrder != companyRequest.SortOrder)
+                {
+                    resume.MarkAiScoreStale(AiScoreStaleness.Medium);
+                }
+
+                existingCompanySelection.Update(companyRequest.CompanyId, companyRequest.SortOrder);
+
+                var requestedBulletIds = companyRequest.Bullets
+                    .Where(b => b.Id.HasValue)
+                    .Select(b => b.Id!.Value)
+                    .ToHashSet();
+
+                var bulletsToDelete = existingCompanySelection.Bullets
+                    .Where(b => !requestedBulletIds.Contains(b.Id))
+                    .ToList();
+
+                foreach(var bullet in bulletsToDelete)
+                {
+                    resume.MarkAiScoreStale(AiScoreStaleness.High);
+                    existingCompanySelection.RemoveResumeBullet(bullet);
+                }
+
+                foreach (var bulletRequest in companyRequest.Bullets)
+                {
+                    if (bulletRequest.Id.HasValue)
+                    {
+                        var existingBullet = existingCompanySelection.Bullets.FirstOrDefault(b => b.Id == bulletRequest.Id.Value)
+                            ?? throw new NotFoundException($"Bullet with ID {bulletRequest.Id} was not found while updating.");
+
+                        var staleness = GetBulletStaleness(existingBullet, bulletRequest);
+                        resume.MarkAiScoreStale(staleness);
+
+                        existingBullet.Update(bulletRequest.SourceBulletId, bulletRequest.Value, bulletRequest.AlternativeValue, bulletRequest.SortOrder);
+                    }
+                    else
+                    {
+                        resume.MarkAiScoreStale(AiScoreStaleness.High);
+
+                        existingCompanySelection.AddResumeBullet(
+                            bulletRequest.SourceBulletId,
+                            bulletRequest.Value,
+                            bulletRequest.AlternativeValue,
+                            bulletRequest.SortOrder);
+                    }
+
+                }
+            }
+            else
+            {
+                resume.MarkAiScoreStale(AiScoreStaleness.High);
+
+                var newCompanySelection = resume.AddCompanySelection(companyRequest.CompanyId, companyRequest.SortOrder);
+
+                foreach (var bulletRequest in companyRequest.Bullets)
+                {
+                    newCompanySelection.AddResumeBullet(
+                        bulletRequest.SourceBulletId,
+                        bulletRequest.Value,
+                        bulletRequest.AlternativeValue,
+                        bulletRequest.SortOrder);
+                }
             }
         }
-
-        await repository.SaveAsync(cancellationToken);
     }
 
-    public async Task UpdateCompanySelectionAsync(int id, ResumeCompanySelectionRequest request, CancellationToken cancellationToken = default)
+    private static void UpdateEducationSelections(Resume resume, IReadOnlyCollection<ResumeEducationSelectionRequest> educationSelectionRequests)
     {
-        var existingSelection = await repository.GetCompanySelectionForUpdating(id, cancellationToken)
-            ?? throw new NotFoundException($"Company selection with ID {id} was not found while updating.");
-        
-        existingSelection.Update(request.CompanyId, request.SortOrder);
-        await repository.SaveAsync(cancellationToken);
-    }
+        var requestedEducationIds = educationSelectionRequests
+            .Select(r => r.EducationId)
+            .ToHashSet();
 
-    public async Task DeleteCompanySelectionAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var companySelection = await repository.GetCompanySelectionForUpdating(id, cancellationToken)
-            ?? throw new NotFoundException($"Company selection with ID {id} was not found while deleting.");
+        var educationSelectionsToDelete = resume.EducationSelections
+            .Where(s => !requestedEducationIds.Contains(s.EducationId))
+            .ToList();
 
-        repository.DeleteCompanySelection(companySelection);
-        await repository.SaveAsync(cancellationToken);
-    }
-
-
-    // Education Selection Management
-    public async Task CreateEducationSelectionsAsync(int generatedResumeId, IEnumerable<ResumeEducationSelectionRequest> requests, CancellationToken cancellationToken = default)
-    {
-        var generatedResume = await repository.GetResumeForUpdatingAsync(generatedResumeId, cancellationToken)
-            ?? throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found while creating education selections.");
-
-        foreach(var request in requests)
+        foreach (var selection in educationSelectionsToDelete)
         {
-            generatedResume.AddEducationSelection(request.EducationId, request.SortOrder);
+            resume.RemoveEducationSelection(selection);
         }
 
-        await repository.SaveAsync(cancellationToken);
-    }
-
-    public async Task UpdateEducationSelectionAsync(int id, ResumeEducationSelectionRequest request, CancellationToken cancellationToken = default)
-    {
-        var existingSelection = await repository.GetEducationSelectionForUpdating(id, cancellationToken)
-            ?? throw new NotFoundException($"Education selection with ID {id} was not found when updating.");
-        
-        existingSelection.Update(request.EducationId, request.SortOrder);
-        await repository.SaveAsync(cancellationToken);
-    }
-
-    public async Task DeleteEducationSelectionAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var educationSelection = await repository.GetEducationSelectionForUpdating(id, cancellationToken)
-            ?? throw new NotFoundException($"Education selection with ID {id} was not found when deleting.");
-
-        repository.DeleteEducationSelection(educationSelection);
-
-        await repository.SaveAsync(cancellationToken);
-    }
-
-    // Project Selection Management
-    public async Task CreateProjectSelectionsAsync(int generatedResumeId, IEnumerable<ResumeProjectSelectionRequest> requests, CancellationToken cancellationToken = default)
-    {
-        var generatedResume = await repository.GetResumeForUpdatingAsync(generatedResumeId, cancellationToken)
-            ?? throw new NotFoundException($"Generated resume with ID {generatedResumeId} was not found when creating project selections.");
-
-        foreach(var request in requests)
+        foreach (var educationRequest in educationSelectionRequests)
         {
-            generatedResume.AddProjectSelection(request.ProjectId, request.SortOrder);
+            if (educationRequest.Id.HasValue)
+            {
+                var existingEducationSelection = resume.EducationSelections.FirstOrDefault(s => s.Id == educationRequest.Id)
+                    ?? throw new NotFoundException($"Education selection with ID {educationRequest.EducationId} was not found while updating.");
+
+                existingEducationSelection.Update(educationRequest.EducationId, educationRequest.SortOrder);
+            }else
+            {
+                resume.AddEducationSelection(educationRequest.EducationId, educationRequest.SortOrder);
+            }
+        }
+    }
+
+    private static void UpdateProjectSelections(Resume resume, IReadOnlyCollection<ResumeProjectSelectionRequest> projectSelectionRequests)
+    {
+        var requestedProjectIds = projectSelectionRequests
+            .Select(r => r.ProjectId)
+            .ToHashSet();
+
+        var projectSelectionsToDelete = resume.ProjectSelections
+            .Where(s => !requestedProjectIds.Contains(s.ProjectId))
+            .ToList();
+
+        foreach (var selection in projectSelectionsToDelete)
+        {
+            resume.RemoveProjectSelection(selection);
         }
 
-        await repository.SaveAsync(cancellationToken);
-    }
-
-    public async Task UpdateProjectSelectionAsync(int id, ResumeProjectSelectionRequest request, CancellationToken cancellationToken = default)
-    {
-        var existingSelection = await repository.GetProjectSelectionForUpdating(id, cancellationToken)
-            ?? throw new NotFoundException($"Company selection with ID {id} was not found when updating.");
-        
-        existingSelection.Update(request.ProjectId, request.SortOrder);
-        await repository.SaveAsync(cancellationToken);
-    }
-
-    public async Task DeleteProjectSelectionAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var projectSelection = await repository.GetProjectSelectionForUpdating(id, cancellationToken)
-            ?? throw new NotFoundException($"Company selection with ID {id} was not found while deleting.");
-
-        repository.DeleteProjectSelection(projectSelection);
-
-        await repository.SaveAsync(cancellationToken);
-    }
-
-    // Resume Bullets
-    public async Task CreateResumeBulletsAsycn(int resumeCompanyId, IEnumerable<ResumeBulletRequest> requests, CancellationToken cancellationToken = default)
-    {
-        var companySelection = await repository.GetCompanySelectionForUpdating(resumeCompanyId, cancellationToken)
-            ?? throw new NotFoundException($"Company selection with ID {resumeCompanyId} was not found when creating resume bullets.");
-
-        foreach (var request in requests)
+        foreach (var projectRequest in projectSelectionRequests)
         {
-            companySelection.AddResumeBullet(
-                request.SourceBulletId,
-                request.Value,
-                request.AlternativeValue,
-                request.SortOrder);
+            if (projectRequest.Id.HasValue)
+            {
+                var existingProjectSelection = resume.ProjectSelections.FirstOrDefault(s => s.Id == projectRequest.Id)
+                    ?? throw new NotFoundException($"Project selection with ID {projectRequest.ProjectId} was not found while updating.");
+
+                existingProjectSelection.Update(projectRequest.ProjectId, projectRequest.SortOrder);
+            } else
+            {
+                resume.AddProjectSelection(projectRequest.ProjectId, projectRequest.SortOrder);
+            }
         }
-
-        await repository.SaveAsync(cancellationToken);
     }
-
-    public async Task UpdateResumeBulletAsync(int id, ResumeBulletRequest request, CancellationToken cancellationToken = default)
-    {
-        var existingBullet = await repository.GetResumeBulletForUpdating(id, cancellationToken)
-            ?? throw new NotFoundException($"Resume bullet with ID {id} was not found when updating.");
-        
-        existingBullet.Update(request.Value, request.AlternativeValue, request.SortOrder);
-        await repository.SaveAsync(cancellationToken);
-    }
-
-    public async Task DeleteResumeBulletAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var resumeBullet = await repository.GetResumeBulletForUpdating(id, cancellationToken)
-            ?? throw new NotFoundException($"Resume bullet with ID {id} was not found when deleting.");
-        
-        repository.DeleteResumeBullet(resumeBullet);
-        await repository.SaveAsync(cancellationToken);
-    }
-
 
     // Mapping Methods
-    private static ResumeListItemResponse MapGeneratedResumeDomainToListItemResponse(GeneratedResume generatedResume)
+    private static ResumeListItemResponse MapGeneratedResumeDomainToListItemResponse(Resume generatedResume)
     {
         return new ResumeListItemResponse(
             generatedResume.Id,
@@ -276,7 +256,7 @@ internal sealed class ResumeManagementService(
             );
     }
 
-    private static ResumeDetailsResponse MapToGeneratedResumeDetailsResponse(ResumeSourceData data, GeneratedResume resume)
+    private static ResumeDetailsResponse MapToGeneratedResumeDetailsResponse(ResumeSourceData data, Resume resume)
     {
         var selectedCompanies = data.Companies
             .Select(company =>
@@ -294,6 +274,7 @@ internal sealed class ResumeManagementService(
                     selection.Bullets
                         .OrderBy(b => b.SortOrder)
                         .Select(b => new ResumeBulletResult(
+                            SourceBulletId: b.SourceBulletId,
                             Value: b.Value,
                             AlternativeValue: b.AlternativeValue))
                         .ToList());
@@ -330,45 +311,92 @@ internal sealed class ResumeManagementService(
             .ToList();
 
         var resumeDetails = new ResumeDetailsResponse(
-            new ResumeResponse(
-                resume.Id,
-                data.Account.Id,
-                data.Account.DisplayName,
-                data.Account.Titles
+            Resume: new ResumeResponse(
+                Id: resume.Id,
+                AccountId: data.Account.Id,
+                ResumeName: resume.Name,
+                AiScoreStaleness: resume.AiScoreStaleness,
+                PersonName: data.Account.DisplayName,
+                Profession: data.Account.Titles
                     .FirstOrDefault(t => t.IsPrimary)?.Value ?? string.Empty,
-                data.Account.Email,
-                data.Account.PhoneNumber,
-                $"{data.Account.City}, {data.Account.State}, {data.Account.Country}",
-                data.Account.PersonalLinks
+                Email: data.Account.Email,
+                PhoneNumber: data.Account.PhoneNumber,
+                Location: $"{data.Account.City}, {data.Account.State}, {data.Account.Country}",
+                PersonalLinks: data.Account.PersonalLinks
                     .Select(link => new PersonalLinkResponse(
                         link.Id,
                         link.DisplayName,
                         link.Url))
                     .ToList(),
-                selectedCompanies,
-                selectedEducations,
-                selectedProjects),
+                Companies: selectedCompanies,
+                Education: selectedEducations,
+                Projects: selectedProjects),
 
-            new ResumeSummaryResponse(
-                0,
+            AiAnalysis: new ResumeAiAnalysisResponse(
+                resume.AiAnalysis?.Score,
                 resume.AiAnalysis?.Summary ?? string.Empty,
                 resume.AiAnalysis?.Strengths
-                    .Select(x => new ResumeAiInsightResult(
-                        x.Type,
-                        x.Value))
+                    .Select(x => x.Value)
                     .ToList() ?? [],
                 resume.AiAnalysis?.Weaknesses
-                    .Select(x => new ResumeAiInsightResult(
-                        x.Type,
-                        x.Value))
+                    .Select(x => x.Value)
                     .ToList() ?? []),
 
-            new AiUsage(
+            JobPosting: new JobPostingResult(
+                Id: resume.JobPosting?.Id ?? -1,
+                CompanyName: resume.JobPosting?.CompanyName,
+                JobTitle: resume.JobPosting?.JobTitle,
+                Location: resume.JobPosting?.Location,
+                WorkStyle: resume.JobPosting?.WorkStyle,
+                SalaryMin: resume.JobPosting?.SalaryMin,
+                SalaryMax: resume.JobPosting?.SalaryMax,
+                Salary: resume.JobPosting?.Salary,
+                SalaryPeriod: resume.JobPosting?.SalaryPeriod,
+                SalaryCurrency: resume.JobPosting?.SalaryCurrency),
+
+            ApplicationTracking: new ApplicationTrackingResponse(
+                Id: resume.ApplicationTracking?.Id ?? -1,
+                Status: resume.ApplicationTracking?.Status ?? ApplicationStatus.Interested,
+                Applied: resume.ApplicationTracking?.Applied,
+                Interviewed: resume.ApplicationTracking?.Interviewed,
+                OfferReceived: resume.ApplicationTracking?.OfferReceived,
+                OfferAccepted: resume.ApplicationTracking?.OfferAccepted,
+                Rejected: resume.ApplicationTracking?.Rejected),
+
+            AiMetaData: new AiMetaDataResult(
+                resume.AiMetaData?.Model ?? string.Empty,
                 resume.AiMetaData?.InputTokens ?? 0,
                 resume.AiMetaData?.OutputTokens ?? 0,
                 resume.AiMetaData?.TotalTokens ?? 0,
-                0));
+                resume.AiMetaData?.Cost ?? 0));
 
         return resumeDetails;
+    }
+
+    private static AiScoreStaleness GetBulletStaleness(ResumeCompanyBullet existing, ResumeBulletRequest request)
+    {
+        var wasAlternativeSwap =
+            existing.Value == request.AlternativeValue &&
+            existing.AlternativeValue == request.Value;
+
+        if (!wasAlternativeSwap &&
+            (existing.Value != request.Value ||
+             existing.AlternativeValue != request.AlternativeValue ||
+             existing.SourceBulletId != request.SourceBulletId))
+        {
+            return AiScoreStaleness.High;
+        }
+
+        if (existing.SortOrder != request.SortOrder)
+        {
+            return AiScoreStaleness.Medium;
+        }
+
+        if (wasAlternativeSwap)
+        {
+            return AiScoreStaleness.Low;
+        }
+
+        return AiScoreStaleness.None;
     }
 }

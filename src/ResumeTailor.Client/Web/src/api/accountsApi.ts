@@ -1,0 +1,57 @@
+import type { AccountRequest } from "./contracts/accounts/AccountRequest";
+import type { AccountResponse } from "./contracts/accounts/AccountResponse";
+
+export const createAccount = async (request: AccountRequest, token: string) => {
+  const response = await fetch("https://localhost:7139/api/accounts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create account");
+  }
+
+  return response.json();
+};
+
+export const getAccount = async (
+  token: string,
+): Promise<AccountResponse | null> => {
+  const response = await fetch("https://localhost:7139/api/accounts/me", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  console.log("TOKEN", token);
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error("Failed to load account.");
+  }
+
+  return await response.json();
+};
+
+export const updateAccountAsync = async (
+  request: AccountRequest,
+  token: string,
+) => {
+  const response = await fetch("https://localhost:7139/api/accounts/me", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update account");
+  }
+};

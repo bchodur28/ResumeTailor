@@ -1,23 +1,26 @@
 using Microsoft.EntityFrameworkCore;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Domain.GeneratedResumes;
-using ResumeTailor.Domain.GeneratedResumes.Content;
+using ResumeTailor.Domain.Resumes.ApplicationTracking;
+using ResumeTailor.Domain.Resumes.JobPositing;
 
 namespace ResumeTailor.Infrastructure.Persistence.Repositories.GeneratedResumes;
 
 public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeRepository
 {
     // Resumes
-    public async Task<IReadOnlyCollection<GeneratedResume>> GetResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<Resume>> GetResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
-        return await dbContext.GeneratedResumes
+        return await dbContext.Resumes
             .Where(gr => gr.AccountId == accountId)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<GeneratedResume?> GetResumeAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Resume?> GetResumeAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await dbContext.GeneratedResumes
+        return await dbContext.Resumes
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(x => x.CompanySelections)
                 .ThenInclude(x => x.Bullets)
             .Include(x => x.EducationSelections)
@@ -25,127 +28,47 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
             .Include(x => x.AiAnalysis!)
                 .ThenInclude(x => x.Insights)
             .Include(x => x.AiMetaData)
+            .Include(x => x.JobPosting)
+            .Include(x => x.ApplicationTracking)
             .SingleOrDefaultAsync(
                 x => x.Id == id,
                 cancellationToken);
     }
 
-    public async Task<GeneratedResume?> GetResumeForUpdatingAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Resume?> GetResumeForUpdatingAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await dbContext.GeneratedResumes
+        return await dbContext.Resumes
             .FirstOrDefaultAsync(gr => gr.Id == id, cancellationToken);
     }
 
-    public async Task CreateResumeAsync(GeneratedResume generatedResume, CancellationToken cancellationToken = default)
+    public async Task CreateResumeAsync(Resume generatedResume, CancellationToken cancellationToken = default)
     {
-        await dbContext.GeneratedResumes.AddAsync(generatedResume, cancellationToken);
+        await dbContext.Resumes.AddAsync(generatedResume, cancellationToken);
     }
 
-    public void DeleteResumeAsync(GeneratedResume generatedResume)
+    public void DeleteResumeAsync(Resume generatedResume)
     {
-        dbContext.GeneratedResumes.Remove(generatedResume);
+        dbContext.Resumes.Remove(generatedResume);
     }
 
     public async Task<bool> ResumeExistsAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await dbContext.GeneratedResumes.AnyAsync(gr => gr.Id == id, cancellationToken);
+        return await dbContext.Resumes.AnyAsync(gr => gr.Id == id, cancellationToken);
     }
 
-    // Company Selection
-    public async Task<ResumeCompanySelection?> GetCompanySelectionForUpdating(int id, CancellationToken cancellationToken = default)
+    // Resume Job Posting
+    public async Task<ResumeJobPosting?> GetResumeJobPostingForUpdatingAsync(int resumeId, CancellationToken cancellationToken = default)
     {
-        return await dbContext.ResumeCompanySelections
-            .SingleOrDefaultAsync(rcs => rcs.Id == id, cancellationToken);
+        return await dbContext.ResumeJobPostings
+            .SingleOrDefaultAsync(x => x.ResumeId == resumeId, cancellationToken);
     }
-    public async Task CreateCompanySelectionAsync(ResumeCompanySelection companySelection, CancellationToken cancellationToken = default)
+
+    // Resume Application Tracking
+    public async Task<ResumeApplicationTracking?> GetResumeApplicationTrackingForUpdatingAsync(int resumeId, CancellationToken cancellationToken = default)
     {
-        await dbContext.ResumeCompanySelections.AddAsync(companySelection, cancellationToken).AsTask();
+        return await dbContext.ResumeApplicationTrackings
+            .SingleOrDefaultAsync(x => x.ResumeId == resumeId, cancellationToken);
     }
-
-    public async Task CreateCompanySelectionsAsync(IEnumerable<ResumeCompanySelection> companySelections, CancellationToken cancellationToken = default)
-    {
-        await dbContext.ResumeCompanySelections.AddRangeAsync(companySelections, cancellationToken);
-    }
-
-    public void DeleteCompanySelection(ResumeCompanySelection companySelection)
-    {
-        dbContext.ResumeCompanySelections.Remove(companySelection);
-    }
-
-    public async Task<bool> CompanySelectionExistsAsync(int id, CancellationToken cancellationToken = default)
-    {
-        return await dbContext.ResumeCompanySelections.AnyAsync(rcs => rcs.Id == id, cancellationToken);
-    }
-
-
-    // Education Selection
-    public async Task<ResumeEducationSelection?> GetEducationSelectionForUpdating(int id, CancellationToken cancellationToken = default)
-    {
-        return await dbContext.ResumeEducationSelections
-            .SingleOrDefaultAsync(resumeEducationSelection => resumeEducationSelection.Id == id, cancellationToken);
-    }
-
-    public async Task CreateEducationSelectionAsync(ResumeEducationSelection educationSelection, CancellationToken cancellationToken = default)
-    {
-        await dbContext.ResumeEducationSelections.AddAsync(educationSelection, cancellationToken).AsTask();
-    }
-
-    public async Task CreateEducationSelectionsAsync(IEnumerable<ResumeEducationSelection> educationSelections, CancellationToken cancellationToken = default)
-    {
-        await dbContext.ResumeEducationSelections.AddRangeAsync(educationSelections, cancellationToken);
-    }
-
-    public void DeleteEducationSelection(ResumeEducationSelection educationSelection)
-    {
-        dbContext.ResumeEducationSelections.Remove(educationSelection);
-    }
-
-
-    // Project Selection
-    public async Task<ResumeProjectSelection?> GetProjectSelectionForUpdating(int id, CancellationToken cancellationToken = default)
-    {
-        return await dbContext.ResumeProjectSelections
-            .SingleOrDefaultAsync(resumeEducationSelection => resumeEducationSelection.Id == id, cancellationToken);
-    }
-
-    public async Task CreateProjectSelectionAsync(ResumeProjectSelection projectSelection, CancellationToken cancellationToken = default)
-    {
-        await dbContext.ResumeProjectSelections.AddAsync(projectSelection, cancellationToken).AsTask();
-    }
-
-    public async Task CreateProjectSelectionsAsync(IEnumerable<ResumeProjectSelection> projectSelection, CancellationToken cancellationToken = default)
-    {
-        await dbContext.ResumeProjectSelections.AddRangeAsync(projectSelection, cancellationToken);
-    }
-
-    public void DeleteProjectSelection(ResumeProjectSelection projectSelection)
-    {
-        dbContext.ResumeProjectSelections.Remove(projectSelection);
-    }
-
-
-    // Resume Bullets
-    public async Task<ResumeBullet?> GetResumeBulletForUpdating(int id, CancellationToken cancellationToken = default)
-    {
-        return await dbContext.ResumeBullets
-            .SingleOrDefaultAsync(resumeEducationSelection => resumeEducationSelection.Id == id, cancellationToken);
-    }
-
-    public async Task CreateResumeBulletAsync(ResumeBullet bullet, CancellationToken cancellationToken = default)
-    {
-        await dbContext.ResumeBullets.AddAsync(bullet, cancellationToken).AsTask();
-    }
-
-    public async Task CreateResumeBulletsAysnc(IEnumerable<ResumeBullet> bullets, CancellationToken cancellationToken = default)
-    {
-        await dbContext.ResumeBullets.AddRangeAsync(bullets, cancellationToken);
-    }
-
-    public void DeleteResumeBullet(ResumeBullet bullet)
-    {
-        dbContext.ResumeBullets.Remove(bullet);
-    }
-
 
     // Save Changes
     public async Task SaveAsync(CancellationToken cancellationToken = default)

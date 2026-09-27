@@ -7,8 +7,8 @@ import {
   type PropsWithChildren,
 } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { getAccount } from "../api/accounts";
-import type { AccountResponse } from "../models/profile/AccountResponse";
+import { getAccount } from "../api/accountsApi";
+import type { AccountResponse } from "../api/contracts/accounts/AccountResponse";
 
 type AccountContextType = {
   account: AccountResponse | null;

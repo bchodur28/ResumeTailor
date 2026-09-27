@@ -1,3 +1,3 @@
 namespace ResumeTailor.Application.Contracts.Resume;
 
-public sealed record ResumeAiMetaDataRequest(int GeneratedResumeId, int InputTokens, int OutputTokens, int TotalTokens);
+public sealed record ResumeAiMetaDataRequest(int ResumeId, string Model, int InputTokens, int OutputTokens, int TotalTokens, decimal Cost);

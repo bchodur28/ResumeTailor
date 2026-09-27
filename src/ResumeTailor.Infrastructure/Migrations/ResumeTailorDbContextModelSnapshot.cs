@@ -17,283 +17,6 @@ namespace ResumeTailor.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
 
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Account", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Auth0UserId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Account", (string)null);
-                });
-
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Bullet", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("AiScore")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.ToTable("Bullet", (string)null);
-                });
-
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Company", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AccountId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly?>("Ended")
-                        .HasColumnType("date");
-
-                    b.Property<bool>("GenerateBullets")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("MaxGeneratedBulletCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly>("Started")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Company", (string)null);
-                });
-
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Education", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AccountId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Degree")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly?>("Ended")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Major")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SchoolName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly>("Started")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("UseForResume")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Education", (string)null);
-                });
-
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.PersonalLink", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AccountId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("PersonalLink", (string)null);
-                });
-
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Project", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AccountId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly?>("Ended")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Link")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly>("Started")
-                        .HasColumnType("date");
-
-                    b.Property<string>("TechStack")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("UseForResume")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Project", (string)null);
-                });
-
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Title", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AccountId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsPrimary")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("Title", (string)null);
-                });
-
             modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldExtractionDefinition", b =>
                 {
                     b.Property<int>("Id")
@@ -431,7 +154,7 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("GeneratedResumeId")
+                    b.Property<int>("ResumeId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Score")
@@ -447,7 +170,7 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GeneratedResumeId")
+                    b.HasIndex("ResumeId")
                         .IsUnique();
 
                     b.ToTable("ResumeAiAnalysis", (string)null);
@@ -465,12 +188,6 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<int>("ResumeAiAnalysisId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ResumeAiAnalysisId1")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ResumeAiAnalysisId2")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
@@ -486,10 +203,6 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.HasIndex("ResumeAiAnalysisId");
 
-                    b.HasIndex("ResumeAiAnalysisId1");
-
-                    b.HasIndex("ResumeAiAnalysisId2");
-
                     b.ToTable("ResumeAiInsight", (string)null);
                 });
 
@@ -499,16 +212,23 @@ namespace ResumeTailor.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<decimal>("Cost")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("GeneratedResumeId")
-                        .HasColumnType("INTEGER");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("InputTokens")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("OutputTokens")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ResumeId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TotalTokens")
@@ -519,13 +239,13 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GeneratedResumeId")
+                    b.HasIndex("ResumeId")
                         .IsUnique();
 
                     b.ToTable("ResumeAiMetaData", (string)null);
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeBullet", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeCompanyBullet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -534,11 +254,11 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<string>("AlternativeValue")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("ResumeCompanyId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("INTEGER");
@@ -555,9 +275,9 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ResumeCompanyId");
+                    b.HasIndex("CompanyId");
 
-                    b.ToTable("ResumeBullet", (string)null);
+                    b.ToTable("ResumeCompanyBullet", (string)null);
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeCompanySelection", b =>
@@ -572,7 +292,7 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("GeneratedResumeId")
+                    b.Property<int>("ResumeId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("SortOrder")
@@ -583,7 +303,7 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GeneratedResumeId");
+                    b.HasIndex("ResumeId");
 
                     b.ToTable("ResumeCompanySelection", (string)null);
                 });
@@ -600,7 +320,7 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<int>("EducationId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("GeneratedResumeId")
+                    b.Property<int>("ResumeId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("SortOrder")
@@ -611,7 +331,7 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GeneratedResumeId");
+                    b.HasIndex("ResumeId");
 
                     b.ToTable("ResumeEducationSelection", (string)null);
                 });
@@ -625,10 +345,10 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("GeneratedResumeId")
+                    b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int>("ResumeId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("SortOrder")
@@ -639,12 +359,12 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GeneratedResumeId");
+                    b.HasIndex("ResumeId");
 
                     b.ToTable("ResumeProjectSelection", (string)null);
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.GeneratedResume", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Resume", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -653,11 +373,11 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("AiScoreStaleness")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
-
-                    b.Property<int?>("JobApplicationId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -668,13 +388,91 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("JobApplicationId")
-                        .IsUnique();
-
-                    b.ToTable("GeneratedResume", (string)null);
+                    b.ToTable("Resume", (string)null);
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.JobApplications.JobApplication", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Account", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Auth0UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Account", (string)null);
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Bullet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("AiScore")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Bullet", (string)null);
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Company", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -683,75 +481,288 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateOnly?>("AppliedDate")
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("Ended")
                         .HasColumnType("date");
 
-                    b.Property<string>("CompanyName")
+                    b.Property<bool>("GenerateBullets")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Location")
                         .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MaxGeneratedBulletCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Started")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Company", (string)null);
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Education", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Degree")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("Ended")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Major")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SchoolName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Started")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("UseForResume")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Education", (string)null);
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.PersonalLink", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("PersonalLink", (string)null);
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Project", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("Ended")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Started")
+                        .HasColumnType("date");
+
+                    b.Property<string>("TechStack")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("UseForResume")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Project", (string)null);
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Title", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Title", (string)null);
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Resumes.ApplicationTracking.ResumeApplicationTracking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateOnly?>("Applied")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("Interviewed")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("OfferAccepted")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("OfferReceived")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("Rejected")
+                        .HasColumnType("date");
+
+                    b.Property<int>("ResumeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResumeId")
+                        .IsUnique();
+
+                    b.ToTable("ResumeApplicationTracking", (string)null);
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Resumes.JobPositing.ResumeJobPosting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CompanyName")
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("JobDescription")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("JobName")
-                        .IsRequired()
+                    b.Property<string>("JobTitle")
                         .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("JobUrl")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Location")
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
+                    b.Property<int>("ResumeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal?>("Salary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SalaryCurrency")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("SalaryMax")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SalaryMin")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("SalaryPeriod")
+                        .HasMaxLength(50)
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("WorkStyle")
-                        .IsRequired()
+                    b.Property<int?>("WorkStyle")
                         .HasMaxLength(50)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.ToTable("JobApplication", (string)null);
-                });
+                    b.HasIndex("ResumeId")
+                        .IsUnique();
 
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Bullet", b =>
-                {
-                    b.HasOne("ResumeTailor.Domain.Accounts.Company", null)
-                        .WithMany("Bullets")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.PersonalLink", b =>
-                {
-                    b.HasOne("ResumeTailor.Domain.Accounts.Account", null)
-                        .WithMany("PersonalLinks")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Title", b =>
-                {
-                    b.HasOne("ResumeTailor.Domain.Accounts.Account", null)
-                        .WithMany("Titles")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("ResumeJobPosting", (string)null);
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldExtractionDefinition", b =>
@@ -782,9 +793,9 @@ namespace ResumeTailor.Infrastructure.Migrations
 
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.AI.ResumeAiAnalysis", b =>
                 {
-                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.GeneratedResume", null)
+                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.Resume", null)
                         .WithOne("AiAnalysis")
-                        .HasForeignKey("ResumeTailor.Domain.GeneratedResumes.AI.ResumeAiAnalysis", "GeneratedResumeId")
+                        .HasForeignKey("ResumeTailor.Domain.GeneratedResumes.AI.ResumeAiAnalysis", "ResumeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -796,79 +807,96 @@ namespace ResumeTailor.Infrastructure.Migrations
                         .HasForeignKey("ResumeAiAnalysisId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.AI.ResumeAiAnalysis", null)
-                        .WithMany("Strengths")
-                        .HasForeignKey("ResumeAiAnalysisId1");
-
-                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.AI.ResumeAiAnalysis", null)
-                        .WithMany("Weaknesses")
-                        .HasForeignKey("ResumeAiAnalysisId2");
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.AI.ResumeAiMetaData", b =>
                 {
-                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.GeneratedResume", null)
+                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.Resume", null)
                         .WithOne("AiMetaData")
-                        .HasForeignKey("ResumeTailor.Domain.GeneratedResumes.AI.ResumeAiMetaData", "GeneratedResumeId")
+                        .HasForeignKey("ResumeTailor.Domain.GeneratedResumes.AI.ResumeAiMetaData", "ResumeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeBullet", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeCompanyBullet", b =>
                 {
                     b.HasOne("ResumeTailor.Domain.GeneratedResumes.Content.ResumeCompanySelection", null)
                         .WithMany("Bullets")
-                        .HasForeignKey("ResumeCompanyId")
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeCompanySelection", b =>
                 {
-                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.GeneratedResume", null)
+                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.Resume", null)
                         .WithMany("CompanySelections")
-                        .HasForeignKey("GeneratedResumeId")
+                        .HasForeignKey("ResumeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeEducationSelection", b =>
                 {
-                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.GeneratedResume", null)
+                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.Resume", null)
                         .WithMany("EducationSelections")
-                        .HasForeignKey("GeneratedResumeId")
+                        .HasForeignKey("ResumeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeProjectSelection", b =>
                 {
-                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.GeneratedResume", null)
+                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.Resume", null)
                         .WithMany("ProjectSelections")
-                        .HasForeignKey("GeneratedResumeId")
+                        .HasForeignKey("ResumeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.GeneratedResume", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Bullet", b =>
                 {
-                    b.HasOne("ResumeTailor.Domain.JobApplications.JobApplication", null)
-                        .WithOne("GeneratedResume")
-                        .HasForeignKey("ResumeTailor.Domain.GeneratedResumes.GeneratedResume", "JobApplicationId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasOne("ResumeTailor.Domain.Profile.Company", null)
+                        .WithMany("Bullets")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Account", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.PersonalLink", b =>
                 {
-                    b.Navigation("PersonalLinks");
-
-                    b.Navigation("Titles");
+                    b.HasOne("ResumeTailor.Domain.Profile.Account", null)
+                        .WithMany("PersonalLinks")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.Accounts.Company", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Title", b =>
                 {
-                    b.Navigation("Bullets");
+                    b.HasOne("ResumeTailor.Domain.Profile.Account", null)
+                        .WithMany("Titles")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Resumes.ApplicationTracking.ResumeApplicationTracking", b =>
+                {
+                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.Resume", null)
+                        .WithOne("ApplicationTracking")
+                        .HasForeignKey("ResumeTailor.Domain.Resumes.ApplicationTracking.ResumeApplicationTracking", "ResumeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Resumes.JobPositing.ResumeJobPosting", b =>
+                {
+                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.Resume", null)
+                        .WithOne("JobPosting")
+                        .HasForeignKey("ResumeTailor.Domain.Resumes.JobPositing.ResumeJobPosting", "ResumeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldExtractionDefinition", b =>
@@ -884,10 +912,6 @@ namespace ResumeTailor.Infrastructure.Migrations
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.AI.ResumeAiAnalysis", b =>
                 {
                     b.Navigation("Insights");
-
-                    b.Navigation("Strengths");
-
-                    b.Navigation("Weaknesses");
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeCompanySelection", b =>
@@ -895,22 +919,33 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Navigation("Bullets");
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.GeneratedResume", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Resume", b =>
                 {
                     b.Navigation("AiAnalysis");
 
                     b.Navigation("AiMetaData");
 
+                    b.Navigation("ApplicationTracking");
+
                     b.Navigation("CompanySelections");
 
                     b.Navigation("EducationSelections");
 
+                    b.Navigation("JobPosting");
+
                     b.Navigation("ProjectSelections");
                 });
 
-            modelBuilder.Entity("ResumeTailor.Domain.JobApplications.JobApplication", b =>
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Account", b =>
                 {
-                    b.Navigation("GeneratedResume");
+                    b.Navigation("PersonalLinks");
+
+                    b.Navigation("Titles");
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Company", b =>
+                {
+                    b.Navigation("Bullets");
                 });
 #pragma warning restore 612, 618
         }

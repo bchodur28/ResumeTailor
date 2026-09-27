@@ -5,7 +5,6 @@ using OpenAI.Responses;
 using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
-using ResumeTailor.Application.JobApplications.Interfaces;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Education.Interfaces;
 using ResumeTailor.Application.Profile.Experience.Interfaces;
@@ -14,7 +13,6 @@ using ResumeTailor.Infrastructure.Persistence;
 using ResumeTailor.Infrastructure.Persistence.Repositories.Accounts;
 using ResumeTailor.Infrastructure.Persistence.Repositories.Extraction;
 using ResumeTailor.Infrastructure.Persistence.Repositories.GeneratedResumes;
-using ResumeTailor.Infrastructure.Persistence.Repositories.JobApplications;
 
 
 namespace ResumeTailor.Infrastructure;
@@ -65,7 +63,6 @@ public static class DependencyInjection
         services.AddScoped<IFieldExtractionDefinitionRepository, FieldExtractionDefinitionRepository>();
         services.AddScoped<IFieldPatternRepository, FieldPatternRepository>();
         services.AddScoped<IResumeRepository, ResumeRepository>();
-        services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
         services.AddScoped<IExperienceRepository, ExperienceRepository>();
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<IEducationRepository, EducationRepository>();

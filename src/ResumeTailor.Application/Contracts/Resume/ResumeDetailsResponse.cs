@@ -1,9 +1,11 @@
-using ResumeTailor.Application.GeneratedResumes.Common.Models;
+using ResumeTailor.Application.Resumes.Common.Models;
 
 namespace ResumeTailor.Application.Contracts.Resume;
 
 public sealed record ResumeDetailsResponse(
     ResumeResponse Resume,
-    ResumeSummaryResponse ResumeSummary,
-    AiUsage Usage
+    ResumeAiAnalysisResponse? AiAnalysis,
+    JobPostingResult? JobPosting,
+    ApplicationTrackingResponse? ApplicationTracking,
+    AiMetaDataResult? AiMetaData
     );

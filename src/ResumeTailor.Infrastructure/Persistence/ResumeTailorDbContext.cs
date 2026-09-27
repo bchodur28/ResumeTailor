@@ -3,7 +3,9 @@ using ResumeTailor.Domain.Profile;
 using ResumeTailor.Domain.Extraction;
 using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.GeneratedResumes.Content;
-using ResumeTailor.Domain.JobApplications;
+using ResumeTailor.Domain.Resumes.JobApplications;
+using ResumeTailor.Domain.Resumes.JobPositing;
+using ResumeTailor.Domain.Resumes.ApplicationTracking;
 
 namespace ResumeTailor.Infrastructure.Persistence;
 
@@ -13,19 +15,19 @@ public sealed class ResumeTailorDbContext(DbContextOptions<ResumeTailorDbContext
     public DbSet<FieldExtractionDefinition> FieldExtractionDefinitions => Set<FieldExtractionDefinition>();
     public DbSet<FieldPattern> FieldPatterns => Set<FieldPattern>();
 
-    public DbSet<JobApplication> JobApplications => Set<JobApplication>();
-
-    public DbSet<GeneratedResume> GeneratedResumes => Set<GeneratedResume>();
+    public DbSet<Resume> Resumes => Set<Resume>();
     public DbSet<ResumeCompanySelection> ResumeCompanySelections => Set<ResumeCompanySelection>();
     public DbSet<ResumeProjectSelection> ResumeProjectSelections => Set<ResumeProjectSelection>();
     public DbSet<ResumeEducationSelection> ResumeEducationSelections => Set<ResumeEducationSelection>();
-    public DbSet<ResumeBullet> ResumeBullets => Set<ResumeBullet>();
+    public DbSet<ResumeCompanyBullet> ResumeBullets => Set<ResumeCompanyBullet>();
+    public DbSet<ResumeJobPosting> ResumeJobPostings => Set<ResumeJobPosting>();
+    public DbSet<ResumeApplicationTracking> ResumeApplicationTrackings => Set<ResumeApplicationTracking>();
 
     public DbSet<Account> Accounts => Set<Account>();
-    public DbSet<Company> AccountCompanies => Set<Company>();
+    public DbSet<Company> Companies => Set<Company>();
     public DbSet<Bullet> Bullets => Set<Bullet>();
-    public DbSet<Project> AccountProjects => Set<Project>();
-    public DbSet<Title> AccountTitles => Set<Title>();
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Title> Titles => Set<Title>();
     public DbSet<PersonalLink> AccountPersonalLinks => Set<PersonalLink>();
     public DbSet<Education> Education => Set<Education>();
 

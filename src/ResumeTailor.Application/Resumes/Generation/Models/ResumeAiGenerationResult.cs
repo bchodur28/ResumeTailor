@@ -1,11 +1,14 @@
 using ResumeTailor.Application.GeneratedResumes.Common.Models;
+using ResumeTailor.Application.Resumes.Common.Models;
 
 namespace ResumeTailor.Application.GeneratedResumes.Generation.Models;
 
 public sealed record ResumeAiGenerationResult(
-    int score,
+    int Score,
     string Summary,
     IReadOnlyList<ResumeCompanyResult> Companies,
-    IReadOnlyList<ResumeAiInsightResult> Strengths,
-    IReadOnlyList<ResumeAiInsightResult> Weaknesses,
-    AiUsage AiUsage);
+    IReadOnlyList<string> Strengths,
+    IReadOnlyList<string> Weaknesses,
+    AiMetaDataResult AiMetaData,
+    JobPostingResult JobPosting
+    );

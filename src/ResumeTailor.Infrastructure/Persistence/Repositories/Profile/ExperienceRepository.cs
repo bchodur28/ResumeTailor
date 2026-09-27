@@ -10,7 +10,7 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
     // Company
     public async Task<IReadOnlyCollection<Company>> GetCompaniesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
-        return await dbContext.AccountCompanies
+        return await dbContext.Companies
             .AsNoTracking()
             .Where(c => c.AccountId == accountId)
             .ToListAsync(cancellationToken);
@@ -18,7 +18,7 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
 
     public async Task<IReadOnlyCollection<Company>> GetCompaniesWithBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
-        return await dbContext.AccountCompanies
+        return await dbContext.Companies
             .AsNoTracking()
             .Where(c => c.AccountId == accountId)
             .Include(c => c.Bullets)
@@ -27,7 +27,7 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
 
     public async Task<IReadOnlyCollection<CompanyWithBulletCount>> GetCompaniesWithCountByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
-        return await dbContext.AccountCompanies
+        return await dbContext.Companies
             .AsNoTracking()
             .Where(c => c.AccountId == accountId)
             .Select(c => new CompanyWithBulletCount(c, c.Bullets.Count))
@@ -36,7 +36,7 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
 
     public async Task<IReadOnlyCollection<Company>> GetCompaniesForUpdatingByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
-        return await dbContext.AccountCompanies
+        return await dbContext.Companies
             .Where(c => c.AccountId == accountId)
             .Include(c => c.Bullets)
             .ToListAsync(cancellationToken);
@@ -44,7 +44,7 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
 
     public async Task<IReadOnlyCollection<Company>> GetCompaniesByIdsAsync(HashSet<int> ids, CancellationToken cancellationToken = default)
     {
-        return await dbContext.AccountCompanies
+        return await dbContext.Companies
             .AsNoTracking()
             .Where(c => ids.Contains(c.Id))
             .Include(c => c.Bullets)
@@ -53,18 +53,18 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
 
     public void AddCompanies(IEnumerable<Company> companies)
     {
-        dbContext.AccountCompanies.AddRange(companies);
+        dbContext.Companies.AddRange(companies);
     }
 
     public void RemoveCompanies(IEnumerable<Company> companies)
     {
-        dbContext.AccountCompanies.RemoveRange(companies);
+        dbContext.Companies.RemoveRange(companies);
     }
 
     // Project
     public async Task<IReadOnlyCollection<Project>> GetProjectsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
-        return await dbContext.AccountProjects
+        return await dbContext.Projects
             .AsNoTracking()
             .Where(p => p.AccountId == accountId)
             .ToListAsync(cancellationToken);
@@ -72,14 +72,14 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
 
     public async Task<IReadOnlyCollection<Project>> GetProjectsForUpdatingByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
-        return await dbContext.AccountProjects
+        return await dbContext.Projects
             .Where(p => p.AccountId == accountId)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyCollection<Project>> GetProjectsByIdsAsync(HashSet<int> ids, CancellationToken cancellationToken = default)
     {
-        return await dbContext.AccountProjects
+        return await dbContext.Projects
             .AsNoTracking()
             .Where(c => ids.Contains(c.Id))
             .ToListAsync(cancellationToken);
@@ -87,18 +87,18 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
 
     public void AddProjects(IEnumerable<Project> projects)
     {
-        dbContext.AccountProjects.AddRange(projects);
+        dbContext.Projects.AddRange(projects);
     }
 
     public void RemoveProjects(IEnumerable<Project> projects)
     {
-        dbContext.AccountProjects.RemoveRange(projects);
+        dbContext.Projects.RemoveRange(projects);
     }
 
     // Bullet
     public async Task<IReadOnlyCollection<CompanyBullets>> GetCompanyBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
-        var companies = await dbContext.AccountCompanies
+        var companies = await dbContext.Companies
             .AsNoTracking()
             .Where(c => c.AccountId == accountId)
             .Include(c => c.Bullets)
@@ -115,7 +115,7 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
         .Where(b =>
             bulletIds.Contains(b.Id) &&
             companyIds.Contains(b.CompanyId) &&
-            dbContext.AccountCompanies.Any(c =>
+            dbContext.Companies.Any(c =>
                 c.Id == b.CompanyId &&
                 c.AccountId == accountId))
         .ToListAsync(cancellationToken);

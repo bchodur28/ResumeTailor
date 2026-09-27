@@ -2,4 +2,4 @@ using ResumeTailor.Application.Contracts.Bullets;
 
 namespace ResumeTailor.Application.Contracts.Resume;
 
-public sealed record ResumeCompanySelectionRequest(int ResumeId, int CompanyId, int SortOrder, IReadOnlyCollection<ResumeBulletRequest> Bullets);
+public sealed record ResumeCompanySelectionRequest(int? Id, int ResumeId, int CompanyId, int SortOrder, IReadOnlyCollection<ResumeBulletRequest> Bullets);

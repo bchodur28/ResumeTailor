@@ -11,6 +11,7 @@ internal class AccountRepository(ResumeTailorDbContext dbContext) : IAccountRepo
     {
         return await dbContext.Accounts
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(a => a.Titles)
             .Include(a => a.PersonalLinks)
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
@@ -20,6 +21,7 @@ internal class AccountRepository(ResumeTailorDbContext dbContext) : IAccountRepo
     {
         return await dbContext.Accounts
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(a => a.Titles)
             .Include(a => a.PersonalLinks)
             .FirstOrDefaultAsync(a => a.Auth0UserId == auth0UserId, cancellationToken);
@@ -38,6 +40,7 @@ internal class AccountRepository(ResumeTailorDbContext dbContext) : IAccountRepo
     public async Task<Account?> GetAccountForUpdatingAsync(string auth0UserId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Accounts
+            .AsSplitQuery()
             .Include(a => a.Titles)
             .Include(a => a.PersonalLinks)
             .FirstOrDefaultAsync(a => a.Auth0UserId == auth0UserId, cancellationToken);

@@ -12,7 +12,7 @@ public sealed class ResumeController(IResumeManagementService managementService,
 {
 
     [HttpPost("{accountId:int}/generate")]
-    public async Task<ActionResult<ResumeDetailsResponse>> GenerateResumeAsync(int accountId, [FromBody] GenerateResumeRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<int>> GenerateResumeAsync(int accountId, [FromBody] GenerateResumeRequest request, CancellationToken cancellationToken = default)
     {
         var response = await generatorService.GenerateResumeDetailsAsync(accountId, request.Description, cancellationToken);
 
@@ -20,37 +20,44 @@ public sealed class ResumeController(IResumeManagementService managementService,
     }
 
     [HttpGet("{id:int}", Name = "GetGeneratedResume")]
-    public async Task<ActionResult<ResumeDetailsResponse>> GetGeneratedResumeAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<ResumeDetailsResponse>> GetResumeAsync(int id, CancellationToken cancellationToken = default)
     {
         var response = await managementService.GetResumeDetailsAsync(id, cancellationToken);
         return Ok(response);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<int>> SaveGeneratedResumeAsync([FromBody] ResumeRequest request, CancellationToken cancellationToken = default)
-    {
-        var id = await managementService.SaveGeneratedResumeAsync(request, cancellationToken);
-        return CreatedAtRoute("GetGeneratedResume", new { id }, id);
-    }
-
     [HttpGet("account/{accountId:int}")]
-    public async Task<ActionResult<IReadOnlyCollection<ResumeListItemResponse>>> GetGeneratedResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<IReadOnlyCollection<ResumeListItemResponse>>> GetResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
-        var response = await managementService.GetGeneratedResumesByAccountIdAsync(accountId, cancellationToken);
+        var response = await managementService.GetResumesByAccountIdAsync(accountId, cancellationToken);
         return Ok(response);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult> UpdateGeneratedResumeAsync(int id, [FromBody] GeneratedResumeRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> UpdateResumeAsync(int id, [FromBody] UpdateResumeRequest request, CancellationToken cancellationToken = default)
     {
-        await managementService.UpdateGeneratedResumeAsync(id, request, cancellationToken);
+        await managementService.UpdateResumeAsync(id, request, cancellationToken);
         return NoContent();
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<ActionResult> DeleteGeneratedResumeAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> DeleteResumeAsync(int id, CancellationToken cancellationToken = default)
     {
-        await managementService.DeleteGeneratedResumeAsync(id, cancellationToken);
+        await managementService.DeleteResumeDetailsAsync(id, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPut("{id:int}/job-posting")]
+    public async Task<ActionResult> UpdateResumeJobPostingAsync(int id, [FromBody] ResumeJobPostingRequest request, CancellationToken cancellationToken = default)
+    {
+        await managementService.UpdateResumeJobPostingAsync(id, request, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPut("{id:int}/application-tracking")]
+    public async Task<ActionResult> UpdateResumeApplicationTrackingAsync(int id, [FromBody] ResumeApplicationTrackingRequest request, CancellationToken cancellationToken = default)
+    {
+        await managementService.UpdateResumeApplicationTrackingAsync(id, request, cancellationToken);
         return NoContent();
     }
 }

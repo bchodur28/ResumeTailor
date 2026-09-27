@@ -1,6 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useQuery } from "@tanstack/react-query";
-import { getCompanies } from "../api/experience";
+import { getCompanies } from "../api/experienceApi";
 
 export const useCompanies = () => {
   const { getAccessTokenSilently } = useAuth0();

@@ -1,4 +1,4 @@
-import type { ResumeGenerationResult } from "../models/resume/ResumeGenerationResult";
+import type { ResumeGenerationResult } from "../api/contracts/resumes/ResumeDetailsResponse";
 import { cornerstoneBullets, buildertrendBullets } from "./mockBullets";
 
 export const mockResumeGenerationResult: ResumeGenerationResult = {

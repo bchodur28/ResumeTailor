@@ -1,0 +1,22 @@
+```mermaid
+%%{init: {'class': {'padding': 20}, 'flowchart': {'nodeSpacing': 80, 'rankSpacing': 100}}}%%
+classDiagram
+direction LR %% Change to TB for top-to-bottom layout
+
+class ResumeController {
+    +GenerateResumeAsync(accountId: int, request: GenerateResumeRequest, cancellationToken: CancellationToken) Task~ActionResult~ResumeDetailsResponse~~
+    +GetGeneratedResumeAsync(id: int, cancellationToken: CancellationToken) Task~ActionResult~ResumeDetailsResponse~~
+    +SaveGeneratedResumeAsync(request: ResumeRequest, cancellationToken: CancellationToken) Task~ActionResult~int~~
+    +GetGeneratedResumesByAccountIdAsync(accountId: int, cancellationToken: CancellationToken) Task~ActionResult~IReadOnlyCollection~ResumeListItemResponse~~~
+    +UpdateGeneratedResumeAsync(id: int, request: GeneratedResumeRequest, cancellationToken: CancellationToken) Task~ActionResult~
+    +DeleteGeneratedResumeAsync(id: int, cancellationToken: CancellationToken) Task~ActionResult~
+}
+
+class ControllerBase
+
+
+ControllerBase <|-- ResumeController : inherit
+
+style ResumeController fill:#d4eddaB3,stroke:#c3e6cbB3,color:#000000
+style ControllerBase fill:#f0f0f080,stroke:#cccccc80,color:#00000080
+```

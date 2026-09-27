@@ -5,14 +5,14 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useState } from "react";
 import type { EducationForm } from "../../models/forms/EducationForm";
 import { useEffect } from "react";
-import type { EducationRequest } from "../../models/profile/EducationRequest";
+import type { EducationRequest } from "../../api/contracts/education/EducationRequest";
 import Input from "../forms/Input";
 import { Trash3 } from "react-bootstrap-icons";
 import {
   createEducation,
   updateEducation,
   deleteEducation,
-} from "../../api/education";
+} from "../../api/educationApi";
 import Checkbox from "../forms/Checkbox";
 import Message from "../ui/Message";
 

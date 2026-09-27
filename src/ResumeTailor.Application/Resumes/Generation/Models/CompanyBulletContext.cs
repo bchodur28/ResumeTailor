@@ -1,5 +1,7 @@
 
 
+using ResumeTailor.Application.Resumes.Generation.Models;
+
 namespace ResumeTailor.Application.GeneratedResumes.Generation.Models;
 
 public sealed record CompanyBulletContext(
@@ -9,5 +11,5 @@ public sealed record CompanyBulletContext(
     string? Location,
     DateOnly Started,
     DateOnly? Ended,
-    IReadOnlyList<string> Bullets,
+    IReadOnlyCollection<BulletContext> Bullets,
     int MaxBullets);

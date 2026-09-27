@@ -4,10 +4,10 @@ namespace ResumeTailor.Domain.GeneratedResumes.AI;
 
 public class ResumeAiAnalysis : Entity
 {
-    public int GeneratedResumeId { get; private set; }
+    public int ResumeId { get; private set; }
 
-    public string Summary { get; private set; } = string.Empty;
     public int Score { get; private set; }
+    public string Summary { get; private set; } = string.Empty;
 
     private readonly List<ResumeAiInsight> _insights = [];
     public IReadOnlyCollection<ResumeAiInsight> Insights => _insights.AsReadOnly();

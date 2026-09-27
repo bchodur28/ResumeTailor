@@ -1,8 +1,4 @@
-import {
-  cornerstoneBullets,
-  buildertrendBullets,
-} from "../../data/mockBullets";
-import type { CompanyGeneratedResume } from "../../models/resume/CompanyGeneratedResume";
+import type { ResumeResponse } from "../../api/contracts/resumes/ResumeResponse";
 import BulletList from "./BulletList";
 import InnerSection from "./InnerSection";
 import styles from "./Resume.module.css";
@@ -10,7 +6,7 @@ import Section from "./Section";
 import TwoColumn from "./TwoColumn";
 
 type ResumeProps = {
-  resume: CompanyGeneratedResume;
+  resume: ResumeResponse;
 };
 
 const Resume = ({ resume }: ResumeProps) => {
@@ -23,80 +19,86 @@ const Resume = ({ resume }: ResumeProps) => {
           <p>{resume.location}</p>
           <ul className={`${styles.contactList} ${styles.mainFrontSize}`}>
             <li>{resume.phoneNumber}</li>
-            <li>{resume.personalSite1}</li>
-            <li>{resume.personalSite2}</li>
-            <li>{resume.personalSite3}</li>
+            {resume.personalLinks.map((link, index) => (
+              <li key={index}>
+                <a href={link.url}>{link.displayName}</a>
+              </li>
+            ))}
           </ul>
         </section>
-        <Section title="SKILLS" topPtSpacing={8}>
-          <InnerSection topPtSpacing={4}>
-            <p>{resume.skills.join(", ")}</p>
-          </InnerSection>
-        </Section>
-        <Section title="EXPERIENCE" topPtSpacing={8}>
-          {resume.experience &&
-            resume.experience.length > 0 &&
-            resume.experience.map((exp, index) => {
-              return (
-                <InnerSection key={index} topPtSpacing={4}>
-                  <TwoColumn
-                    left={exp.name}
-                    right={exp.workingStatus}
-                    isBold={true}
-                  />
-                  <TwoColumn left={exp.position} right={exp.location} />
-                  <BulletList
-                    items={exp.bullets}
-                    topListPtSpacing={8}
-                    verticalItemPtSpacing={4}
-                  />
-                </InnerSection>
-              );
-            })}
+        <Section title="COMPANIES" topPtSpacing={8}>
+          {resume.companies.map((company, index) => {
+            return (
+              <InnerSection
+                key={index}
+                topPtSpacing={resume.companies.length - 1 === index ? 8 : 4}
+              >
+                <TwoColumn
+                  left={company.name}
+                  right={company.started + " - " + (company.ended ?? "Present")}
+                  isBold={true}
+                />
+                <TwoColumn
+                  left={company.title}
+                  right={company.location ?? "Remote"}
+                />
+                <BulletList
+                  items={company.bullets}
+                  topListPtSpacing={8}
+                  verticalItemPtSpacing={4}
+                />
+              </InnerSection>
+            );
+          })}
         </Section>
         <Section title="EDUCATION" topPtSpacing={8}>
-          <InnerSection topPtSpacing={4}>
-            <div className={`${styles.resumeTwoColumn} font-bold`}>
-              <p>{resume.college}</p>
-              <p>{resume.collegeStatus}</p>
-            </div>
-            <div className={styles.resumeTwoColumn}>
-              <p>{resume.degree}</p>
-              <p>{resume.major}</p>
-            </div>
-          </InnerSection>
+          {resume.education.map((education, index) => (
+            <InnerSection key={index} topPtSpacing={4}>
+              <div className={`${styles.resumeTwoColumn} font-bold`}>
+                <p>{education.schoolName}</p>
+                <p>
+                  {education.ended
+                    ? education.ended
+                    : education.started + " - Present"}
+                </p>
+              </div>
+              <div className={styles.resumeTwoColumn}>
+                <p>{education.degree}</p>
+                <p>{education.major}</p>
+              </div>
+            </InnerSection>
+          ))}
         </Section>
         <Section title="PROJECTS" topPtSpacing={8}>
-          {resume.projects &&
-            resume.projects.length > 0 &&
-            resume.projects.map((project, index) => {
-              return (
-                <InnerSection key={index} topPtSpacing={4}>
-                  <TwoColumn
-                    left={project.name}
-                    right={project.status}
-                    isBold={true}
-                  />
-                  <InnerSection topPtSpacing={4}>
-                    <p>{project.description}</p>
-                  </InnerSection>
-                  {project.techStack && project.techStack.length > 0 && (
-                    <InnerSection topPtSpacing={4}>
-                      <p>
-                        <b>Tech stack:</b> {project.techStack.join(", ")}.
-                      </p>
-                    </InnerSection>
-                  )}
-                  {project.link && (
-                    <InnerSection topPtSpacing={4}>
-                      <p>
-                        <b>Link:</b> <a href={project.link}>{project.link}</a>
-                      </p>
-                    </InnerSection>
-                  )}
+          {resume.projects.map((project, index) => {
+            return (
+              <InnerSection key={index} topPtSpacing={4}>
+                <TwoColumn
+                  left={project.name}
+                  right={project.started + " - " + (project.ended ?? "Present")}
+                  isBold={true}
+                />
+                <InnerSection topPtSpacing={4}>
+                  <p>{project.description}</p>
                 </InnerSection>
-              );
-            })}
+                {project.techStack && project.techStack.length > 0 && (
+                  <InnerSection topPtSpacing={8}>
+                    <p>
+                      <b>Tech Stack:</b> {project.techStack}
+                    </p>
+                  </InnerSection>
+                )}
+
+                {project.link && project.link.length > 0 && (
+                  <InnerSection topPtSpacing={4}>
+                    <p>
+                      <b>Link:</b> <a href={project.link}>{project.link}</a>
+                    </p>
+                  </InnerSection>
+                )}
+              </InnerSection>
+            );
+          })}
         </Section>
       </div>
     </>

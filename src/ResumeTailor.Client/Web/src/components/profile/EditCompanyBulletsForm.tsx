@@ -4,14 +4,14 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { Trash3 } from "react-bootstrap-icons";
 import type { BulletForm } from "../../models/forms/BulletForm";
-import type { BulletRequest } from "../../models/profile/BulletRequest";
-import type { BulletDeleteRequest } from "../../models/profile/BulletDeleteRequest";
+import type { BulletRequest } from "../../api/contracts/bullets/BulletRequest";
+import type { BulletDeleteRequest } from "../../api/contracts/bullets/BulletDeleteRequest";
 import { useCompanyBullets } from "../../hooks/useCompanyBullet";
 import {
   createBullets,
   updateBullets,
   deleteBullets,
-} from "../../api/experience";
+} from "../../api/experienceApi";
 import TextArea from "../forms/TextArea";
 import Message from "../ui/Message";
 
@@ -175,7 +175,7 @@ const EditCompanyBulletsForm = () => {
           >
             <h4 className="text-lg font-semibold">{company.companyName}</h4>
             {companyBulletIndexes.map(({ field, index }) => (
-              <div key={field.fieldId} className="flex gap-2 items-start">
+              <div key={field.fieldId} className="flex gap-2 items-end">
                 <TextArea
                   id={`bullets[${index}].value`}
                   label={`Bullet ${

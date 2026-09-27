@@ -4,13 +4,13 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { Trash3 } from "react-bootstrap-icons";
 import type { ProjectForm } from "../../models/forms/ProjectForm";
-import type { ProjectRequest } from "../../models/profile/ProjectRequest";
+import type { ProjectRequest } from "../../api/contracts/projects/ProjectRequest";
 import { useProjects } from "../../hooks/useProjects";
 import {
   createProjects,
   deleteProjects,
   updateProjects,
-} from "../../api/experience";
+} from "../../api/experienceApi";
 import Input from "../forms/Input";
 import Checkbox from "../forms/Checkbox";
 import Message from "../ui/Message";

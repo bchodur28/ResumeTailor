@@ -1,4 +1,4 @@
-using ResumeTailor.Application.GeneratedResumes.Generation.Models;
+using ResumeTailor.Application.Resumes.Common.Models;
 
 namespace ResumeTailor.Application.GeneratedResumes.Common.Models;
 
