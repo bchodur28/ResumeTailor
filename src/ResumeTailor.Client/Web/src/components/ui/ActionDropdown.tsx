@@ -31,6 +31,7 @@ const ActionDropdown = ({
         setIsOpen(false);
       }
     };
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setIsOpen(false);
     };
@@ -67,6 +68,7 @@ const ActionDropdown = ({
         >
           {label}
         </button>
+
         <button
           type="button"
           className="action-dropdown__toggle"

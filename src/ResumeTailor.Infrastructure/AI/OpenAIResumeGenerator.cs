@@ -6,7 +6,6 @@ using ResumeTailor.Application.GeneratedResumes.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Generation.Models;
 using ResumeTailor.Application.Resumes.Common.Models;
-using ResumeTailor.Domain.GeneratedResumes.AI;
 using ResumeTailor.Domain.Resumes.JobApplications;
 using ResumeTailor.Domain.Resumes.JobPositing;
 using System.ClientModel;
@@ -112,6 +111,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
                             "salaryMin",
                             "salaryMax",
                             "salary",
+                            "salaryPeriod",
                             "salaryCurrency"
                           ],
                           "additionalProperties": false
@@ -173,7 +173,6 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
     private static JobPostingResult CreateJobPosting(AiJobPostingResponse jobPostingResponse)
     {
         return new JobPostingResult(
-            Id: null,
             CompanyName: jobPostingResponse.CompanyName,
             JobTitle: jobPostingResponse.JobTitle,
             Location: jobPostingResponse.Location,

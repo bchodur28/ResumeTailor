@@ -13,6 +13,7 @@ using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.GeneratedResumes.Content;
 using ResumeTailor.Domain.Resumes;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
+using System.Data.Common;
 
 
 namespace ResumeTailor.Application.GeneratedResumes.Management;
@@ -250,9 +251,27 @@ internal sealed class ResumeManagementService(
     private static ResumeListItemResponse MapGeneratedResumeDomainToListItemResponse(Resume generatedResume)
     {
         return new ResumeListItemResponse(
-            generatedResume.Id,
-            generatedResume.AccountId,
-            generatedResume.Name
+            Id: generatedResume.Id,
+            AccountId: generatedResume.AccountId,
+            Name: generatedResume.Name,
+            JobPosting: new JobPostingResult(
+                CompanyName: generatedResume.JobPosting?.CompanyName,
+                JobTitle: generatedResume.JobPosting?.JobTitle,
+                Location: generatedResume.JobPosting?.Location,
+                WorkStyle: generatedResume.JobPosting?.WorkStyle,
+                SalaryMin: generatedResume.JobPosting?.SalaryMin,
+                SalaryMax: generatedResume.JobPosting?.SalaryMax,
+                Salary: generatedResume.JobPosting?.Salary,
+                SalaryPeriod: generatedResume.JobPosting?.SalaryPeriod,
+                SalaryCurrency: generatedResume.JobPosting?.SalaryCurrency),
+
+            ApplicationTracking: new ApplicationTrackingResponse(
+                Status: generatedResume.ApplicationTracking?.Status ?? ApplicationStatus.Interested,
+                Applied: generatedResume.ApplicationTracking?.Applied,
+                Interviewed: generatedResume.ApplicationTracking?.Interviewed,
+                OfferReceived: generatedResume.ApplicationTracking?.OfferReceived,
+                OfferAccepted: generatedResume.ApplicationTracking?.OfferAccepted,
+                Rejected: generatedResume.ApplicationTracking?.Rejected)
             );
     }
 
@@ -343,7 +362,6 @@ internal sealed class ResumeManagementService(
                     .ToList() ?? []),
 
             JobPosting: new JobPostingResult(
-                Id: resume.JobPosting?.Id ?? -1,
                 CompanyName: resume.JobPosting?.CompanyName,
                 JobTitle: resume.JobPosting?.JobTitle,
                 Location: resume.JobPosting?.Location,
@@ -355,7 +373,6 @@ internal sealed class ResumeManagementService(
                 SalaryCurrency: resume.JobPosting?.SalaryCurrency),
 
             ApplicationTracking: new ApplicationTrackingResponse(
-                Id: resume.ApplicationTracking?.Id ?? -1,
                 Status: resume.ApplicationTracking?.Status ?? ApplicationStatus.Interested,
                 Applied: resume.ApplicationTracking?.Applied,
                 Interviewed: resume.ApplicationTracking?.Interviewed,

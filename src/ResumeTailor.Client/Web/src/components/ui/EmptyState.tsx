@@ -1,54 +1,18 @@
-import type { PropsWithChildren, ReactNode } from "react";
-import { createContext, useContext } from "react";
+import type { PropsWithChildren } from "react";
 
-type EmptyStateContextValue = {
-  main: ReactNode;
-  secondary: ReactNode;
-};
+type EmptyStateProps = PropsWithChildren<{
+  main: string;
+  secondary: string;
+}>;
 
-const EmptyStateContext = createContext<EmptyStateContextValue | undefined>(
-  undefined,
-);
-
-function useEmptyStateContext() {
-  const context = useContext(EmptyStateContext);
-  if (!context) {
-    throw new Error("EmptyState subcomponents must be used within EmptyState");
-  }
-  return context;
-}
-
-type EmptyStateProps = PropsWithChildren<EmptyStateContextValue> & {
-  className?: string;
-};
-
-const EmptyState = ({
-  main,
-  secondary,
-  children,
-  className,
-}: EmptyStateProps) => (
-  <EmptyStateContext.Provider value={{ main, secondary }}>
-    <section className={`empty-state ${className ?? ""}`}>
-      {children}
+const EmptyState = ({ main, secondary, children }: EmptyStateProps) => (
+  <div className="flex justify-center">
+    <section className="flex flex-col items-center empty-state w-lg box-shadow p-4 rounded-2xl bg-white color-border">
+      <h2 className="font-semibold text-xl">{main}</h2>
+      <p className="text-md text-gray-700">{secondary}</p>
+      <div className="mt-4">{children}</div>
     </section>
-  </EmptyStateContext.Provider>
+  </div>
 );
-
-EmptyState.Main = function EmptyStateMain() {
-  const { main } = useEmptyStateContext();
-  return <h2 className="empty-state__main">{main}</h2>;
-};
-
-EmptyState.Secondary = function EmptyStateSecondary() {
-  const { secondary } = useEmptyStateContext();
-  return <p className="empty-state__secondary">{secondary}</p>;
-};
-
-EmptyState.Actions = function EmptyStateActions({
-  children,
-}: PropsWithChildren) {
-  return <div className="empty-state__actions">{children}</div>;
-};
 
 export default EmptyState;

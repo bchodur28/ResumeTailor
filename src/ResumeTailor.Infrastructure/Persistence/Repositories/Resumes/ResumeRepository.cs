@@ -12,6 +12,8 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
     public async Task<IReadOnlyCollection<Resume>> GetResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Resumes
+            .Include(x => x.JobPosting)
+            .Include(x => x.ApplicationTracking)
             .Where(gr => gr.AccountId == accountId)
             .ToListAsync(cancellationToken);
     }
