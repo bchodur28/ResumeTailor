@@ -3,9 +3,7 @@ import type { ResumeListItemResponse } from "./contracts/resumes/ResumeListItemR
 
 const resumeUrl = "https://localhost:7139/api/resumes/";
 
-export const generateResumeDetails = async (
-  accountId: number,
-): Promise<ResumeDetailsResponse[]> => {
+export const generateResume = async (accountId: number): Promise<number> => {
   const response = await fetch(`${resumeUrl}${accountId}/generate`, {
     method: "GET",
   });
