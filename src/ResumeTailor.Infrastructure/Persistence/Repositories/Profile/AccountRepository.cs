@@ -14,6 +14,7 @@ internal class AccountRepository(ResumeTailorDbContext dbContext) : IAccountRepo
             .AsSplitQuery()
             .Include(a => a.Titles)
             .Include(a => a.PersonalLinks)
+            .Include(a => a.Skills)
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
@@ -24,6 +25,7 @@ internal class AccountRepository(ResumeTailorDbContext dbContext) : IAccountRepo
             .AsSplitQuery()
             .Include(a => a.Titles)
             .Include(a => a.PersonalLinks)
+            .Include(a => a.Skills)
             .FirstOrDefaultAsync(a => a.Auth0UserId == auth0UserId, cancellationToken);
     }
 
@@ -43,6 +45,7 @@ internal class AccountRepository(ResumeTailorDbContext dbContext) : IAccountRepo
             .AsSplitQuery()
             .Include(a => a.Titles)
             .Include(a => a.PersonalLinks)
+            .Include(a => a.Skills)
             .FirstOrDefaultAsync(a => a.Auth0UserId == auth0UserId, cancellationToken);
     }
 

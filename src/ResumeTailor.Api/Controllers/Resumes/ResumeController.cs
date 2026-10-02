@@ -3,12 +3,16 @@ using ResumeTailor.Api.Models;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
+using ResumeTailor.Application.GeneratedResumes.Rendering.Interfaces;
 
 namespace ResumeTailor.Api.Controllers.GeneratedResumes;
 
 [ApiController]
 [Route("api/resumes")]
-public sealed class ResumeController(IResumeManagementService managementService, IResumeGeneratorService generatorService) : ControllerBase
+public sealed class ResumeController(
+    IResumeManagementService managementService,
+    IResumeGeneratorService generatorService,
+    IResumePdfGenerator pdfGenerator) : ControllerBase
 {
 
     [HttpPost("{accountId:int}/generate")]
@@ -17,6 +21,16 @@ public sealed class ResumeController(IResumeManagementService managementService,
         var response = await generatorService.GenerateResumeDetailsAsync(accountId, request.Description, cancellationToken);
 
         return Ok(response);
+    }
+
+    [HttpGet("{id:int}/pdf")]
+    public async Task<ActionResult> GetResumePdf(int id, CancellationToken cancellationToken)
+    {
+        var resumeDetails = await managementService.GetResumeDetailsAsync(id, cancellationToken);
+
+        var pdf = pdfGenerator.Generate(resumeDetails.Resume);
+
+        return File(pdf, "application/pdf", $"{resumeDetails.Resume.ResumeName}");
     }
 
     [HttpGet("{id:int}", Name = "GetGeneratedResume")]
@@ -34,10 +48,13 @@ public sealed class ResumeController(IResumeManagementService managementService,
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult> UpdateResumeAsync(int id, [FromBody] UpdateResumeRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<ResumeDetailsResponse>> UpdateResumeAsync(int id, [FromBody] UpdateResumeRequest request, CancellationToken cancellationToken = default)
     {
         await managementService.UpdateResumeAsync(id, request, cancellationToken);
-        return NoContent();
+
+        var response = await managementService.GetResumeDetailsAsync(id, cancellationToken);
+
+        return Ok(response);
     }
 
     [HttpDelete("{id:int}")]

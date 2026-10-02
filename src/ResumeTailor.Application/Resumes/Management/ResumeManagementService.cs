@@ -1,4 +1,5 @@
 using ResumeTailor.Application.Common.Exceptions;
+using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Application.Contracts.Bullets;
 using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Contracts.Projects;
@@ -11,9 +12,10 @@ using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Application.Resumes.Common.Models;
 using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.GeneratedResumes.Content;
+using ResumeTailor.Domain.Profile;
 using ResumeTailor.Domain.Resumes;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
-using System.Data.Common;
+using ResumeTailor.Domain.Resumes.ResumeAppearance;
 
 
 namespace ResumeTailor.Application.GeneratedResumes.Management;
@@ -26,6 +28,7 @@ internal sealed class ResumeManagementService(
     {
         var resume = await repository.GetResumeAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Generated resume with ID {id} was not found.");
+
         var sourceData = await resumeDataProvider.GetResumeSourceDataForExistingResumeAsync(resume, cancellationToken);
 
         return MapToGeneratedResumeDetailsResponse(sourceData, resume);
@@ -41,8 +44,16 @@ internal sealed class ResumeManagementService(
     {
         var existingResume = await repository.GetResumeForUpdatingAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Generated resume with ID {id} was not found while updating.");
-        
+
         existingResume.Update(request.Name);
+        existingResume.Appearance?.Update(
+            titleFontSize: request.Appearance.TitleFontSize,
+            sectionHeaderFontSize: request.Appearance.SectionHeaderFontSize,
+            mainBodyFontSize: request.Appearance.MainBodyFontSize,
+            fontFamily: request.Appearance.FontFamily,
+            fontColor: request.Appearance.FontColor,
+            topHeaderAlignment: request.Appearance.TopHeaderAlignment);
+
         UpdateCompanySelections(existingResume, request.Companies);
         UpdateEducationSelections(existingResume, request.Education);
         UpdateProjectSelections(existingResume, request.Projects);
@@ -284,18 +295,33 @@ internal sealed class ResumeManagementService(
                     .Single(x => x.CompanyId == company.Id);
 
                 return new ResumeCompanyResult(
-                    company.Id,
-                    company.Name,
-                    company.Title,
-                    company.Location,
-                    company.Started,
-                    company.Ended,
-                    selection.Bullets
+                    CompanyId: company.Id,
+                    SelectionId: selection.Id,
+                    Name: company.Name,
+                    Title: company.Title,
+                    Location: company.Location,
+                    Started: company.Started,
+                    Ended: company.Ended,
+                    Bullets: selection.Bullets
                         .OrderBy(b => b.SortOrder)
-                        .Select(b => new ResumeBulletResult(
-                            SourceBulletId: b.SourceBulletId,
-                            Value: b.Value,
-                            AlternativeValue: b.AlternativeValue))
+                        .Select(b =>
+                        {
+                            var bulletsById = company.Bullets.ToDictionary(x => x.Id);
+
+                            var sourceBullet =
+                                b.SourceBulletId is int sourceBulletId &&
+                                bulletsById.TryGetValue(sourceBulletId, out var bullet)
+                                    ? bullet
+                                    : null;
+
+                            return new ResumeBulletResult(
+                                Id: b.Id,
+                                SourceBulletId: b.SourceBulletId,
+                                Value: b.Value,
+                                AlternativeValue: b.AlternativeValue,
+                                SortOrder: b.SortOrder,
+                                IsSourceDeleted: sourceBullet?.IsDeleted == true);
+                        })
                         .ToList());
             })
             .ToList();
@@ -303,31 +329,48 @@ internal sealed class ResumeManagementService(
         var selectedEducations = data.Education
             .Select(education =>
             {
+                var selection = resume.EducationSelections
+                    .Single(x => x.EducationId == education.Id);
+
                 return new EducationResponse(
-                    education.Id,
-                    education.SchoolName,
-                    education.Degree,
-                    education.Major,
-                    education.Started,
-                    education.Ended,
-                    education.UseForResume);
+                    Id: education.Id,
+                    SelectionId: selection.Id,
+                    SchoolName: education.SchoolName,
+                    Degree: education.Degree,
+                    Major: education.Major,
+                    Started: education.Started,
+                    Ended: education.Ended,
+                    UseForResume: education.UseForResume);
             })
             .ToList();
 
         var selectedProjects = data.Projects
             .Select(project =>
             {
+                var selection = resume.ProjectSelections
+                    .Single(x => x.ProjectId == project.Id);
+
                 return new ProjectResponse(
-                    project.Id,
-                    project.Name,
-                    project.Description,
-                    project.Started,
-                    project.Ended,
-                    project.TechStack,
-                    project.Link,
-                    project.UseForResume);
+                    Id: project.Id,
+                    SelectionId: selection.Id,
+                    Name: project.Name,
+                    Description: project.Description,
+                    Started: project.Started,
+                    Ended: project.Ended,
+                    TechStack: project.TechStack,
+                    Link: project.Link,
+                    UseForResume: project.UseForResume);
             })
             .ToList();
+
+        var appearance = new ResumeAppearanceResponse(
+            Id: resume.Appearance?.Id ?? -1,
+            TitleFontSize: resume.Appearance?.TitleFontSize ?? 18,
+            SectionHeaderFontSize: resume.Appearance?.SectionHeaderFontSize ?? 14,
+            MainBodyFontSize: resume.Appearance?.MainBodyFontSize ?? 10,
+            FontFamily: resume.Appearance?.FontFamily ?? "calibri, sans-serif",
+            FontColor: resume.Appearance?.FontColor ?? "#1a2e5b",
+            TopHeaderAlignment: resume.Appearance?.TopHeaderAlignment ?? AlignmentType.Center);
 
         var resumeDetails = new ResumeDetailsResponse(
             Resume: new ResumeResponse(
@@ -340,16 +383,22 @@ internal sealed class ResumeManagementService(
                     .FirstOrDefault(t => t.IsPrimary)?.Value ?? string.Empty,
                 Email: data.Account.Email,
                 PhoneNumber: data.Account.PhoneNumber,
-                Location: $"{data.Account.City}, {data.Account.State}, {data.Account.Country}",
+                Location: $"{data.Account.City}, {data.Account.State}",
                 PersonalLinks: data.Account.PersonalLinks
                     .Select(link => new PersonalLinkResponse(
                         link.Id,
                         link.DisplayName,
                         link.Url))
                     .ToList(),
+                Skills: data.Account.Skills
+                    .Select(skill => new SkillResponse(
+                        skill.Id,
+                        skill.Value))
+                    .ToList(),
                 Companies: selectedCompanies,
                 Education: selectedEducations,
-                Projects: selectedProjects),
+                Projects: selectedProjects,
+                Appearance: appearance),
 
             AiAnalysis: new ResumeAiAnalysisResponse(
                 resume.AiAnalysis?.Score,

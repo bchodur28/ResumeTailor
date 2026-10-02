@@ -4,6 +4,7 @@ using ResumeTailor.Domain.GeneratedResumes.Content;
 using ResumeTailor.Domain.Resumes;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
 using ResumeTailor.Domain.Resumes.JobPositing;
+using ResumeTailor.Domain.Resumes.ResumeAppearance;
 
 namespace ResumeTailor.Domain.GeneratedResumes;
 
@@ -31,6 +32,8 @@ public class Resume : Entity
     public ResumeJobPosting? JobPosting { get; private set; }
 
     public ResumeApplicationTracking? ApplicationTracking { get; private set; }
+
+    public ResumeAppearance? Appearance { get; private set; }
 
     public Resume(int accountId, string name)
     {
@@ -102,5 +105,10 @@ public class Resume : Entity
     public void SetApplicationTracking(ResumeApplicationTracking applicationTracking)
     {
         ApplicationTracking = applicationTracking;
+    }
+
+    public void SetAppearance(ResumeAppearance appearance)
+    {
+        Appearance = appearance;
     }
 }

@@ -1,3 +1,5 @@
+using ResumeTailor.Application.Contracts.Accounts;
+
 namespace ResumeTailor.Application.Profile.Accounts.Models;
 
 public sealed record AccountResponse(
@@ -9,6 +11,7 @@ public sealed record AccountResponse(
     string State,
     string Country,
     IReadOnlyCollection<PersonalLinkResponse> PersonalLinks,
-    IReadOnlyCollection<TitleResponse> Titles
+    IReadOnlyCollection<TitleResponse> Titles,
+    IReadOnlyCollection<SkillResponse> Skills
     );
 

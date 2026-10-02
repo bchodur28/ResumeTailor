@@ -210,29 +210,66 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
         await experienceRepository.SaveAsync(cancellationToken);
     }
 
-    public async Task DeleteBulletsAsync(string Auth0UserId, IReadOnlyCollection<BulletDeleteRequest> requests, CancellationToken cancellationToken = default)
+    public async Task DeleteBulletsAsync(string auth0UserId, IReadOnlyCollection<BulletDeleteRequest> requests, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
-            ?? throw new NotFoundException($"Account was not found when deleting bullets.");
+        var accountId = await accountRepository
+            .GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
+            ?? throw new NotFoundException(
+                "Account was not found when deleting bullets.");
 
-        var companyIds = requests.Select(r => r.CompanyId).ToHashSet();
-        var bulletIds = requests.Select(r => r.BulletId).ToHashSet();
+        var companyIds = requests
+            .Select(r => r.CompanyId)
+            .ToHashSet();
 
-        var existingBullets = await experienceRepository.GetBulletsForUpdatingByCompanyIdsAsync(accountId, companyIds, bulletIds, cancellationToken);
+        var bulletIds = requests
+            .Select(r => r.BulletId)
+            .ToHashSet();
 
-        var bulletById = existingBullets.ToDictionary(e => e.Id);
-        var bulletsToDelete = new List<Bullet>();
+        var existingBullets =
+            await experienceRepository.GetBulletsForUpdatingByCompanyIdsAsync(
+                accountId,
+                companyIds,
+                bulletIds,
+                cancellationToken);
 
+        var bulletById = existingBullets.ToDictionary(b => b.Id);
+
+        // Validate that every requested bullet actually belongs
+        // to the requested company/account.
         foreach (var request in requests)
         {
-            if (!bulletById.TryGetValue(request.BulletId, out var bullet) || bullet.CompanyId != request.CompanyId)
+            if (!bulletById.TryGetValue(request.BulletId, out var bullet) ||
+                bullet.CompanyId != request.CompanyId)
             {
-                throw new NotFoundException($"Bullet with Id {request.BulletId} was not found for company with id {request.CompanyId} when deleting.");
+                throw new NotFoundException(
+                    $"Bullet with Id {request.BulletId} was not found " +
+                    $"for company with id {request.CompanyId} when deleting.");
             }
-            bulletsToDelete.Add(bullet);
         }
 
-        experienceRepository.RemoveBullets(bulletsToDelete);
+        var unreferencedBullets =
+            await experienceRepository.GetBulletsNotReferencedByResumeAsync(
+                bulletIds,
+                cancellationToken);
+
+        var unreferencedBulletIds = unreferencedBullets
+            .Select(b => b.Id)
+            .ToHashSet();
+
+        var bulletsToHardDelete = new List<Bullet>();
+
+        foreach (var bullet in existingBullets)
+        {
+            if (unreferencedBulletIds.Contains(bullet.Id))
+            {
+                bulletsToHardDelete.Add(bullet);
+            } else
+            {
+                bullet.Delete();
+            }
+        }
+
+        experienceRepository.RemoveBullets(bulletsToHardDelete);
 
         await experienceRepository.SaveAsync(cancellationToken);
     }
@@ -274,6 +311,7 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
     private static ProjectResponse MapProjectToResponse(Project project) => new ProjectResponse
     (
         Id: project.Id,
+        SelectionId: null,
         Name: project.Name,
         Description: project.Description,
         Started: project.Started,

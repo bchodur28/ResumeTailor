@@ -1,12 +1,20 @@
 type InnerSectionProps = {
   topPtSpacing: number;
   children: React.ReactNode;
+  additionalClassName?: string;
 };
 
-const InnerSection = ({ topPtSpacing, children }: InnerSectionProps) => {
+const InnerSection = ({
+  topPtSpacing,
+  children,
+  additionalClassName,
+}: InnerSectionProps) => {
   return (
-    <div style={{ paddingTop: `${topPtSpacing}pt` }}>
-      <div>{children}</div>
+    <div
+      className={additionalClassName ?? ""}
+      style={{ paddingTop: `${topPtSpacing}pt` }}
+    >
+      {children}
     </div>
   );
 };

@@ -277,6 +277,8 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.HasIndex("CompanyId");
 
+                    b.HasIndex("SourceBulletId");
+
                     b.ToTable("ResumeCompanyBullet", (string)null);
                 });
 
@@ -456,6 +458,9 @@ namespace ResumeTailor.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
@@ -638,6 +643,33 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.ToTable("Project", (string)null);
                 });
 
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Skill", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Skill", (string)null);
+                });
+
             modelBuilder.Entity("ResumeTailor.Domain.Profile.Title", b =>
                 {
                     b.Property<int>("Id")
@@ -765,6 +797,53 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.ToTable("ResumeJobPosting", (string)null);
                 });
 
+            modelBuilder.Entity("ResumeTailor.Domain.Resumes.ResumeAppearance.ResumeAppearance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FontColor")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FontFamily")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MainBodyFontSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ResumeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SectionHeaderFontSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TitleFontSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TopHeaderAlignment")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResumeId")
+                        .IsUnique();
+
+                    b.ToTable("ResumeAppearance", (string)null);
+                });
+
             modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldExtractionDefinition", b =>
                 {
                     b.HasOne("ResumeTailor.Domain.Extraction.SiteExtractionDefinition", null)
@@ -825,6 +904,11 @@ namespace ResumeTailor.Infrastructure.Migrations
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("ResumeTailor.Domain.Profile.Bullet", null)
+                        .WithMany()
+                        .HasForeignKey("SourceBulletId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeCompanySelection", b =>
@@ -872,6 +956,15 @@ namespace ResumeTailor.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.Skill", b =>
+                {
+                    b.HasOne("ResumeTailor.Domain.Profile.Account", null)
+                        .WithMany("Skills")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ResumeTailor.Domain.Profile.Title", b =>
                 {
                     b.HasOne("ResumeTailor.Domain.Profile.Account", null)
@@ -895,6 +988,15 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.HasOne("ResumeTailor.Domain.GeneratedResumes.Resume", null)
                         .WithOne("JobPosting")
                         .HasForeignKey("ResumeTailor.Domain.Resumes.JobPositing.ResumeJobPosting", "ResumeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Resumes.ResumeAppearance.ResumeAppearance", b =>
+                {
+                    b.HasOne("ResumeTailor.Domain.GeneratedResumes.Resume", null)
+                        .WithOne("Appearance")
+                        .HasForeignKey("ResumeTailor.Domain.Resumes.ResumeAppearance.ResumeAppearance", "ResumeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -925,6 +1027,8 @@ namespace ResumeTailor.Infrastructure.Migrations
 
                     b.Navigation("AiMetaData");
 
+                    b.Navigation("Appearance");
+
                     b.Navigation("ApplicationTracking");
 
                     b.Navigation("CompanySelections");
@@ -939,6 +1043,8 @@ namespace ResumeTailor.Infrastructure.Migrations
             modelBuilder.Entity("ResumeTailor.Domain.Profile.Account", b =>
                 {
                     b.Navigation("PersonalLinks");
+
+                    b.Navigation("Skills");
 
                     b.Navigation("Titles");
                 });

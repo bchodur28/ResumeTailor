@@ -16,12 +16,12 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<Company>> GetCompaniesWithBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<Company>> GetCompaniesWithNonDeletedBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Companies
             .AsNoTracking()
             .Where(c => c.AccountId == accountId)
-            .Include(c => c.Bullets)
+            .Include(c => c.Bullets.Where(b => !b.IsDeleted))
             .ToListAsync(cancellationToken);
     }
 
@@ -42,7 +42,7 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<Company>> GetCompaniesByIdsAsync(HashSet<int> ids, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<Company>> GetCompaniesWithBulletsIncludingDeletedByIdsAsync(HashSet<int> ids, CancellationToken cancellationToken = default)
     {
         return await dbContext.Companies
             .AsNoTracking()
@@ -113,12 +113,22 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
     {
         return await dbContext.Bullets
         .Where(b =>
+            b.DeletedDate == null &&
             bulletIds.Contains(b.Id) &&
             companyIds.Contains(b.CompanyId) &&
             dbContext.Companies.Any(c =>
                 c.Id == b.CompanyId &&
                 c.AccountId == accountId))
         .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<Bullet>> GetBulletsNotReferencedByResumeAsync(HashSet<int> bulletIds, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Bullets
+            .Where(bullet =>
+                bulletIds.Contains(bullet.Id) &&
+                !dbContext.ResumeBullets.Any(resumeBullet => resumeBullet.SourceBulletId == bullet.Id))
+            .ToListAsync(cancellationToken);
     }
 
     public void AddBullets(IEnumerable<Bullet> bullets)

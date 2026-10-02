@@ -79,13 +79,14 @@ public class EducationService(IAccountRepository accountRepository, IEducationRe
 
     private static EducationResponse MapToReponse(EducationEntity education) => new EducationResponse
     (
-        education.Id,
-        education.SchoolName,
-        education.Degree,
-        education.Major,
-        education.Started,
-        education.Ended,
-        education.UseForResume
+        Id: education.Id,
+        SelectionId: null,
+        SchoolName: education.SchoolName,
+        Degree: education.Degree,
+        Major: education.Major,
+        Started: education.Started,
+        Ended: education.Ended,
+        UseForResume: education.UseForResume
     );
 
     private static EducationEntity MapToDomain(EducationRequest request, int accountId) => new EducationEntity

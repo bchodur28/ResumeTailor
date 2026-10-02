@@ -1,5 +1,6 @@
 export type EducationResponse = {
   id: number;
+  selectionId: number | null;
   schoolName: string;
   degree: string;
   major: string;

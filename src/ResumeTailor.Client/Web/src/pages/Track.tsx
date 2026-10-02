@@ -1,10 +1,11 @@
 import { useResumeListItems } from "../hooks/useResumeListItems";
 import { useAccount } from "../contexts/AccountContext";
 import ListItem from "../components/ui/ListItem";
-import { HouseDash } from "react-bootstrap-icons";
+import { FileEarmarkPerson, HouseDash } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import EmptyState from "../components/ui/EmptyState";
 import type { ResumeListItemResponse } from "../api/contracts/resumes/ResumeListItemResponse";
+import ActionDropdown from "../components/ui/ActionDropdown";
 
 const Track = () => {
   const { account, isLoadingAccount } = useAccount();
@@ -23,8 +24,11 @@ const Track = () => {
     resumeListItem: ResumeListItemResponse,
   ): string[] => {
     console.log(resumeListItem);
-    const contentList = [resumeListItem.name];
+    const contentList = [];
     if (resumeListItem.jobPosting) {
+      if (resumeListItem.jobPosting.companyName) {
+        contentList.push(resumeListItem.jobPosting.companyName);
+      }
       if (resumeListItem.jobPosting.jobTitle) {
         contentList.push(resumeListItem.jobPosting.jobTitle);
       }
@@ -32,20 +36,25 @@ const Track = () => {
         contentList.push(resumeListItem.jobPosting.location);
       }
       if (resumeListItem.jobPosting.workStyle) {
-        contentList.push(resumeListItem.jobPosting.workStyle);
+        const workStyle = resumeListItem.jobPosting.workStyle;
+        const workStyleMod =
+          workStyle.charAt(0).toUpperCase() + workStyle.slice(1);
+        contentList.push(workStyleMod);
       }
       if (
         resumeListItem.jobPosting.salaryMin &&
         resumeListItem.jobPosting.salaryMax
       ) {
+        const salaryPeriod = resumeListItem.jobPosting.salaryPeriod;
+        const currencyType = resumeListItem.jobPosting.salaryCurrency;
         contentList.push(
-          `$${resumeListItem.jobPosting.salaryMin} - $${resumeListItem.jobPosting.salaryMax}`,
+          `$${resumeListItem.jobPosting.salaryMin.toLocaleString()} - $${resumeListItem.jobPosting.salaryMax.toLocaleString()} ${salaryPeriod ?? ""} ${currencyType ? `(${currencyType})` : ""}`,
         );
       } else if (resumeListItem.jobPosting.salary) {
-        contentList.push(`$${resumeListItem.jobPosting.salary}`);
-      }
-      if (resumeListItem.jobPosting.salaryPeriod) {
-        contentList.push(`per ${resumeListItem.jobPosting.salaryPeriod}`);
+        const salaryPeriod = resumeListItem.jobPosting.salaryPeriod;
+        contentList.push(
+          `$${resumeListItem.jobPosting.salary.toLocaleString()} ${salaryPeriod ?? ""}`,
+        );
       }
     }
     return contentList;
@@ -72,35 +81,39 @@ const Track = () => {
           data.length > 0 &&
           data.map((resume) => (
             <ListItem
-              item={{
-                content: createContentList(resume),
-                icon: <HouseDash className="primary-color" />,
-                actions: [
-                  {
-                    actionName: "View",
-                    actionFn: () => {
-                      navigate(`/resumes/${resume.id}`);
-                    },
+              content={resume.name}
+              tags={createContentList(resume)}
+              icon={<FileEarmarkPerson className="primary-color" />}
+              actions={[
+                {
+                  actionName: "View",
+                  actionFn: () => {
+                    navigate(`/resumes/${resume.id}`);
                   },
-                  {
-                    actionName: "Rename",
-                    actionFn: () => {
-                      console.log(`Renaming ${resume.name}`);
-                    },
+                },
+                {
+                  actionName: "Edit Information",
+                  actionFn: () => {
+                    console.log(`Editing ${resume.name}`);
                   },
-                  {
-                    actionName: "Delete",
-                    actionFn: () => {
-                      console.log(`Deleting ${resume.name}`);
-                    },
+                  dropDownAction: true,
+                },
+                {
+                  actionName: "Update Status",
+                  actionFn: () => {
+                    console.log(`Editing ${resume.name}`);
                   },
-                ],
-              }}
-            >
-              <ListItem.Icon />
-              <ListItem.Content />
-              <ListItem.Buttons />
-            </ListItem>
+                  dropDownAction: true,
+                },
+                {
+                  actionName: "Delete",
+                  actionFn: () => {
+                    console.log(`Deleting ${resume.name}`);
+                  },
+                  dropDownAction: true,
+                },
+              ]}
+            />
           ))}
       </ul>
     </div>

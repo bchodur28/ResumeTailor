@@ -1,4 +1,5 @@
 using ResumeTailor.Application.Common.Exceptions;
+using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Domain.Profile;
@@ -117,6 +118,9 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
                 .ToList(),
             account.Titles
                 .Select(t => new TitleResponse(t.Id, t.Value, t.IsPrimary))
+                .ToList(),
+            account.Skills
+                .Select(s => new SkillResponse(s.Id, s.Value))
                 .ToList()
         );
     }

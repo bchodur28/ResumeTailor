@@ -1,8 +1,14 @@
 :root {
-    --primary-color-light: hsl(256, 55%, 65%);
-    --primary-color: hsl(256, 55%, 54%);
-    --primary-color-dark: hsl(256, 50%, 43%);
-    --gray-300: hsl(216, 13%, 84%);
+    --primary-color-light: hsl(218, 62%, 49%);
+    --primary-color: hsl(218, 62%, 39%);
+    --primary-color-dark: hsl(218, 62%, 29%);
+    --gray-100: oklch(96.7% 0.003 264.542);
+    --gray-200: oklch(92.8% 0.006 264.531);
+    --gray-300: oklch(87.2% 0.01 258.338);
+    --gray-800: hsl(216, 31%, 17%);
+    --small-shadow-light: 0px 2px 3px 0px hsl(0, 0%, 80%);
+    --small-shadow-dark: 0px 2px 3px 0px hsl(0, 0%, 50%);
+
 }
 .primary-color{
   color: var(--primary-color);
@@ -10,5 +16,15 @@
 .primary-color-dark{
   color: var(--primary-color-dark);
 }
+
+.danger-color{
+  color: hsl(0, 61%, 54%);
+}
+
+.danger-color-darker{
+  color: hsl(0, 61%, 44%);
+}
+
+
 
 

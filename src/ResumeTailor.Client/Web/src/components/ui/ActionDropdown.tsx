@@ -58,7 +58,7 @@ const ActionDropdown = ({
   };
 
   return (
-    <div className="action-dropdown" ref={dropdownRef}>
+    <div className="relative inline-block" ref={dropdownRef}>
       <div className="action-dropdown__button-group">
         <button
           type="button"
@@ -92,14 +92,14 @@ const ActionDropdown = ({
 
       {isOpen && (
         <div
-          className="absolute right-0 top-full z-10 mt-2 min-w-44 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+          className="absolute top-full z-10 mt-2 min-w-44 overflow-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg"
           role="menu"
         >
           {actions.map((action, index) => (
             <button
               key={`${action.actionName}-${index}`}
               type="button"
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 font-semibold"
               role="menuitem"
               onClick={() => {
                 setIsOpen(false);

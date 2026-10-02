@@ -1,5 +1,5 @@
 export type EducationRequest = {
-  id?: number;
+  id: number | null;
   schoolName: string;
   degree: string;
   major: string;

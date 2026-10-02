@@ -10,6 +10,10 @@ public class Bullet : Entity
     public string Value { get; private set; } = string.Empty;
     public int? AiScore { get; private set; }
 
+    public DateTime? DeletedDate { get; private set; }
+
+    public bool IsDeleted => DeletedDate.HasValue;
+
     public Bullet(int companyId, string value, int? aiScore = null)
     {
         CompanyId = companyId;
@@ -21,6 +25,12 @@ public class Bullet : Entity
     {
         Value = value;
         AiScore = aiScore;
+        MarkUpdated();
+    }
+
+    public void Delete()
+    {
+        DeletedDate = DateTime.UtcNow;
         MarkUpdated();
     }
 }

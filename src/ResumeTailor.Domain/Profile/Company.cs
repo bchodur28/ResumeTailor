@@ -1,6 +1,5 @@
 using ResumeTailor.Domain.Common;
 
-
 namespace ResumeTailor.Domain.Profile;
 
 public sealed class Company : Entity

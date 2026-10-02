@@ -1,4 +1,5 @@
 using ResumeTailor.Application.Resumes.Common.Models;
+using ResumeTailor.Domain.Resumes.ResumeAppearance;
 
 namespace ResumeTailor.Application.Contracts.Resume;
 

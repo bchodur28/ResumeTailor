@@ -1,6 +1,3 @@
-using ResumeTailor.Application.Contracts.Education;
-using ResumeTailor.Application.Contracts.Projects;
-using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Common.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
@@ -12,6 +9,7 @@ using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.GeneratedResumes.AI;
 using ResumeTailor.Domain.Profile;
 using ResumeTailor.Domain.Resumes.JobPositing;
+using ResumeTailor.Domain.Resumes.ResumeAppearance;
 
 namespace ResumeTailor.Application.GeneratedResumes.Generation;
 
@@ -104,6 +102,8 @@ public class ResumeGeneratorService(
             salaryCurrency: resumeAiGeneration.JobPosting.SalaryCurrency
         ));
 
+        generatedResume.SetAppearance(ResumeAppearance.CreateDefault());
+
         await resumeRepository.CreateResumeAsync(generatedResume, cancellationToken);
         await resumeRepository.SaveAsync(cancellationToken);
 
@@ -141,15 +141,19 @@ public class ResumeGeneratorService(
         var companiesToInclude = companiesToAlwaysInclude
             .Select(c => new ResumeCompanyResult(
                 CompanyId: c.Id,
+                SelectionId: null,
                 Name: c.Name,
                 Title: c.Title,
                 Location: c.Location,
                 Started: c.Started,
                 Ended: c.Ended,
                 Bullets: c.Bullets.Select(b => new ResumeBulletResult(
+                    Id: null,
                     SourceBulletId: b.Id,
                     Value: b.Value,
-                    AlternativeValue: null
+                    AlternativeValue: null,
+                    SortOrder: null,
+                    IsSourceDeleted: b.DeletedDate.HasValue
                 )
             ).ToList())).ToList();
 

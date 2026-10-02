@@ -1,5 +1,6 @@
 export type ProjectResponse = {
   id: number;
+  selectionId: number | null;
   name: string;
   description: string;
   started: string;

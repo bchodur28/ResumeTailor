@@ -1,18 +1,23 @@
 import type { ResumeCompanyResult } from "../../../models/resumes/ResumeCompanyResult";
+import type { ResumeAppearanceResponse } from "./ResumeAppearanceResponse";
 import type { PersonalLinkResponse } from "../accounts/PersonalLinkResponse";
 import type { EducationResponse } from "../education/EducationResponse";
 import type { ProjectResponse } from "../projects/ProjectResponse";
-
+import type { SkillResponse } from "../accounts/SkillResponse";
 export type ResumeResponse = {
   id: number | null;
   accountId: number;
+  resumeName: string;
+  aiScoreStaleness: string;
   personName: string;
   profession: string;
   email: string;
   phoneNumber: string;
   location: string;
   personalLinks: PersonalLinkResponse[];
+  skills: SkillResponse[];
   companies: ResumeCompanyResult[];
   education: EducationResponse[];
   projects: ProjectResponse[];
+  appearance: ResumeAppearanceResponse;
 };

@@ -1,11 +1,20 @@
 import type { ResumeDetailsResponse } from "./contracts/resumes/ResumeDetailsResponse";
 import type { ResumeListItemResponse } from "./contracts/resumes/ResumeListItemResponse";
+import type { GenerateResumeRequest } from "./contracts/GenerateResumeRequest";
+import type { UpdateResumeRequest } from "./contracts/resumes/UpdateResumeRequest";
 
 const resumeUrl = "https://localhost:7139/api/resumes/";
 
-export const generateResume = async (accountId: number): Promise<number> => {
+export const generateResume = async (
+  accountId: number,
+  request: GenerateResumeRequest,
+): Promise<number> => {
   const response = await fetch(`${resumeUrl}${accountId}/generate`, {
-    method: "GET",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
   });
 
   if (!response.ok) {
@@ -13,6 +22,18 @@ export const generateResume = async (accountId: number): Promise<number> => {
   }
 
   return await response.json();
+};
+
+export const getResumePdf = async (resumeId: number): Promise<Blob> => {
+  const response = await fetch(`${resumeUrl}${resumeId}/pdf`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch resume PDF");
+  }
+
+  return await response.blob();
 };
 
 export const getResumeDetails = async (
@@ -25,8 +46,9 @@ export const getResumeDetails = async (
   if (!response.ok) {
     throw new Error("Failed to fetch resume details");
   }
-
-  return await response.json();
+  const data = await response.json();
+  console.log("Fetched resume details:", data);
+  return data;
 };
 
 export const getResumeListItems = async (
@@ -41,4 +63,23 @@ export const getResumeListItems = async (
   }
 
   return await response.json();
+};
+
+export const updateResume = async (
+  id: number,
+  resume: UpdateResumeRequest,
+): Promise<ResumeDetailsResponse> => {
+  const response = await fetch(`${resumeUrl}${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(resume),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update resume");
+  }
+
+  return response.json();
 };

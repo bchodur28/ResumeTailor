@@ -2,13 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenAI.Responses;
+using QuestPDF.Infrastructure;
 using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
+using ResumeTailor.Application.GeneratedResumes.Rendering.Interfaces;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Education.Interfaces;
 using ResumeTailor.Application.Profile.Experience.Interfaces;
 using ResumeTailor.Infrastructure.AI;
+using ResumeTailor.Infrastructure.Pdf;
 using ResumeTailor.Infrastructure.Persistence;
 using ResumeTailor.Infrastructure.Persistence.Repositories.Accounts;
 using ResumeTailor.Infrastructure.Persistence.Repositories.Extraction;
@@ -21,6 +24,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        QuestPDF.Settings.License = LicenseType.Evaluation;
+
         var databasePath = configuration["Database:Path"];
 
         if (string.IsNullOrWhiteSpace(databasePath))
@@ -66,6 +71,10 @@ public static class DependencyInjection
         services.AddScoped<IExperienceRepository, ExperienceRepository>();
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<IEducationRepository, EducationRepository>();
+        services.AddScoped<IResumePdfGenerator, QuestPdfResumeGenerator>();
+
+
+
 
         return services;
     }

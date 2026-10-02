@@ -19,6 +19,9 @@ public sealed class Account : Entity
     private readonly List<Title> _titles = [];
     public IReadOnlyCollection<Title> Titles => _titles.AsReadOnly();
 
+    private readonly List<Skill> _skills = [];
+    public IReadOnlyCollection<Skill> Skills => _skills.AsReadOnly();
+
     public Account(string auth0UserId, string email, string displayName, string city, string state, string country)
     {
         Auth0UserId = auth0UserId;
@@ -51,6 +54,12 @@ public sealed class Account : Entity
         _titles.Add(title);
     }
 
+    public void AddSkill(string value)
+    {
+        var skill = new Skill(value);
+        _skills.Add(skill);
+    }
+
     public void RemovePersonalLink(PersonalLink personalLink)
     {
         _personalLinks.Remove(personalLink);
@@ -59,5 +68,10 @@ public sealed class Account : Entity
     public void RemoveTitle(Title title)
     {
         _titles.Remove(title);
+    }
+
+    public void RemoveSkill(Skill skill)
+    {
+        _skills.Remove(skill);
     }
 }

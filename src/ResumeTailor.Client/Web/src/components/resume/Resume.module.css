@@ -1,7 +1,25 @@
-.resume{
-    font-family: calibri, sans-serif;
-    font-size: 10pt;
-    line-height: 1.0;
+.resume {
+  font-family: var(--resume-font-family);
+  font-size: var(--resume-main-font-size);
+  line-height: 1;
+}
+
+.topHeader{
+  display: flex;
+  flex-direction: column;
+  align-items: var(--resume-top-header-alignment);
+}
+
+.topHeader h1 {
+  font-size: var(--resume-title-font-size);
+  font-weight: 600;
+}
+
+.resumeSection h2 {
+  font-size: var(--resume-section-font-size);
+  font-weight: bold;
+  border-bottom: 1px solid #000;
+  color: var(--resume-primary-color);
 }
 
 .resume h1,
@@ -10,21 +28,6 @@
 .resume p,
 .resume ul {
   margin: 0;
-}
-
-.topHeader{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.topHeader h1 {
-    font-size: 18pt;
-    font-weight: bold;
-}
-
-.topHeader h2 {
-    font-size: 12pt;
 }
 
 .contactList{
@@ -36,29 +39,422 @@
   gap: 12px;
 }
 
-.resumeSection{
-  font-size: 11pt;
-}
-
-.resumeSection h2 {
-  font-size: 14pt;
-  font-weight: bold;
-  border-bottom: 1px solid #000;
-  color: hsl(222, 55%, 23%);
-}
-
 .resumeTwoColumn {
     display: flex;
     justify-content: space-between;
 }
 
-.resumeBulletList{
-    list-style-type: disc;
-    padding-left: .25in;
-    display: flex;
-    flex-direction: column;
+.resumeBulletList {
+  list-style-type: disc;
+  padding-left: 0.25in;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: visible;
 }
 
-.resumeBulletList li {
-    margin: 0;
+.resumeBulletList > li {
+  margin: 0;
+}
+
+.personProfession {
+  font-size: 14pt;
+  color: var(--resume-primary-color);
+}
+
+/* ================================
+   EDITABLE INNER SECTION
+   ================================ */
+
+.editableInnerSectionContainer {
+  position: relative;
+  overflow: visible;
+
+  /*
+   * IMPORTANT:
+   * Do not put z-index here.
+   *
+   * z-index: 1 would create a stacking context for every company /
+   * education / project section and trap nested bullet toolbars inside it.
+   */
+}
+
+/*
+ * Raise the section when the section itself is active
+ * OR when one of its bullets is active.
+ */
+.editableInnerSectionContainerActive,
+.editableInnerSectionContainer:has(.editableBulletContainerActive) {
+  z-index: 1000;
+}
+
+
+/* ================================
+   EDITABLE BULLET
+   ================================ */
+
+.editableBulletContainer {
+  position: relative;
+  overflow: visible;
+
+  /*
+   * Again, don't create a stacking context until this bullet
+   * actually needs one.
+   */
+}
+
+.editableBulletContainerActive {
+  z-index: 1001;
+}
+
+
+/* ================================
+   EDITABLE CONTENT
+   ================================ */
+
+.bulletListItem,
+.editableInnerSection {
+  display: block;
+  width: 100%;
+
+  border: none;
+  background: none;
+
+  padding: 0;
+  margin: 0;
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    transform 0.3s,
+    padding 0.3s;
+}
+
+/*
+ * Bullet hover behaves normally.
+ */
+.editableControlLocked {
+  cursor: default;
+}
+
+.bulletListItem:not(.editableControlLocked):hover {
+  background-color: var(--color-gray-50);
+  transform: scale(1.02);
+  padding: 0.5rem;
+  border: 1px solid var(--primary-color-light);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  box-shadow: var(--small-shadow-light);
+}
+
+.editableInnerSection:not(.editableControlLocked):hover {
+  background-color: var(--color-gray-50);
+  transform: scale(1.02);
+  padding: 0.5rem;
+  border: 1px solid var(--primary-color-light);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  box-shadow: var(--small-shadow-light);
+}
+
+
+/*
+ * Only apply the parent section hover effect when we are NOT
+ * currently hovering/interacting with one of its editable bullets.
+ *
+ * Otherwise hovering a bullet dropdown also causes the whole
+ * company section to scale.
+ */
+.editableInnerSectionAction {
+  background-color: var(--color-gray-50);
+
+  transform: scale(1.02);
+  padding: 0.5rem;
+
+  border: 1px solid var(--primary-color-light);
+  border-radius: 0.5rem;
+
+  font-weight: 600;
+  box-shadow: var(--small-shadow-light);
+}
+
+
+/* Active bullet stays highlighted */
+.bulletListItemActive {
+  background-color: var(--color-gray-50);
+
+  transform: scale(1.02);
+  padding: 0.5rem;
+
+  border: 1px solid var(--primary-color-light);
+  border-radius: 0.5rem;
+
+  font-weight: 600;
+  box-shadow: var(--small-shadow-light);
+}
+
+/* ================================
+   TOOLBAR CONTAINERS
+   ================================ */
+
+.editToolBarContainerAbsolute {
+  position: absolute;
+
+  top: 100%;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  z-index: 200;
+
+  margin-top: 4px;
+
+  overflow: visible;
+}
+
+.editToolBarContainerRelative {
+  position: relative;
+
+  z-index: 200;
+
+  width: fit-content;
+
+  overflow: visible;
+}
+
+/* ================================
+   TOOLBAR
+   ================================ */
+
+.editToolBar {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  width: fit-content;
+
+  padding: calc(var(--spacing) * 0.5);
+
+  overflow: visible;
+
+  background-color: var(--color-white);
+
+  border: 1px solid var(--primary-color-light);
+  border-radius: calc(infinity * 1px);
+
+  box-shadow: var(--small-shadow-light);
+}
+
+/* ================================
+   TOOLBAR BUTTON CONTAINER
+   ================================ */
+
+.editToolBarButtonContainer {
+  position: relative;
+  z-index: 1;
+
+  overflow: visible;
+}
+
+.editToolBarButtonContainer:hover,
+.editToolBarButtonContainer:focus-within,
+.editToolBarButtonContainerOpen {
+  z-index: 10;
+}
+
+/* ================================
+   TOOLBAR BUTTON
+   ================================ */
+
+.editToolBarButton {
+  display: flex;
+  align-items: center;
+
+  gap: 0;
+
+  padding: 0.5rem;
+
+  border: 1px solid var(--color-white);
+  border-radius: calc(infinity * 1px);
+
+  background: none;
+
+  cursor: pointer;
+
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
+
+  white-space: nowrap;
+
+  transition:
+    background-color 0.5s,
+    border-color 0.5s;
+}
+
+.editToolBarButtonContainer:hover .editToolBarButton,
+.editToolBarButtonContainer:focus-within .editToolBarButton,
+.editToolBarButtonContainerOpen .editToolBarButton {
+  background-color: var(--color-gray-100);
+  border-color: var(--primary-color-light);
+}
+
+/* ================================
+   TOOLBAR BUTTON LABEL
+   ================================ */
+
+.editToolBarButton span {
+  max-width: 0;
+
+  margin-left: 0;
+
+  opacity: 0;
+
+  overflow: hidden;
+  white-space: nowrap;
+
+  transition:
+    max-width 0.5s ease,
+    opacity 0.4s ease,
+    margin-left 0.5s ease;
+}
+
+.editToolBarButtonContainer:hover .editToolBarButton span,
+.editToolBarButtonContainer:focus-within .editToolBarButton span,
+.editToolBarButtonContainerOpen .editToolBarButton span {
+  max-width: 130px;
+
+  margin-left: 0.5rem;
+
+  opacity: 1;
+}
+
+.editToolBarList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.editToolBarList::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 999px;
+}
+
+/* ================================
+   TOOLBAR DROPDOWN
+   ================================ */
+
+.editToolBarDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+
+  z-index: 100;
+
+  width: 670px;
+  max-width: var(--container-2xl);
+
+  background-color: var(--color-white);
+
+  border: 1px solid var(--primary-color-light);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--small-shadow-light);
+
+  overflow: hidden;
+}
+
+/* ================================
+   TOOLBAR SEARCH
+   ================================ */
+
+.editToolBarSearchContainer {
+  padding: calc(var(--spacing) * 0.5);
+  border-bottom: 1px solid var(--primary-color-light);
+}
+
+.editToolBarSearch {
+  width: 100%;
+
+  padding: 0.5rem;
+
+  border: 1px solid var(--primary-color-light);
+  border-radius: var(--radius-md);
+
+  outline: none;
+
+  color: var(--color-gray-800);
+  background-color: var(--color-white);
+}
+
+.editToolBarSearch:focus {
+  border-color: var(--primary-color);
+}
+
+/* ================================
+   TOOLBAR DROPDOWN LIST
+   ================================ */
+
+.editToolBarList {
+  max-height: 500px;
+  overflow-y: auto;
+
+  margin: 0;
+  padding: calc(var(--spacing) * 0.5);
+
+  list-style: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) transparent;
+}
+
+.editToolBarList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editToolBarList::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.editToolBarList li {
+  margin: 0;
+}
+
+.editToolBarList button {
+  display: block;
+
+  width: 100%;
+  padding: 0.5rem;
+
+  text-align: left;
+
+  background: var(--color-white);
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+
+  cursor: pointer;
+
+  color: var(--color-gray-800);
+}
+
+.editToolBarList button:hover {
+  background-color: var(--color-gray-100);
+  border-color: var(--primary-color-light);
+}
+
+.editToolBarNoResults {
+  padding: 8px;
+  text-align: center;
+}
+
+.deletedSourceBullet {
+  color: var(--danger-color);
 }

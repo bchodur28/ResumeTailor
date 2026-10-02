@@ -204,7 +204,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
     }
 
     private static IReadOnlyList<ResumeCompanyResult> ValidateAndMapCompanies(
-    IReadOnlyList<AiCompanyResponse> companyResponse,
+    IReadOnlyList<AiCompanyResponse> aiCompanyResponse,
     IReadOnlyList<CompanyBulletContext> contexts)
     {
         var results = new List<ResumeCompanyResult>();
@@ -213,7 +213,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
 
         foreach (var context in contexts)
         {
-            var companyResult = companyResponse.FirstOrDefault(
+            var companyResult = aiCompanyResponse.FirstOrDefault(
                 result => string.Equals(result.Company, context.Name, StringComparison.OrdinalIgnoreCase));
 
             var bullets = new List<ResumeBulletResult>();
@@ -238,9 +238,12 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
                     }
 
                     bullets.Add(new ResumeBulletResult(
+                        Id: null,
                         SourceBulletId: sourceBullet.SourceBulletId,
                         Value: bullet.Value,
-                        AlternativeValue: alternative));
+                        AlternativeValue: alternative,
+                        SortOrder: null,
+                        IsSourceDeleted: false));
 
                     if(bullets.Count >= context.MaxBullets)
                     {
@@ -251,13 +254,14 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
 
             results.Add(
                 new ResumeCompanyResult(
-                    context.CompanyId,
-                    context.Name,
-                    context.Title,
-                    context.Location,
-                    context.Started,
-                    context.Ended,
-                    bullets));
+                    CompanyId: context.CompanyId,
+                    SelectionId: null,
+                    Name: context.Name,
+                    Title: context.Title,
+                    Location: context.Location,
+                    Started: context.Started,
+                    Ended: context.Ended,
+                    Bullets: bullets));
         }
 
         return results;
@@ -402,7 +406,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
         AiJobPostingResponse JobPosting
 );
 
-    private sealed record AiCompanyResponse(int companyId, string Company, IReadOnlyList<AiBulletResponse> Bullets);
+    private sealed record AiCompanyResponse(string Company, IReadOnlyList<AiBulletResponse> Bullets);
 
     private sealed record AiBulletResponse(string Value, string? Alternative);
 

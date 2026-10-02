@@ -4,6 +4,7 @@ namespace ResumeTailor.Application.GeneratedResumes.Common.Models;
 
 public sealed record ResumeCompanyResult(
     int CompanyId,
+    int? SelectionId,
     string Name,
     string Title,
     string? Location,

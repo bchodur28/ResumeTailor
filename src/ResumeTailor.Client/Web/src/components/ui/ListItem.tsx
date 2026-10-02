@@ -1,74 +1,82 @@
-import type { PropsWithChildren, ReactNode } from "react";
-import { createContext, useContext } from "react";
-
-type ListItemContext = {
-  item: Item;
-};
-
-const ListItemContext = createContext<ListItemContext | undefined>(undefined);
-
-function useListItemContext() {
-  const context = useContext(ListItemContext);
-  if (!context) {
-    throw new Error("useListItemContext must be used within a ListItem");
-  }
-  return context;
-}
+import type { ReactNode } from "react";
+import ActionDropdown from "./ActionDropdown";
 
 type Item = {
-  content: string[];
+  content: string;
+  tags?: string[];
   icon?: ReactNode;
-  actions?: { actionName: string; actionFn: () => void }[];
+  actions?: {
+    actionName: string;
+    actionFn: () => void;
+    dropDownAction?: boolean;
+    btnClassReplace?: string;
+  }[];
   borderColor?: string;
 };
 
-type ListItemProps = PropsWithChildren & {
-  item: Item;
-};
+const ListItem = ({ content, tags, icon, actions, borderColor }: Item) => {
+  const primaryActions =
+    actions?.filter((action) => !action.dropDownAction) ?? [];
 
-const ListItem = ({ children, item }: ListItemProps) => {
+  const dropdownActions =
+    actions?.filter((action) => action.dropDownAction) ?? [];
+
   return (
-    <ListItemContext.Provider value={{ item }}>
-      <li
-        className={`flex items-center gap-2 border p-2 rounded-xl mt-2 ${item.borderColor ?? "border-gray-300"} shadow bg-white`}
-      >
-        {children}
-      </li>
-    </ListItemContext.Provider>
-  );
-};
+    <li
+      className={`
+        border p-2 rounded-xl mt-2
+        ${borderColor ?? "border-gray-300"}
+        shadow bg-white
+      `}
+    >
+      <div className="flex flex-col gap-3">
+        {/* Content section and icon */}
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          {icon && <span className="shrink-0">{icon}</span>}
 
-ListItem.Icon = function ListItemIcon() {
-  const { item } = useListItemContext();
-  return <span>{item.icon}</span>;
-};
+          <p className="min-w-0 [overflow-wrap: anywhere] font-semibold text-gray-800">
+            {content.replaceAll("_", " ")}
+          </p>
+        </div>
 
-ListItem.Content = function ListItemContent() {
-  const { item } = useListItemContext();
-  return (
-    <div className="flex flex-1 gap-4">
-      {item.content.map((line, index) => (
-        <p key={index}>{line}</p>
-      ))}
-    </div>
-  );
-};
+        {/* Tags section and button*/}
+        <div className="flex justify-between">
+          <div className="flex flex-wrap gap-2">
+            {tags?.map((tag, index) => (
+              <div
+                key={index}
+                className="min-w-0 max-w-full rounded-2xl border border-gray-300 bg-gray-100 px-3 py-2 shadow"
+              >
+                <p className="wrap-break-word text-sm font-semibold text-gray-600">
+                  {tag}
+                </p>
+              </div>
+            ))}
+          </div>
 
-ListItem.Buttons = function ListItemButtons() {
-  const { item } = useListItemContext();
-  return (
-    <div className="ml-auto flex gap-2">
-      {item.actions &&
-        item.actions.map((action, index) => (
-          <button
-            key={index}
-            className="btn-secondary"
-            onClick={action.actionFn}
-          >
-            {action.actionName}
-          </button>
-        ))}
-    </div>
+          <div className="flex shrink-0 gap-2 self-end">
+            {primaryActions.map((action, index) => (
+              <button
+                key={index}
+                className={action.btnClassReplace ?? "btn-secondary"}
+                onClick={action.actionFn}
+              >
+                {action.actionName}
+              </button>
+            ))}
+
+            {dropdownActions.length > 0 && (
+              <ActionDropdown
+                actions={dropdownActions.map((action) => ({
+                  actionName: action.actionName,
+                  actionFn: action.actionFn,
+                }))}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </li>
   );
 };
 

@@ -32,6 +32,7 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
             .Include(x => x.AiMetaData)
             .Include(x => x.JobPosting)
             .Include(x => x.ApplicationTracking)
+            .Include(x => x.Appearance)
             .SingleOrDefaultAsync(
                 x => x.Id == id,
                 cancellationToken);
@@ -40,7 +41,13 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
     public async Task<Resume?> GetResumeForUpdatingAsync(int id, CancellationToken cancellationToken = default)
     {
         return await dbContext.Resumes
-            .FirstOrDefaultAsync(gr => gr.Id == id, cancellationToken);
+            .AsSplitQuery()
+            .Include(x => x.CompanySelections)
+                .ThenInclude(x => x.Bullets)
+            .Include(x => x.EducationSelections)
+            .Include(x => x.ProjectSelections)
+            .Include(x => x.Appearance)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
     public async Task CreateResumeAsync(Resume generatedResume, CancellationToken cancellationToken = default)

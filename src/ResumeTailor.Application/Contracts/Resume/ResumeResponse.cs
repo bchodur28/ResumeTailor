@@ -1,3 +1,4 @@
+using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Contracts.Projects;
 using ResumeTailor.Application.GeneratedResumes.Common.Models;
@@ -17,7 +18,9 @@ public sealed record ResumeResponse(
     string PhoneNumber,
     string Location,
     IReadOnlyCollection<PersonalLinkResponse> PersonalLinks,
+    IReadOnlyCollection<SkillResponse> Skills,
     IReadOnlyCollection<ResumeCompanyResult> Companies,
     IReadOnlyCollection<EducationResponse> Education,
-    IReadOnlyCollection<ProjectResponse> Projects
+    IReadOnlyCollection<ProjectResponse> Projects,
+    ResumeAppearanceResponse? Appearance
     );

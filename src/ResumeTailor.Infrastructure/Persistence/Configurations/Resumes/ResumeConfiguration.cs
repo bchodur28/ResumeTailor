@@ -4,6 +4,7 @@ using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.GeneratedResumes.AI;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
 using ResumeTailor.Domain.Resumes.JobPositing;
+using ResumeTailor.Domain.Resumes.ResumeAppearance;
 
 namespace ResumeTailor.Infrastructure.Persistence.Configurations.Resumes;
 
@@ -55,6 +56,11 @@ internal sealed class ResumeConfiguration : IEntityTypeConfiguration<Resume>
         builder.HasOne(resume => resume.ApplicationTracking)
             .WithOne()
             .HasForeignKey<ResumeApplicationTracking>(tracking => tracking.ResumeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(resume => resume.Appearance)
+            .WithOne()
+            .HasForeignKey<ResumeAppearance>(appearance => appearance.ResumeId)
             .OnDelete(DeleteBehavior.Cascade);
 
 

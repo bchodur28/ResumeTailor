@@ -50,6 +50,11 @@ namespace ResumeTailor.Infrastructure.Persistence.Configurations.Accounts
                 .HasForeignKey(x => x.AccountId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasMany(x => x.Skills)
+                .WithOne()
+                .HasForeignKey(x => x.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             //Navigation properties
             builder.Navigation(x => x.PersonalLinks)

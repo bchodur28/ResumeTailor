@@ -31,7 +31,7 @@ namespace ResumeTailor.Application.GeneratedResumes.Common
                 .Select(x => x.ProjectId)
                 .ToHashSet();
 
-            var companies = await experienceRepository.GetCompaniesByIdsAsync(companyIds, cancellationToken);
+            var companies = await experienceRepository.GetCompaniesWithBulletsIncludingDeletedByIdsAsync(companyIds, cancellationToken);
             var educations = await educationRepository.GetEducationByIdsAsync(educationIds, cancellationToken);
             var projects = await experienceRepository.GetProjectsByIdsAsync(projectIds, cancellationToken);
 
@@ -45,10 +45,7 @@ namespace ResumeTailor.Application.GeneratedResumes.Common
             var account = await accountRepository.GetAccountByIdAsync(accountId, cancellationToken)
                 ?? throw new NotFoundException($"Account with ID {accountId} not found.");
 
-            var companies = await experienceRepository.GetCompaniesWithBulletsByAccountIdAsync(account.Id, cancellationToken);
-            var companiesToAlwaysInclude = companies.Where(c => !c.GenerateBullets).ToList();
-
-
+            var companies = await experienceRepository.GetCompaniesWithNonDeletedBulletsByAccountIdAsync(account.Id, cancellationToken);
             var educations = await educationRepository.GetEducationByAccountIdAsync(account.Id, cancellationToken);
             var projects = await experienceRepository.GetProjectsByAccountIdAsync(account.Id, cancellationToken);
 
