@@ -1,7 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Trash3 } from "react-bootstrap-icons";
 import type { BulletForm } from "../../models/forms/BulletForm";
 import type { BulletRequest } from "../../api/contracts/bullets/BulletRequest";
@@ -12,14 +12,22 @@ import {
   updateBullets,
   deleteBullets,
 } from "../../api/experienceApi";
-import TextArea from "../forms/TextArea";
 import Message from "../ui/Message";
+import ToggleableViewTextArea from "../forms/ToggleableViewTextArea";
 
 const EditCompanyBulletsForm = () => {
   const { getAccessTokenSilently } = useAuth0();
   const queryClient = useQueryClient();
 
   const { data: companyBullets, isLoading, isError } = useCompanyBullets();
+
+  const bulletResponseMap = useMemo(() => {
+    return new Map(
+      (companyBullets ?? []).flatMap((company) =>
+        company.bullets.map((bullet) => [bullet.id, bullet]),
+      ),
+    );
+  }, [companyBullets]);
 
   const [isSavedSuccessfully, setIsSavedSuccessfully] = useState<
     boolean | null
@@ -57,6 +65,7 @@ const EditCompanyBulletsForm = () => {
           companyId: bullet.companyId,
           value: bullet.value,
           aiScore: bullet.aiScore,
+          resumeCount: bullet.resumeCount,
         })),
       ),
     });
@@ -171,35 +180,46 @@ const EditCompanyBulletsForm = () => {
         return (
           <div
             key={company.companyId}
-            className="flex flex-col gap-4 border border-gray-300 p-4 rounded-md"
+            className="flex flex-col gap-4 border border-gray-300 p-4 rounded-md shadow-md"
           >
             <h4 className="text-lg font-semibold">{company.companyName}</h4>
-            {companyBulletIndexes.map(({ field, index }) => (
-              <div key={field.fieldId} className="flex gap-2 items-end">
-                <TextArea
-                  id={`bullets[${index}].value`}
-                  label={`Bullet ${
-                    companyBulletIndexes.length > 1
-                      ? companyBulletIndexes.findIndex(
-                          (entry) => entry.index === index,
-                        ) + 1
-                      : ""
-                  }`}
-                  registration={register(`bullets.${index}.value`, {
-                    required: "This field is required.",
-                  })}
-                  error={errors.bullets?.[index]?.value?.message}
-                  rows={2}
-                />
-                <button
-                  type="button"
-                  className="remove-btn"
-                  onClick={() => removeBullet(index)}
-                >
-                  <Trash3 />
-                </button>
-              </div>
-            ))}
+            {companyBulletIndexes.map(({ field, index }) => {
+              const originalBullet = field.id
+                ? bulletResponseMap.get(field.id)
+                : undefined;
+              const resumeCount = originalBullet?.resumeCount ?? 0;
+              return (
+                <div key={field.fieldId} className="flex gap-2 items-end">
+                  <ToggleableViewTextArea
+                    id={`bullets[${index}].value`}
+                    label={`Bullet ${
+                      companyBulletIndexes.length > 1
+                        ? companyBulletIndexes.findIndex(
+                            (entry) => entry.index === index,
+                          ) + 1
+                        : ""
+                    }`}
+                    value={field.value}
+                    resumeCount={resumeCount}
+                    registration={register(`bullets.${index}.value`, {
+                      required: "This field is required.",
+                    })}
+                    additionalButtons={[
+                      <button
+                        key="remove"
+                        type="button"
+                        className="remove-btn"
+                        onClick={() => removeBullet(index)}
+                      >
+                        <Trash3 />
+                      </button>,
+                    ]}
+                    error={errors.bullets?.[index]?.value?.message}
+                    rows={2}
+                  />
+                </div>
+              );
+            })}
             {companyBulletIndexes.length === 0 && (
               <div className="flex justify-center rounded-lg bg-gray-200 border border-gray-300 p-4 shadow-md">
                 <p className="text-gray-700 font-semibold">

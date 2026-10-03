@@ -30,7 +30,7 @@ const TextArea = ({
         {error && <span className="text-red-500">{error}</span>}
       </div>
       <textarea
-        className="border p-2 rounded border-gray-300"
+        className="border p-2 rounded border-gray-300 bg-white"
         placeholder={placeholder}
         id={id}
         {...registration}

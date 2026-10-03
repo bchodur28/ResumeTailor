@@ -1,6 +1,7 @@
 using ResumeTailor.Application.Contracts.Bullets;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Management.Models;
+using ResumeTailor.Domain.Resumes.ApplicationTracking;
 
 namespace ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 
@@ -12,5 +13,5 @@ public interface IResumeManagementService
     Task DeleteResumeDetailsAsync(int id, CancellationToken cancellationToken = default);
 
     Task UpdateResumeJobPostingAsync(int resumeId, ResumeJobPostingRequest request, CancellationToken cancellationToken = default);
-    Task UpdateResumeApplicationTrackingAsync(int resumeId, ResumeApplicationTrackingRequest request, CancellationToken cancellationToken = default);
+    Task UpdateResumeApplicationTrackingAsync(int resumeId, ApplicationStatus request, CancellationToken cancellationToken = default);
 }

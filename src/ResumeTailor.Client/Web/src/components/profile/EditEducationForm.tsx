@@ -119,6 +119,7 @@ const EditEducationForm = () => {
 
   const handleAddEducation = () => {
     appendEducaiton({
+      id: null,
       schoolName: "",
       degree: "",
       major: "",

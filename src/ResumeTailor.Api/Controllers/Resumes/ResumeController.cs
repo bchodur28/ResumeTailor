@@ -4,6 +4,7 @@ using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Rendering.Interfaces;
+using ResumeTailor.Domain.Resumes.ApplicationTracking;
 
 namespace ResumeTailor.Api.Controllers.GeneratedResumes;
 
@@ -72,7 +73,7 @@ public sealed class ResumeController(
     }
 
     [HttpPut("{id:int}/application-tracking")]
-    public async Task<ActionResult> UpdateResumeApplicationTrackingAsync(int id, [FromBody] ResumeApplicationTrackingRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> UpdateResumeApplicationTrackingAsync(int id, [FromBody] ApplicationStatus request, CancellationToken cancellationToken = default)
     {
         await managementService.UpdateResumeApplicationTrackingAsync(id, request, cancellationToken);
         return NoContent();

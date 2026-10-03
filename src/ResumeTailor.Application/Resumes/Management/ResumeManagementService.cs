@@ -89,18 +89,14 @@ internal sealed class ResumeManagementService(
         await repository.SaveAsync(cancellationToken);
     }
 
-    public async Task UpdateResumeApplicationTrackingAsync(int resumeId, ResumeApplicationTrackingRequest request, CancellationToken cancellationToken = default)
+    public async Task UpdateResumeApplicationTrackingAsync(int resumeId, ApplicationStatus request, CancellationToken cancellationToken = default)
     {
         var existingApplicationTracking = await repository.GetResumeApplicationTrackingForUpdatingAsync(resumeId, cancellationToken)
             ?? throw new NotFoundException($"Resume application tracking with resume ID {resumeId} was not found while updating application tracking.");
 
-        existingApplicationTracking.Update(
-            request.Status,
-            request.Applied,
-            request.Interviewed,
-            request.OfferReceived,
-            request.OfferAccepted,
-            request.Rejected);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        existingApplicationTracking.UpdateStatus(request, today);
 
         await repository.SaveAsync(cancellationToken);
     }

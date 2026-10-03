@@ -3,4 +3,5 @@ export type BulletResponse = {
   companyId: number;
   value: string;
   aiScore: number | null;
+  resumeCount: number;
 };

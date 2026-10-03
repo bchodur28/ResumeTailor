@@ -23,14 +23,36 @@ public class ResumeApplicationTracking : Entity
         Rejected = rejected;
     }
 
-    public void Update(ApplicationStatus status, DateOnly? applied, DateOnly? interviewed, DateOnly? offerReceived, DateOnly? offerAccepted, DateOnly? rejected)
+    public void UpdateStatus(ApplicationStatus status, DateOnly date)
     {
+        if (Status == status)
+            return;
+
         Status = status;
-        Applied = applied;
-        Interviewed = interviewed;
-        OfferReceived = offerReceived;
-        OfferAccepted = offerAccepted;
-        Rejected = rejected;
+
+        switch (status)
+        {
+            case ApplicationStatus.Applied:
+                Applied ??= date;
+                break;
+
+            case ApplicationStatus.Interviewing:
+                Interviewed ??= date;
+                break;
+
+            case ApplicationStatus.OfferReceived:
+                OfferReceived ??= date;
+                break;
+
+            case ApplicationStatus.OfferAccepted:
+                OfferAccepted ??= date;
+                break;
+
+            case ApplicationStatus.Rejected:
+                Rejected ??= date;
+                break;
+        }
+
         MarkUpdated();
     }
 }

@@ -292,7 +292,7 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
         CompanyId: companyBullet.CompanyId,
         CompanyName: companyBullet.CompanyName,
         Bullets: companyBullet.Bullets
-            .Select(b => new BulletReponse(Id: b.Id, CompanyId: b.CompanyId, Value: b.Value, AiScore: b.AiScore))
+            .Select(b => new BulletReponse(Id: b.Id, CompanyId: b.CompanyId, Value: b.Value, AiScore: b.AiScore, b.ResumeCount))
             .ToList()
     );
 
@@ -331,14 +331,6 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
         techStack: request.TechStack,
         link: request.Link,
         useForResume: request.UseForResume
-    );
-
-    private static BulletReponse MapBulletToResponse(Bullet bullet) => new BulletReponse
-    (
-        Id: bullet.Id,
-        CompanyId: bullet.CompanyId,
-        Value: bullet.Value,
-        AiScore: bullet.AiScore
     );
 
     private static Bullet MapBulletToDomain(BulletRequest request) => new Bullet

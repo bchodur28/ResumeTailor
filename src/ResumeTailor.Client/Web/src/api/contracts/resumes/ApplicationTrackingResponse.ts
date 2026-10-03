@@ -1,5 +1,7 @@
+import type { ApplicationStatusValue } from "../../../models/resumes/ApplicationStatus";
+
 export type ApplicationTrackingResponse = {
-  status: string;
+  status: ApplicationStatusValue;
   applied: string | null;
   interviewed: string | null;
   offerReceived: string | null;

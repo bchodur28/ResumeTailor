@@ -2,6 +2,7 @@ import type { ResumeDetailsResponse } from "./contracts/resumes/ResumeDetailsRes
 import type { ResumeListItemResponse } from "./contracts/resumes/ResumeListItemResponse";
 import type { GenerateResumeRequest } from "./contracts/GenerateResumeRequest";
 import type { UpdateResumeRequest } from "./contracts/resumes/UpdateResumeRequest";
+import type { ApplicationStatusValue } from "../models/resumes/ApplicationStatus";
 
 const resumeUrl = "https://localhost:7139/api/resumes/";
 
@@ -63,6 +64,23 @@ export const getResumeListItems = async (
   }
 
   return await response.json();
+};
+
+export const updateResumeApplicationTracking = async (
+  resumeId: number,
+  status: ApplicationStatusValue,
+): Promise<void> => {
+  const response = await fetch(`${resumeUrl}${resumeId}/application-tracking`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(status),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update resume application tracking status");
+  }
 };
 
 export const updateResume = async (
