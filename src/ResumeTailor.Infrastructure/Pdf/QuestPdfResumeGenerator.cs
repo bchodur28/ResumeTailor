@@ -92,7 +92,8 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                 var stateCode = StateCodeMapping.GetStateCode(state ?? "");
 
                 Align(header.Item(), appearance.TopHeaderAlignment)
-                    .Text($"{city}, {stateCode}");
+                    .Text($"{city}, {stateCode}")
+                    .FontSize(11);
 
                 Align(header.Item(), appearance.TopHeaderAlignment)
                     .Text(text =>
@@ -103,7 +104,8 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                         {
                             text.Span(resume.Email)
                                 .Underline()
-                                .FontColor(Color.FromHex("#467886")); ;
+                                .FontColor(Color.FromHex("#467886"))
+                                .FontSize(11);
                             hasPreviousItem = true;
                         }
 
@@ -112,18 +114,20 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                             if (hasPreviousItem)
                                 text.Span("   ");
 
-                            text.Span(resume.PhoneNumber);
+                            text.Span(resume.PhoneNumber).FontSize(11);
                             hasPreviousItem = true;
                         }
 
                         foreach (var link in resume.PersonalLinks)
                         {
                             if (hasPreviousItem)
-                                text.Span("   ");
+                                text.Span("   ")
+                                .FontSize(11); ;
 
                             text.Hyperlink(link.DisplayName, link.Url)
                                 .Underline()
-                                .FontColor(Color.FromHex("#467886"));
+                                .FontColor(Color.FromHex("#467886"))
+                                .FontSize(11); ;
 
                             hasPreviousItem = true;
                         }

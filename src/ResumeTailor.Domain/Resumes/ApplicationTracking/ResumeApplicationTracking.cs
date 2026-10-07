@@ -23,6 +23,9 @@ public class ResumeApplicationTracking : Entity
         Rejected = rejected;
     }
 
+    public static ResumeApplicationTracking CreateDefault()
+        => new ResumeApplicationTracking(ApplicationStatus.Interested, null, null, null, null, null);
+
     public void UpdateStatus(ApplicationStatus status, DateOnly date)
     {
         if (Status == status)

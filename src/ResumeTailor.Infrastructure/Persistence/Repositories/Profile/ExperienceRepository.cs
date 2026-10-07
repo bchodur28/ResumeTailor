@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ResumeTailor.Application.Profile.Experience.Interfaces;
 using ResumeTailor.Application.Profile.Experience.Models;
+using ResumeTailor.Application.Resumes.Generation.Models;
 using ResumeTailor.Domain.Profile;
 
 namespace ResumeTailor.Infrastructure.Persistence.Repositories.Accounts;
@@ -21,7 +22,7 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
         return await dbContext.Companies
             .AsNoTracking()
             .Where(c => c.AccountId == accountId)
-            .Include(c => c.Bullets.Where(b => !b.IsDeleted))
+            .Include(c => c.Bullets.Where(b => b.DeletedDate == null))
             .ToListAsync(cancellationToken);
     }
 
@@ -48,6 +49,24 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
             .AsNoTracking()
             .Where(c => ids.Contains(c.Id))
             .Include(c => c.Bullets)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<int>> GetCompanyIdsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Companies
+            .AsNoTracking()
+            .Where(c => c.AccountId == accountId)
+            .Select(c => c.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<Company>> GetCompaniesWithBulletsByIds(HashSet<int> companyIds, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Companies
+            .AsNoTracking()
+            .Where(c => companyIds.Contains(c.Id))
+            .Include(c => c.Bullets.Where(b => b.DeletedDate == null))
             .ToListAsync(cancellationToken);
     }
 
@@ -84,6 +103,16 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
             .Where(c => ids.Contains(c.Id))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<int>> GetProjectIdsForCreationAsync(int accountId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Projects
+            .AsNoTracking()
+            .Where(p => p.AccountId == accountId && p.UseForResume)
+            .Select(p => p.Id)
+            .ToListAsync(cancellationToken);
+    }
+
 
     public void AddProjects(IEnumerable<Project> projects)
     {
@@ -151,6 +180,34 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<CompanyAiContext>> GetCompaniesForAiGenerationAsync(int accountId,CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Companies
+            .AsNoTracking()
+            .Where(c => c.AccountId == accountId && c.GenerateBullets)
+            .Select(c => new CompanyAiContext
+            (
+                CompanyId: c.Id,
+                MaxBullets: c.MaxGeneratedBulletCount,
+                Started: c.Started,
+                Ended: c.Ended,
+                Bullets: c.Bullets
+                    .Where(b => b.DeletedDate == null)
+                    .Select(b => new BulletAiContext(BulletId: b.Id, Value: b.Value))
+                    .ToList()
+            ))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Dictionary<int, string>> GetBulletIdMappingAsync(int accountId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Companies
+            .AsNoTracking()
+            .Where(c => c.AccountId == accountId)
+            .SelectMany(c => c.Bullets)
+            .Where(b => b.DeletedDate == null)
+            .ToDictionaryAsync(b => b.Id, b => b.Value, cancellationToken);
+    }
     public void AddBullets(IEnumerable<Bullet> bullets)
     {
         dbContext.Bullets.AddRange(bullets);

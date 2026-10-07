@@ -2,9 +2,9 @@ using ResumeTailor.Application.Resumes.Common.Models;
 
 namespace ResumeTailor.Application.Contracts.Resume;
 
-public sealed record ResumeListItemResponse(
+public sealed record ResumeSummaryResponse(
     int Id,
     int AccountId,
     string Name,
-    JobPostingResult? JobPosting,
-    ApplicationTrackingResponse? ApplicationTracking);
+    JobPostingResult JobPosting,
+    ApplicationTrackingResponse ApplicationTracking);

@@ -3,7 +3,7 @@ using ResumeTailor.Domain.Resumes.ResumeAppearance;
 
 namespace ResumeTailor.Application.Contracts.Resume;
 
-public sealed record ResumeAppearanceRequest(
+public sealed record AppearanceRequest(
     int TitleFontSize,
     int SectionHeaderFontSize,
     int MainBodyFontSize,

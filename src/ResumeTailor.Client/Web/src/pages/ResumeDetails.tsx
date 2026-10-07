@@ -27,10 +27,13 @@ import {
 import { useCompanyBullets } from "../hooks/useCompanyBullet";
 import { ResumeEditProvider } from "../contexts/ResumeEditContext";
 import type { SkillResponse } from "../api/contracts/accounts/SkillResponse";
-import type { ResumeCompanyResult } from "../models/resumes/ResumeCompanyResult";
-import { getResumePdf, updateResume } from "../api/resumeApi";
+import { getResumePdf } from "../api/resumeApi";
 import { useUpdateResume } from "../hooks/useUpdateResume";
 import Message from "../components/ui/Message";
+import type {
+  ResumeViewModel,
+  ResumeCompanyViewModel,
+} from "../models/forms/ResumeViewModel";
 
 const mapResumeToForm = (
   resume: ResumeResponse,
@@ -40,12 +43,12 @@ const mapResumeToForm = (
 
   companies: resume.companies.map((company, index) => ({
     id: company.selectionId,
-    resumeId,
+    resumeId: resumeId,
     companyId: company.companyId,
     sortOrder: index + 1,
     bullets: company.bullets.map((bullet, index) => ({
       id: bullet.id,
-      sourceBulletId: bullet.sourceBulletId,
+      bulletId: bullet.sourceBulletId,
       value: bullet.value,
       alternativeValue: bullet.alternativeValue,
       sortOrder: bullet.sortOrder ?? index + 1,
@@ -161,12 +164,12 @@ const ResumeDetails = () => {
   const handleBulletChange = (
     companyIndex: number,
     bulletIndex: number,
-    sourceBulletId: number | null,
+    bulletId: number,
     value: string,
   ) => {
     setValue(
-      `companies.${companyIndex}.bullets.${bulletIndex}.sourceBulletId`,
-      sourceBulletId,
+      `companies.${companyIndex}.bullets.${bulletIndex}.bulletId`,
+      bulletId,
     );
 
     setValue(`companies.${companyIndex}.bullets.${bulletIndex}.value`, value);
@@ -174,7 +177,7 @@ const ResumeDetails = () => {
 
   const handleBulletAdd = (
     companyIndex: number,
-    sourceBulletId: number,
+    bulletId: number,
     value: string,
   ) => {
     const bullets = getValues(`companies.${companyIndex}.bullets`);
@@ -183,7 +186,7 @@ const ResumeDetails = () => {
       ...bullets,
       {
         id: null,
-        sourceBulletId,
+        bulletId,
         value,
         alternativeValue: null,
         sortOrder: bullets.length + 1,
@@ -343,7 +346,7 @@ const ResumeDetails = () => {
 
   const orderSkills = (
     skills: SkillResponse[],
-    companies: ResumeCompanyResult[],
+    companies: ResumeCompanyViewModel[],
     projects: ProjectResponse[],
   ) => {
     const orderedSkills: SkillResponse[] = [];
@@ -447,7 +450,7 @@ const ResumeDetails = () => {
 
   const baseResume = savedResume ?? resumeDetails.resume;
 
-  const previewResume: ResumeResponse = {
+  const previewResume: ResumeViewModel = {
     ...baseResume,
 
     appearance: {
@@ -491,9 +494,9 @@ const ResumeDetails = () => {
               );
 
               return {
-                selectionId: originalBullet?.selectionId ?? 0,
+                selectionId: originalBullet?.id ?? 0,
                 id: formBullet.id ?? null,
-                sourceBulletId: formBullet.sourceBulletId ?? null,
+                sourceBulletId: formBullet.bulletId!,
                 value: formBullet.value ?? "",
                 alternativeValue: formBullet.alternativeValue ?? null,
                 sortOrder: formBullet.sortOrder ?? 0,
@@ -706,7 +709,7 @@ const ResumeDetails = () => {
         {/*Resume Summary */}
         <div className="w-full flex flex-col items-center gap-6">
           <Card className="w-full">
-            <RatingBar rating={resumeDetails?.aiAnalysis?.score ?? 0} />
+            <RatingBar rating={resumeDetails.resume.aiScore ?? 0} />
           </Card>
           {/* AI Summary Section */}
           <Card className="w-full">

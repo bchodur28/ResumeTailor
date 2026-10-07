@@ -8,7 +8,7 @@ import {
   ExclamationTriangle,
 } from "react-bootstrap-icons";
 
-import type { ResumeBulletResult } from "../../models/resumes/ResumeBulletResult";
+import type { ResumeBulletViewModel } from "../../models/forms/ResumeViewModel";
 import type { BulletResponse } from "../../api/contracts/bullets/BulletResponse";
 
 import styles from "./Resume.module.css";
@@ -17,8 +17,8 @@ import EditToolBarButton from "./EditToolBarButton";
 import { useResumeEdit } from "../../contexts/ResumeEditContext";
 
 type EditableBulletProps = {
-  item: ResumeBulletResult;
-  additonalBullets: BulletResponse[];
+  item: ResumeBulletViewModel;
+  additionalBullets: BulletResponse[];
   companyIndex: number;
   bulletIndex: number;
   isLastBullet: boolean;
@@ -27,7 +27,7 @@ type EditableBulletProps = {
   onBulletChange: (
     companyIndex: number,
     bulletIndex: number,
-    sourceBulletId: number | null,
+    bulletId: number,
     value: string,
   ) => void;
 
@@ -37,7 +37,7 @@ type EditableBulletProps = {
 
 const EditableBullet = ({
   item,
-  additonalBullets,
+  additionalBullets,
   companyIndex,
   bulletIndex,
   isLastBullet,
@@ -48,8 +48,7 @@ const EditableBullet = ({
 }: EditableBulletProps) => {
   const { activeEditorId, toggleEditor, closeEditor } = useResumeEdit();
 
-  const bulletId =
-    item.id ?? item.sourceBulletId ?? item.selectionId ?? bulletIndex;
+  const bulletId = item.id ?? item.sourceBulletId ?? item.id ?? bulletIndex;
 
   const editorId = `bullet:${companyIndex}:${bulletId}`;
 
@@ -122,7 +121,7 @@ const EditableBullet = ({
           <EditToolBarButton
             label="Replace"
             icon={() => <ArrowLeftRight size={20} />}
-            additionalActions={additonalBullets.map((bullet) => ({
+            additionalActions={additionalBullets.map((bullet) => ({
               label: bullet.value,
               onClick: () => {
                 onBulletChange(

@@ -1,4 +1,4 @@
-import type { ResumeBulletRequest } from "../bullets/ResumeBulletRequest";
+import type { ResumeBulletRequest } from "./BulletSelectionRequest";
 
 export type ResumeCompanySelectionRequest = {
   id: number | null;

@@ -2,7 +2,7 @@ import ResumeCard from "../components/resume/ResumeCard";
 import { useAccount } from "../contexts/AccountContext";
 import { useNavigate } from "react-router-dom";
 import EmptyState from "../components/ui/EmptyState";
-import { useResumeListItems } from "../hooks/useResumeListItems";
+import { useResumeSummaries } from "../hooks/useResumeSummeries";
 import ResumeGrid from "../components/resume/ResumeGrid";
 
 const Track = () => {
@@ -16,7 +16,7 @@ const Track = () => {
     return <div>Loading account...</div>;
   }
 
-  const { data, isLoading, error } = useResumeListItems(account.id);
+  const { data, isLoading, error } = useResumeSummaries(account.id);
 
   if (isLoading) {
     return <div>Loading resume list items...</div>;

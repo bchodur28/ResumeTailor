@@ -7,7 +7,7 @@ namespace ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 
 public interface IResumeManagementService
 {
-    Task<IReadOnlyCollection<ResumeListItemResponse>> GetResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<ResumeSummaryResponse>> GetResumeSummariesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
     Task<ResumeDetailsResponse> GetResumeDetailsAsync(int id, CancellationToken cancellationToken = default);
     Task UpdateResumeAsync(int id, UpdateResumeRequest request, CancellationToken cancellationToken = default);
     Task DeleteResumeDetailsAsync(int id, CancellationToken cancellationToken = default);

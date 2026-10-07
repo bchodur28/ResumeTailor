@@ -30,6 +30,15 @@ public class EducationRepository(ResumeTailorDbContext dbContext) : IEducationRe
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<int>> GetEducationIdsForCreationAsync(int accountId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Education
+            .AsNoTracking()
+            .Where(e => e.AccountId == accountId && e.UseForResume)
+            .Select(e => e.Id)
+            .ToListAsync(cancellationToken);
+    }
+
     public void AddRange(IEnumerable<EducationEntity> education)
     {
         dbContext.Education.AddRange(education);

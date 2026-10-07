@@ -1,5 +1,5 @@
 import type { ResumeDetailsResponse } from "./contracts/resumes/ResumeDetailsResponse";
-import type { ResumeListItemResponse } from "./contracts/resumes/ResumeListItemResponse";
+import type { ResumeSummaryResponse } from "./contracts/resumes/ResumeSummaryResponse";
 import type { GenerateResumeRequest } from "./contracts/GenerateResumeRequest";
 import type { UpdateResumeRequest } from "./contracts/resumes/UpdateResumeRequest";
 import type { ApplicationStatusValue } from "../models/resumes/ApplicationStatus";
@@ -52,10 +52,10 @@ export const getResumeDetails = async (
   return data;
 };
 
-export const getResumeListItems = async (
+export const getResumeSummaries = async (
   accountId: number,
-): Promise<ResumeListItemResponse[]> => {
-  const response = await fetch(`${resumeUrl}account/${accountId}`, {
+): Promise<ResumeSummaryResponse[]> => {
+  const response = await fetch(`${resumeUrl}?accountId=${accountId}`, {
     method: "GET",
   });
 

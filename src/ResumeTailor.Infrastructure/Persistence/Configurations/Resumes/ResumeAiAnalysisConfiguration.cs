@@ -15,9 +15,6 @@ internal sealed class ResumeAiAnalysisConfiguration : IEntityTypeConfiguration<R
             .IsRequired()
             .HasMaxLength(2000);
 
-        builder.Property(x => x.Score)
-            .IsRequired();
-
         builder.HasMany(x => x.Insights)
             .WithOne()
             .HasForeignKey(x => x.ResumeAiAnalysisId)

@@ -2,10 +2,9 @@
 
 using Microsoft.Extensions.Options;
 using OpenAI.Responses;
-using ResumeTailor.Application.GeneratedResumes.Common.Models;
-using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
-using ResumeTailor.Application.GeneratedResumes.Generation.Models;
 using ResumeTailor.Application.Resumes.Common.Models;
+using ResumeTailor.Application.Resumes.Generation.Interfaces;
+using ResumeTailor.Application.Resumes.Generation.Models;
 using ResumeTailor.Domain.Resumes.JobApplications;
 using ResumeTailor.Domain.Resumes.JobPositing;
 using System.ClientModel;
@@ -18,7 +17,109 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
 {
     private const decimal InputCostPerMillionTokens = 2.00m;
     private const decimal OutputCostPerMillionTokens = 12.00m;
-    public async Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiGenerationContext context, CancellationToken cancellationToken = default)
+    private const string AiMappingContext = """
+    {
+        "type": "object",
+        "properties": {
+            "AiScore": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+            },
+            "CompanyBullets": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "CompanyId": { "type": "integer" },
+                        "BulletId": { "type": "integer" },
+                        "AlternativeValue": { "type": ["string", "null"] }
+                    },
+                    "required": [
+                        "CompanyId",
+                        "BulletId",
+                        "AlternativeValue"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "CompanyAnalysis": {
+                "type": "object",
+                "properties": {
+                    "summary": { "type": "string" },
+                    "strengths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "maxItems": 5
+                    },
+                    "weaknesses": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "maxItems": 5
+                    }
+                },
+                "required": [
+                    "summary",
+                    "strengths",
+                    "weaknesses"
+                ],
+                "additionalProperties": false
+            },
+            "jobPosting": {
+                "type": "object",
+                "properties": {
+                    "companyName": { "type": ["string", "null"] },
+                    "jobTitle": { "type": ["string", "null"] },
+                    "location": { "type": ["string", "null"] },
+                    "workStyle": {
+                        "type": ["string", "null"],
+                        "enum": ["OnSite", "Hybrid", "Remote", null]
+                    },
+                    "salaryMin": { "type": ["number", "null"] },
+                    "salaryMax": { "type": ["number", "null"] },
+                    "salary": { "type": ["number", "null"] },
+                    "salaryPeriod": {
+                        "type": ["string", "null"],
+                        "enum": [
+                            "Hourly",
+                            "Daily",
+                            "Weekly",
+                            "Monthly",
+                            "Yearly",
+                            null
+                        ]
+                    },
+                    "salaryCurrency": { "type": ["string", "null"] }
+                },
+                "required": [
+                    "companyName",
+                    "jobTitle",
+                    "location",
+                    "workStyle",
+                    "salaryMin",
+                    "salaryMax",
+                    "salary",
+                    "salaryPeriod",
+                    "salaryCurrency"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "required": [
+            "AiScore",
+            "CompanyBullets",
+            "CompanyAnalysis",
+            "jobPosting"
+        ],
+        "additionalProperties": false
+    }
+    """;
+
+    public async Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiContext context, CancellationToken cancellationToken = default)
     {
         var prompt = BuildPrompt(context);
 
@@ -29,105 +130,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
             {
                 TextFormat = ResponseTextFormat.CreateJsonSchemaFormat(
                     jsonSchemaFormatName: "resume_analysis",
-                    jsonSchema: BinaryData.FromString("""
-                    {
-                      "type": "object",
-                      "properties": {
-                        "score": {
-                          "type": "integer",
-                          "minimum": 0,
-                          "maximum": 100
-                        },
-                        "summary": {
-                          "type": "string"
-                        },
-                        "companies": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "company": {
-                                "type": "string"
-                              },
-                              "bullets": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "value": {
-                                      "type": "string"
-                                    },
-                                    "alternative": {
-                                      "type": ["string", "null"]
-                                    }
-                                  },
-                                  "required": [
-                                    "value",
-                                    "alternative"
-                                  ],
-                                  "additionalProperties": false
-                                }
-                              }
-                            },
-                            "required": [
-                              "company",
-                              "bullets"
-                            ],
-                            "additionalProperties": false
-                          }
-                        },
-                        "strengths": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          },
-                          "maxItems": 5
-                        },
-                        "weaknesses": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          },
-                          "maxItems": 5
-                        },
-                        "jobPosting": {
-                          "type": "object",
-                          "properties": {
-                            "companyName": { "type": ["string", "null"] },
-                            "jobTitle": { "type": ["string", "null"] },
-                            "location": { "type": ["string", "null"] },
-                            "workStyle": {"type": ["string", "null"],"enum": ["OnSite", "Hybrid", "Remote", null]},
-                            "salaryMin": { "type": ["number", "null"] },
-                            "salaryMax": { "type": ["number", "null"] },
-                            "salary": { "type": ["number", "null"] },
-                            "salaryPeriod": {"type": ["string", "null"],"enum": ["Hourly", "Weekly", "Monthly", "Yearly", null]},
-                            "salaryCurrency": { "type": ["string", "null"] }
-                          },
-                          "required": [
-                            "companyName",
-                            "jobTitle",
-                            "location",
-                            "workStyle",
-                            "salaryMin",
-                            "salaryMax",
-                            "salary",
-                            "salaryPeriod",
-                            "salaryCurrency"
-                          ],
-                          "additionalProperties": false
-                        }
-                      },
-                      "required": [
-                        "score",
-                        "summary",
-                        "companies",
-                        "strengths",
-                        "weaknesses",
-                        "jobPosting"
-                      ],
-                      "additionalProperties": false
-                    }
-                    """))
+                    jsonSchema: BinaryData.FromString(AiMappingContext))
             }
         };
 
@@ -145,29 +148,28 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
                 Converters = { new JsonStringEnumConverter() }
             }) ?? throw new InvalidOperationException("OpenAI returned an empty resume analysis response.");
 
-        var companies = ValidateAndMapCompanies(aiResponse.Companies, context.CompanyBulletContexts);
-
-        var strengths = aiResponse.Strengths
-            .Take(5)
-            .ToList();
-
-        var weaknesses = aiResponse.Weaknesses
-            .Take(5)
-            .ToList();
+        var companyBulletResults = ValidateAndMapCompanyBulletResults(aiResponse.CompanyBullets, context.Companies);
 
         var metaData = CreateAiMetaData(response);
-
         var jobPosting = CreateJobPosting(aiResponse.JobPosting);
+        var aiAnalysis = CreateCompanyAiAnalysis(aiResponse.CompanyAnalysis);
 
         return new ResumeAiGenerationResult(
-            aiResponse.Score,
-            aiResponse.Summary,
-            companies,
-            strengths,
-            weaknesses,
-            metaData,
-            jobPosting
+            AiScore: aiResponse.AiScore,
+            CompanyBullets: companyBulletResults,
+            AiAnalysis: aiAnalysis,
+            JobPosting: jobPosting,
+            MetaData: metaData
             );
+    }
+
+    private static CompanyAiAnalysisResult CreateCompanyAiAnalysis(AiCompanyAnalysisResponse companyAnalysisResponse)
+    {
+        return new CompanyAiAnalysisResult(
+            Summary: companyAnalysisResponse.Summary,
+            Strengths: companyAnalysisResponse.Strengths,
+            Weaknesses: companyAnalysisResponse.Weaknesses
+        );
     }
 
     private static JobPostingResult CreateJobPosting(AiJobPostingResponse jobPostingResponse)
@@ -203,73 +205,51 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
         );
     }
 
-    private static IReadOnlyList<ResumeCompanyResult> ValidateAndMapCompanies(
-    IReadOnlyList<AiCompanyResponse> aiCompanyResponse,
-    IReadOnlyList<CompanyBulletContext> contexts)
+    private static IReadOnlyList<CompanyBulletAiResult> ValidateAndMapCompanyBulletResults(
+    IReadOnlyCollection<AiCompanyBulletResponse> responses,
+    IReadOnlyCollection<CompanyAiContext> companies)
     {
-        var results = new List<ResumeCompanyResult>();
+        var companiesById = companies.ToDictionary(c => c.CompanyId);
+        var validResults = new List<CompanyBulletAiResult>();
 
-        var alternativeCount = 0;
-
-        foreach (var context in contexts)
+        foreach (var response in responses)
         {
-            var companyResult = aiCompanyResponse.FirstOrDefault(
-                result => string.Equals(result.Company, context.Name, StringComparison.OrdinalIgnoreCase));
-
-            var bullets = new List<ResumeBulletResult>();
-
-            if (companyResult is not null)
+            if(!companiesById.TryGetValue(response.CompanyId, out var companyContext))
             {
-                foreach (var bullet in companyResult.Bullets)
-                {
-                    var sourceBullet = context.Bullets.FirstOrDefault(b => b.Value == bullet.Value);
-
-                    if(sourceBullet is null)
-                    {
-                        continue;
-                    }
-
-                    string? alternative = null;
-
-                    if (alternativeCount < 3 && !string.IsNullOrWhiteSpace(bullet.Alternative))
-                    {
-                        alternative = bullet.Alternative;
-                        alternativeCount++;
-                    }
-
-                    bullets.Add(new ResumeBulletResult(
-                        Id: null,
-                        SourceBulletId: sourceBullet.SourceBulletId,
-                        Value: bullet.Value,
-                        AlternativeValue: alternative,
-                        SortOrder: null,
-                        IsSourceDeleted: false));
-
-                    if(bullets.Count >= context.MaxBullets)
-                    {
-                        break;
-                    }
-                }
+                continue;
             }
 
-            results.Add(
-                new ResumeCompanyResult(
-                    CompanyId: context.CompanyId,
-                    SelectionId: null,
-                    Name: context.Name,
-                    Title: context.Title,
-                    Location: context.Location,
-                    Started: context.Started,
-                    Ended: context.Ended,
-                    Bullets: bullets));
+            var bulletExists = companyContext.Bullets.Any(b => b.BulletId == response.BulletId);
+
+            if(!bulletExists)
+            {
+                continue;
+            }
+
+            validResults.Add(new CompanyBulletAiResult(
+                CompanyId: response.CompanyId,
+                BulletId: response.BulletId,
+                AlternativeValue: response.AlternativeValue
+            ));
         }
 
-        return results;
+        return validResults
+            .DistinctBy(x => (x.CompanyId, x.BulletId))
+            .GroupBy(x => x.CompanyId)
+            .OrderByDescending(group => companiesById[group.Key].Ended is null)
+            .ThenByDescending(group => companiesById[group.Key].Ended)
+            .ThenByDescending(group => companiesById[group.Key].Started)
+            .SelectMany(group =>
+            {
+                var maxBullets = companiesById[group.Key].MaxBullets;
+                return group.Take(maxBullets);
+            })
+            .ToList();
     }
 
-    private static string BuildPrompt(ResumeAiGenerationContext context)
+    private static string BuildPrompt(ResumeAiContext context)
     {
-        var contextJson = JsonSerializer.Serialize(context, new JsonSerializerOptions { WriteIndented = true });
+        var companiesJson = JsonSerializer.Serialize(context.Companies, new JsonSerializerOptions { WriteIndented = true });
 
         return $$"""
             Analyze the candidate's experience against the provided job description
@@ -279,26 +259,32 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
             {{context.JobDescription}}
 
             RESUME EXPERIENCE:
-            {{contextJson}}
+            {{companiesJson}}
 
             BULLET SELECTION:
 
             For each company:
-            - Select no more than MaxBullets.
-            - Only select bullets from that company's Bullets collection.
-            - Do not modify the selected bullet's Value.
-            - Rank selected bullets from strongest to weakest match.
-            - Never move bullets between companies.
+            - Select the bullets that best match the job description.
+            - Select no more than that company's MaxBullets.
+            - A selected bullet must come from that company's supplied bullets.
+            - Return the supplied CompanyId and BulletId exactly as provided.
+            - Never invent, modify, or substitute a CompanyId or BulletId.
+            - Never associate a BulletId with a different CompanyId.
+            - Do not return bullet text in the selection.
+            - Return selected bullets in strongest-to-weakest order for each company.
+            - Do not select the same BulletId more than once.
 
             BULLET ALTERNATIVES:
 
-            - Most selected bullets should have Alternative set to null.
-            - Provide alternatives for at most 3 selected bullets total.
-            - Only provide an alternative when rewriting the bullet would
-              materially improve its relevance, clarity, or impact.
-            - An alternative may improve wording but must not invent experience,
-              technologies, responsibilities, metrics, or accomplishments.
-            - Preserve the factual meaning of the original bullet.
+            - AlternativeValue represents an optional rewritten version of the selected bullet.
+            - Most selected bullets should have AlternativeValue set to null.
+            - Provide an AlternativeValue for at most 3 selected bullets total.
+            - Only provide an AlternativeValue when rewriting the original bullet would
+              materially improve its relevance, clarity, or impact for this job.
+            - The AlternativeValue must remain factually equivalent to the original bullet.
+            - Do not invent technologies, responsibilities, metrics, accomplishments,
+              scope, or experience.
+            - Preserve all important factual claims from the original bullet.
 
             SUMMARY:
 
@@ -398,17 +384,15 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
     }
 
     private sealed record AiResumeResponse(
-        int Score,
-        string Summary,
-        IReadOnlyList<AiCompanyResponse> Companies,
-        IReadOnlyList<string> Strengths,
-        IReadOnlyList<string> Weaknesses,
+        int AiScore,
+        IReadOnlyCollection<AiCompanyBulletResponse> CompanyBullets,
+        AiCompanyAnalysisResponse CompanyAnalysis,
         AiJobPostingResponse JobPosting
-);
+    );
 
-    private sealed record AiCompanyResponse(string Company, IReadOnlyList<AiBulletResponse> Bullets);
+    private sealed record AiCompanyBulletResponse(int CompanyId, int BulletId, string? AlternativeValue);
 
-    private sealed record AiBulletResponse(string Value, string? Alternative);
+    private sealed record AiCompanyAnalysisResponse(string Summary, IReadOnlyCollection<string> Strengths, IReadOnlyCollection<string> Weaknesses);
 
     private sealed record AiJobPostingResponse(
         string? CompanyName,

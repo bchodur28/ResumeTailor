@@ -1,11 +1,10 @@
 import type { BulletResponse } from "../../api/contracts/bullets/BulletResponse";
-import type { CompanyBulletsResponse } from "../../api/contracts/companies/CompanyBulletsResponse";
-import type { ResumeBulletResult } from "../../models/resumes/ResumeBulletResult";
+import type { ResumeBulletViewModel } from "../../models/forms/ResumeViewModel";
 import EditableBullet from "./EditableBullet";
 import styles from "./Resume.module.css";
 
 type BulletListProps = {
-  bullets: ResumeBulletResult[];
+  bullets: ResumeBulletViewModel[];
   availableBullets: BulletResponse[];
   topListPtSpacing: number;
   verticalItemPtSpacing: number;
@@ -13,7 +12,7 @@ type BulletListProps = {
   onBulletChange: (
     companyIndex: number,
     bulletIndex: number,
-    sourceBulletId: number | null,
+    bulletId: number,
     value: string,
   ) => void;
   onBulletMoveUp: (companyIndex: number, bulletIndex: number) => void;
@@ -44,11 +43,11 @@ const BulletList = ({
             item.id != null
               ? `resume-${item.id}`
               : item.sourceBulletId != null
-                ? `source-${item.sourceBulletId}`
-                : `selection-${item.selectionId}`
+                ? `bullet-${item.sourceBulletId}`
+                : `selection-${item.id}`
           }
           item={item}
-          additonalBullets={availableBullets}
+          additionalBullets={availableBullets}
           companyIndex={companyIndex}
           bulletIndex={index}
           onBulletChange={onBulletChange}

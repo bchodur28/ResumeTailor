@@ -1,7 +1,7 @@
 import type { JobPostingResult } from "../../../models/resumes/JobPostingResult";
 import type { ApplicationTrackingResponse } from "./ApplicationTrackingResponse";
 
-export type ResumeListItemResponse = {
+export type ResumeSummaryResponse = {
   id: number;
   accountId: number;
   name: string;

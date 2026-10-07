@@ -7,6 +7,7 @@ public interface IEducationRepository
     Task<IReadOnlyCollection<EducationEntity>> GetEducationByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<EducationEntity>> GetEducationByIdsAsync(HashSet<int> ids, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<EducationEntity>> GetEducationForUpdatingByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<int>> GetEducationIdsForCreationAsync(int accountId, CancellationToken cancellationToken = default);
     void AddRange(IEnumerable<EducationEntity> education);
     void RemoveRange(IEnumerable<EducationEntity> education);
 

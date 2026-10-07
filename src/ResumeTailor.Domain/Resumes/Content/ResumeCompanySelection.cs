@@ -24,7 +24,7 @@ public sealed class ResumeCompanySelection : Entity
         MarkUpdated();
     }
 
-    public void AddResumeBullet(int? sourceBulletId, string value, string? alternativeValue, int sortOrder)
+    public void AddResumeBullet(int sourceBulletId, string value, string? alternativeValue, int sortOrder)
     {
         var bullet = new ResumeCompanyBullet(sourceBulletId, value, alternativeValue, sortOrder);
         _bullets.Add(bullet);

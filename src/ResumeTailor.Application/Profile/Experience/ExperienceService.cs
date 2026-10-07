@@ -292,7 +292,7 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
         CompanyId: companyBullet.CompanyId,
         CompanyName: companyBullet.CompanyName,
         Bullets: companyBullet.Bullets
-            .Select(b => new BulletReponse(Id: b.Id, CompanyId: b.CompanyId, Value: b.Value, AiScore: b.AiScore, b.ResumeCount))
+            .Select(b => new BulletReponse(Id: b.Id, Value: b.Value, AiScore: b.AiScore, b.ResumeCount))
             .ToList()
     );
 

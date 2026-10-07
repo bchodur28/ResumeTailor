@@ -42,18 +42,23 @@
 .btn-secondary {
   padding: 8px 10px;
   background-color: white;
-  color: hsl(0, 0%, 30%);
-  border: 1px solid var(--color-gray-300);
+  color: var(--gray-800);
+  border: 1px solid var(--color-gray-400);
   border-radius: 8px;
   cursor: pointer;
   transition:
     background-color 0.3s,
     border-color 0.3s;
 
-  -webkit-box-shadow: var(--small-shadow-light);
-  box-shadow: var(--small-shadow-light);
+  -webkit-box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm);
   font-weight: 600;
   color: var(--gray-800);
+}
+
+.btn-secondary:hover {
+  background-color: hsl(0, 0%, 94%);
+  border-color: var(--color-gray-500);
 }
 
 .remove-btn {
@@ -96,10 +101,7 @@
   border-color: hsl(0, 80%, 80%);
 }
 
-.btn-secondary:hover {
-  background-color: hsl(0, 0%, 96%);
-  border-color: hsl(0, 0%, 60%);
-}
+
 
 .profile-btn{
   display: flex;
@@ -128,16 +130,35 @@
   display: inline-flex;
   overflow: hidden;
   border-radius: 8px;
-  box-shadow: var(--small-shadow-dark);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-gray-400);
 }
+
+.action-dropdown__button-group:hover
+{
+  border: 1px solid var(--color-gray-500);
+}
+
+.action-dropdown__button-group:hover > .action-dropdown__toggle{
+  border-left: 1px solid var(--color-gray-500);
+}
+
 
 .action-dropdown__primary,
 .action-dropdown__toggle {
   border: 0;
-  background-color: var(--primary-color);
-  color: white;
+  /* background-color: var(--primary-color);
+  color: white; */
   cursor: pointer;
   transition: background-color 0.3s;
+
+  background-color: white;
+  color: var(--gray-800);
+  font-weight: 600;
+
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
 }
 
 .action-dropdown__primary {
@@ -149,12 +170,14 @@
   align-items: center;
   justify-content: center;
   padding: 8px;
-  border-left: 1px solid rgb(255 255 255 / 30%);
+  border-left: 1px solid var(--color-gray-400);
 }
 
 .action-dropdown__primary:hover,
 .action-dropdown__toggle:hover {
-  background-color: var(--primary-color-dark);
+  /* background-color: var(--primary-color-dark); */
+  background-color: hsl(0, 0%, 94%);
+  border-color: hsl(0, 0%, 60%);
 }
 
 .action-dropdown__primary:disabled,

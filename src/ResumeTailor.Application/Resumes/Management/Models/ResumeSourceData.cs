@@ -1,6 +1,6 @@
 using ResumeTailor.Domain.Profile;
 
-namespace ResumeTailor.Application.Resumes.Common.Models;
+namespace ResumeTailor.Application.Resumes.Management.Models;
 
 public sealed record ResumeSourceData(
     Account Account,

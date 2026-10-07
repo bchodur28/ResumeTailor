@@ -6,7 +6,6 @@ public class ResumeAiAnalysis : Entity
 {
     public int ResumeId { get; private set; }
 
-    public int Score { get; private set; }
     public string Summary { get; private set; } = string.Empty;
 
     private readonly List<ResumeAiInsight> _insights = [];
@@ -15,22 +14,18 @@ public class ResumeAiAnalysis : Entity
     public IEnumerable<ResumeAiInsight> Strengths => _insights.Where(i => i.Type == ResumeAiInsightType.Strength);
     public IEnumerable<ResumeAiInsight> Weaknesses => _insights.Where(i => i.Type == ResumeAiInsightType.Weakness);
 
-    public ResumeAiAnalysis(string summary, int score)
+    public ResumeAiAnalysis(string summary)
     {
         Summary = summary;
-        Score = score;
     }
 
-    public void Update(string summary, int score)
+    public void Update(string summary)
     {
         Summary = summary;
-        Score = score;
         MarkUpdated();
     }
 
-    public void AddInsight(
-    ResumeAiInsightType type,
-    string value)
+    public void AddInsight(ResumeAiInsightType type, string value)
     {
         _insights.Add(new ResumeAiInsight(type, value));
     }

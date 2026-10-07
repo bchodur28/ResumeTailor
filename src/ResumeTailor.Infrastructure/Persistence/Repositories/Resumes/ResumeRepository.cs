@@ -9,9 +9,10 @@ namespace ResumeTailor.Infrastructure.Persistence.Repositories.GeneratedResumes;
 public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeRepository
 {
     // Resumes
-    public async Task<IReadOnlyCollection<Resume>> GetResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<Resume>> GetResumesForSummaryByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Resumes
+            .AsNoTracking()
             .Include(x => x.JobPosting)
             .Include(x => x.ApplicationTracking)
             .Where(gr => gr.AccountId == accountId)
@@ -50,12 +51,12 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task CreateResumeAsync(Resume generatedResume, CancellationToken cancellationToken = default)
+    public async Task CreateResumeAsync(Resume resume, CancellationToken cancellationToken = default)
     {
-        await dbContext.Resumes.AddAsync(generatedResume, cancellationToken);
+        await dbContext.Resumes.AddAsync(resume, cancellationToken);
     }
 
-    public void DeleteResumeAsync(Resume generatedResume)
+    public void DeleteResume(Resume generatedResume)
     {
         dbContext.Resumes.Remove(generatedResume);
     }

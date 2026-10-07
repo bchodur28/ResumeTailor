@@ -157,9 +157,6 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<int>("ResumeId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Score")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Summary")
                         .IsRequired()
                         .HasMaxLength(2000)
@@ -263,7 +260,7 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("SourceBulletId")
+                    b.Property<int>("SourceBulletId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("UpdatedDate")
@@ -373,6 +370,9 @@ namespace ResumeTailor.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("AccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("AiScore")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("AiScoreStaleness")
@@ -908,7 +908,8 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.HasOne("ResumeTailor.Domain.Profile.Bullet", null)
                         .WithMany()
                         .HasForeignKey("SourceBulletId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.GeneratedResumes.Content.ResumeCompanySelection", b =>
@@ -1025,17 +1026,21 @@ namespace ResumeTailor.Infrastructure.Migrations
                 {
                     b.Navigation("AiAnalysis");
 
-                    b.Navigation("AiMetaData");
+                    b.Navigation("AiMetaData")
+                        .IsRequired();
 
-                    b.Navigation("Appearance");
+                    b.Navigation("Appearance")
+                        .IsRequired();
 
-                    b.Navigation("ApplicationTracking");
+                    b.Navigation("ApplicationTracking")
+                        .IsRequired();
 
                     b.Navigation("CompanySelections");
 
                     b.Navigation("EducationSelections");
 
-                    b.Navigation("JobPosting");
+                    b.Navigation("JobPosting")
+                        .IsRequired();
 
                     b.Navigation("ProjectSelections");
                 });

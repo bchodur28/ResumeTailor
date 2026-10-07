@@ -7,7 +7,7 @@ import type { JobPostingResult } from "../../../models/resumes/JobPostingResult"
 export type ResumeDetailsResponse = {
   resume: ResumeResponse;
   aiAnalysis: ResumeAiAnalysisResponse | null;
-  jobPosting: JobPostingResult | null;
-  applicationTracking: ApplicationTrackingResponse | null;
-  aiMetaData: AiMetaDataResult | null;
+  jobPosting: JobPostingResult;
+  applicationTracking: ApplicationTrackingResponse;
+  aiMetaData: AiMetaDataResult;
 };

@@ -6,7 +6,7 @@ import {
   JustifyRight,
   Plus,
 } from "react-bootstrap-icons";
-import type { ResumeResponse } from "../../api/contracts/resumes/ResumeResponse";
+import type { ResumeViewModel } from "../../models/forms/ResumeViewModel";
 import type { ProjectResponse } from "../../api/contracts/projects/ProjectResponse";
 import type { EducationResponse } from "../../api/contracts/education/EducationResponse";
 import type { CompanyBulletsResponse } from "../../api/contracts/companies/CompanyBulletsResponse";
@@ -16,24 +16,19 @@ import InnerSection from "./InnerSection";
 import styles from "./Resume.module.css";
 import Section from "./Section";
 import TwoColumn from "./TwoColumn";
-import { ResumeEditProvider } from "../../contexts/ResumeEditContext";
 import { getStateCode } from "../../data/states";
 
 type ResumeProps = {
-  resume: ResumeResponse;
+  resume: ResumeViewModel;
   onBulletChange: (
     companyIndex: number,
     bulletIndex: number,
-    sourceBulletId: number | null,
+    bulletId: number,
     value: string,
   ) => void;
   onBulletMoveUp: (companyIndex: number, bulletIndex: number) => void;
   onBulletMoveDown: (companyIndex: number, bulletIndex: number) => void;
-  onBulletAdd: (
-    companyIndex: number,
-    sourceBulletId: number,
-    value: string,
-  ) => void;
+  onBulletAdd: (companyIndex: number, bulletId: number, value: string) => void;
 
   onRemoveEducation: (index: number) => void;
   onUpdateEducation: (index: number, educationId: number) => void;
@@ -108,7 +103,7 @@ const Resume = ({
           <div className={styles.topHeader}>
             <h1>{resume.personName}</h1>
             <p className={styles.personProfession}>{resume.profession}</p>
-            <p>
+            <p style={{ fontSize: "11pt" }}>
               {resume.location.split(",")[0].trim() +
                 ", " +
                 getStateCode(resume.location.split(",")[1].trim())}

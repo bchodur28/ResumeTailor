@@ -1,8 +1,8 @@
-using ResumeTailor.Application.GeneratedResumes.Generation.Models;
+using ResumeTailor.Application.Resumes.Generation.Models;
 
-namespace ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
+namespace ResumeTailor.Application.Resumes.Generation.Interfaces;
 
 public interface IResumeAiGenerator
 {
-    Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiGenerationContext context, CancellationToken cancellationToken = default);
+    Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiContext context, CancellationToken cancellationToken = default);
 }

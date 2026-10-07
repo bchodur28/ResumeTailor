@@ -1,12 +1,12 @@
 using ResumeTailor.Application.Common.Exceptions;
-using ResumeTailor.Application.GeneratedResumes.Common.Interfaces;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Education.Interfaces;
 using ResumeTailor.Application.Profile.Experience.Interfaces;
-using ResumeTailor.Application.Resumes.Common.Models;
+using ResumeTailor.Application.Resumes.Management.Interfaces;
+using ResumeTailor.Application.Resumes.Management.Models;
 using ResumeTailor.Domain.GeneratedResumes;
 
-namespace ResumeTailor.Application.GeneratedResumes.Common
+namespace ResumeTailor.Application.Resumes.Management
 {
     public sealed class ResumeDataProvider(
         IAccountRepository accountRepository,
@@ -34,20 +34,6 @@ namespace ResumeTailor.Application.GeneratedResumes.Common
             var companies = await experienceRepository.GetCompaniesWithBulletsIncludingDeletedByIdsAsync(companyIds, cancellationToken);
             var educations = await educationRepository.GetEducationByIdsAsync(educationIds, cancellationToken);
             var projects = await experienceRepository.GetProjectsByIdsAsync(projectIds, cancellationToken);
-
-            return new ResumeSourceData(account, companies, educations, projects);
-        }
-
-        public async Task<ResumeSourceData> GetResumeSourceDataForGenerationAsync(int accountId, CancellationToken cancellationToken = default)
-        {
-            
-
-            var account = await accountRepository.GetAccountByIdAsync(accountId, cancellationToken)
-                ?? throw new NotFoundException($"Account with ID {accountId} not found.");
-
-            var companies = await experienceRepository.GetCompaniesWithNonDeletedBulletsByAccountIdAsync(account.Id, cancellationToken);
-            var educations = await educationRepository.GetEducationByAccountIdAsync(account.Id, cancellationToken);
-            var projects = await experienceRepository.GetProjectsByAccountIdAsync(account.Id, cancellationToken);
 
             return new ResumeSourceData(account, companies, educations, projects);
         }

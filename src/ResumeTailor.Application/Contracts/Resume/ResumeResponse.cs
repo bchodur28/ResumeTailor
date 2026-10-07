@@ -1,7 +1,6 @@
 using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Contracts.Projects;
-using ResumeTailor.Application.GeneratedResumes.Common.Models;
 using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Domain.Resumes;
 
@@ -11,6 +10,7 @@ public sealed record ResumeResponse(
     int? Id,
     int AccountId,
     string ResumeName,
+    int? AiScore,
     AiScoreStaleness AiScoreStaleness,
     string PersonName,
     string Profession,
@@ -19,8 +19,8 @@ public sealed record ResumeResponse(
     string Location,
     IReadOnlyCollection<PersonalLinkResponse> PersonalLinks,
     IReadOnlyCollection<SkillResponse> Skills,
-    IReadOnlyCollection<ResumeCompanyResult> Companies,
+    IReadOnlyCollection<ResumeCompanyResponse> Companies,
     IReadOnlyCollection<EducationResponse> Education,
     IReadOnlyCollection<ProjectResponse> Projects,
-    ResumeAppearanceResponse? Appearance
+    ResumeAppearanceResponse Appearance
     );

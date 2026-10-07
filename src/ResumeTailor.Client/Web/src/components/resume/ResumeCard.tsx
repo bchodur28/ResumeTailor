@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import type { ResumeListItemResponse } from "../../api/contracts/resumes/ResumeListItemResponse";
+import type { ResumeSummaryResponse } from "../../api/contracts/resumes/ResumeSummaryResponse";
 import {
   ApplicationStatus,
   type ApplicationStatusValue,
@@ -9,9 +9,13 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { updateResumeApplicationTracking } from "../../api/resumeApi";
 import Message from "../ui/Message";
+import applicationIcon from "../../assets/icons/application.png";
+import interviewingIcon from "../../assets/icons/job-interview.png";
+import handShakeIcon from "../../assets/icons/handshake.png";
+import rejectedIcon from "../../assets/icons/reject.png";
 
 type ResumeCardProps = {
-  resume: ResumeListItemResponse;
+  resume: ResumeSummaryResponse;
 };
 
 const uppercaseFirstLetter = (str: string) =>
@@ -38,11 +42,20 @@ const getDisplayName = (name: string) => {
 };
 
 const formatDate = (date: string | Date) => {
+  let value: Date;
+
+  if (typeof date === "string") {
+    const [year, month, day] = date.split("-").map(Number);
+    value = new Date(year, month - 1, day);
+  } else {
+    value = date;
+  }
+
   return new Intl.DateTimeFormat("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
-  }).format(new Date(date));
+  }).format(value);
 };
 
 const getStatusColor = (status: ApplicationStatusValue | undefined) => {
@@ -64,6 +77,27 @@ const getStatusColor = (status: ApplicationStatusValue | undefined) => {
     default:
       return ["var(--primary-color)", "white"];
   }
+};
+
+function renderInfo(title: string, value: string | null | undefined) {
+  return (
+    <div className="flex gap-2">
+      <p className="font-semibold text-gray-600 text-sm">{title}:</p>
+      <p className="text-gray-800 text-sm font-semibold">
+        {uppercaseFirstLetter(value ?? "Not specified")}
+      </p>
+    </div>
+  );
+}
+
+const getLocalDateString = () => {
+  const date = new Date();
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 };
 
 const ResumeCard = ({ resume }: ResumeCardProps) => {
@@ -114,7 +148,7 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
 
     onSuccess: (_, status) => {
       setCurrentStatus(status);
-      setDateForStatus(status, new Date().toISOString());
+      setDateForStatus(status, getLocalDateString());
       setStatusUpdatedSuccessfully(true);
     },
     onError: (error: string) => {
@@ -126,8 +160,9 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
   const handleStatusChange = (status: ApplicationStatusValue) => {
     saveStatus.mutate(status);
   };
+
   return (
-    <div className="flex h-full flex-col border rounded-lg shadow-md border-gray-300">
+    <div className="flex h-full flex-col border rounded-lg shadow-md border-gray-300 gap-2 max-w-lg">
       <div
         style={{
           backgroundColor: getStatusColor(currentStatus)[0],
@@ -153,7 +188,38 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
           />
         )}
       </div>
-      <div className="flex-1 p-4">
+
+      <div className="grid grid-cols-3 px-4 justify-between gap-6">
+        {appliedOn && (
+          <img
+            src={applicationIcon}
+            alt="Applied"
+            className="h-16 w-16 object-cover"
+          />
+        )}
+        {interviewedOn && (
+          <img
+            src={interviewingIcon}
+            alt="Interviewing"
+            className="h-16 w-16 object-cover"
+          />
+        )}
+        {offerReceivedOn && (
+          <img
+            src={handShakeIcon}
+            alt="Offer Received"
+            className="h-16 w-16 object-cover"
+          />
+        )}
+        {rejectedOn && (
+          <img
+            src={rejectedIcon}
+            alt="Offer Rejected"
+            className="h-16 w-16 object-cover"
+          />
+        )}
+      </div>
+      <div className="flex-1 px-4">
         {renderInfo("Company", resume.jobPosting?.companyName)}
         {renderInfo("Job Title", resume.jobPosting?.jobTitle)}
         {renderInfo("Location", resume.jobPosting?.location)}
@@ -178,8 +244,16 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
           renderInfo("Accepted offer on", formatDate(offerAcceptedOn))}
         {rejectedOn && renderInfo("Rejected on", formatDate(rejectedOn))}
       </div>
-      <div className="shrink-0 p-2 border-t border-gray-300 flex justify-end gap-2">
-        <button className="btn">Edit Post</button>
+      <div className="shrink-0 p-2 border-t border-gray-300 flex justify-center gap-2">
+        <ActionDropdown
+          label="Edit Post"
+          actions={[
+            {
+              actionName: "Edit",
+              actionFn: () => console.log("Edit clicked"),
+            },
+          ]}
+        />
         <ActionDropdown
           label="Set Status"
           actions={[
@@ -202,23 +276,12 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
             },
           ]}
         />
-        <Link className="btn" to={`/resumes/${resume.id}`}>
+        <Link className="btn-secondary" to={`/resumes/${resume.id}`}>
           View Resume
         </Link>
       </div>
     </div>
   );
-
-  function renderInfo(title: string, value: string | null | undefined) {
-    return (
-      <div className="flex gap-2">
-        <p className="font-semibold text-gray-700 text-sm">{title}:</p>
-        <p className="text-gray-800 text-sm">
-          {uppercaseFirstLetter(value ?? "Not specified")}
-        </p>
-      </div>
-    );
-  }
 };
 
 export default ResumeCard;

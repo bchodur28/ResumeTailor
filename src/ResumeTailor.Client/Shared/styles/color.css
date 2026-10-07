@@ -10,7 +10,7 @@
     --small-shadow-dark: 0px 2px 3px 0px hsl(0, 0%, 50%);
 
     --applied-color: hsl(284, 33%, 40%);
-    --interviewed-color: hsl(54, 52%, 55%);
+    --interviewed-color: hsl(54, 100%, 46%);
     --offer-received-color: hsl(137, 33%, 52%);
     --offer-accepted-color: hsl(137, 33%, 32%);
     --rejected-color: hsl(0, 52%, 52%);

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using ResumeTailor.Api.Models;
 using ResumeTailor.Application.Contracts.Resume;
-using ResumeTailor.Application.GeneratedResumes.Generation.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Rendering.Interfaces;
+using ResumeTailor.Application.Resumes.Generation.Interfaces;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
 
 namespace ResumeTailor.Api.Controllers.GeneratedResumes;
@@ -12,14 +12,14 @@ namespace ResumeTailor.Api.Controllers.GeneratedResumes;
 [Route("api/resumes")]
 public sealed class ResumeController(
     IResumeManagementService managementService,
-    IResumeGeneratorService generatorService,
+    IResumeGenerator generatorService,
     IResumePdfGenerator pdfGenerator) : ControllerBase
 {
 
     [HttpPost("{accountId:int}/generate")]
     public async Task<ActionResult<int>> GenerateResumeAsync(int accountId, [FromBody] GenerateResumeRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await generatorService.GenerateResumeDetailsAsync(accountId, request.Description, cancellationToken);
+        var response = await generatorService.GenerateResumeAsync(accountId, request.Description, cancellationToken);
 
         return Ok(response);
     }
@@ -41,10 +41,10 @@ public sealed class ResumeController(
         return Ok(response);
     }
 
-    [HttpGet("account/{accountId:int}")]
-    public async Task<ActionResult<IReadOnlyCollection<ResumeListItemResponse>>> GetResumesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyCollection<ResumeSummaryResponse>>> GetResumeSummariesByAccountIdAsync([FromQuery] int accountId, CancellationToken cancellationToken = default)
     {
-        var response = await managementService.GetResumesByAccountIdAsync(accountId, cancellationToken);
+        var response = await managementService.GetResumeSummariesByAccountIdAsync(accountId, cancellationToken);
         return Ok(response);
     }
 
