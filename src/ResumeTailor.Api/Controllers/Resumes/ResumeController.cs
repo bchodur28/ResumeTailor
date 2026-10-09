@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ResumeTailor.Api.Models;
+using ResumeTailor.Application.Common.Models;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Rendering.Interfaces;
@@ -42,9 +43,9 @@ public sealed class ResumeController(
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyCollection<ResumeSummaryResponse>>> GetResumeSummariesByAccountIdAsync([FromQuery] int accountId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<PagedResult<ResumeSummaryResponse>>> GetResumeSummariesByAccountIdAsync([FromQuery] ResumeSummaryQuery request, CancellationToken cancellationToken = default)
     {
-        var response = await managementService.GetResumeSummariesByAccountIdAsync(accountId, cancellationToken);
+        var response = await managementService.GetPagedResumeSummariesByAccountIdAsync(request, cancellationToken);
         return Ok(response);
     }
 

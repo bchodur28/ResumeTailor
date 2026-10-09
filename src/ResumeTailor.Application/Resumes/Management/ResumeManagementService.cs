@@ -1,4 +1,5 @@
 using ResumeTailor.Application.Common.Exceptions;
+using ResumeTailor.Application.Common.Models;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Application.Resumes.Common.Models;
@@ -24,10 +25,19 @@ internal sealed class ResumeManagementService(
         return ResumeDetailsAssembler.Assemble(sourceData, resume);
     }
 
-    public async Task<IReadOnlyCollection<ResumeSummaryResponse>> GetResumeSummariesByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<ResumeSummaryResponse>> GetPagedResumeSummariesByAccountIdAsync(ResumeSummaryQuery request, CancellationToken cancellationToken = default)
     {
-        var resumes = await repository.GetResumesForSummaryByAccountIdAsync(accountId, cancellationToken);
-        return resumes.Select(MapToResumeSummaryResponse).ToList();
+        var result = await repository.GetPagedResumesForSummaryByAccountIdAsync(request, cancellationToken);
+
+        var summeries = result.Items
+            .Select(MapToResumeSummaryResponse)
+            .ToList();
+
+        return new PagedResult<ResumeSummaryResponse>(
+            Items: summeries,
+            TotalCount: result.TotalCount,
+            Page: result.Page,
+            PageSize: result.PageSize);
     }
 
     public async Task UpdateResumeAsync(int id, UpdateResumeRequest request, CancellationToken cancellationToken = default)

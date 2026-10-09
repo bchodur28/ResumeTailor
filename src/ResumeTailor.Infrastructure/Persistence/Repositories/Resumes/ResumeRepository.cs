@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using ResumeTailor.Application.Common.Models;
+using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
+using ResumeTailor.Application.Resumes.Management.Models;
 using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
 using ResumeTailor.Domain.Resumes.JobPositing;
@@ -9,14 +12,63 @@ namespace ResumeTailor.Infrastructure.Persistence.Repositories.GeneratedResumes;
 public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeRepository
 {
     // Resumes
-    public async Task<IReadOnlyCollection<Resume>> GetResumesForSummaryByAccountIdAsync(int accountId, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<Resume>> GetPagedResumesForSummaryByAccountIdAsync(ResumeSummaryQuery request, CancellationToken cancellationToken = default)
     {
-        return await dbContext.Resumes
+        var query = dbContext.Resumes
             .AsNoTracking()
-            .Include(x => x.JobPosting)
-            .Include(x => x.ApplicationTracking)
-            .Where(gr => gr.AccountId == accountId)
+            .Include(r => r.ApplicationTracking)
+            .Include(r => r.JobPosting)
+            .Where(r => r.AccountId == request.AccountId);
+
+        if (request.Statuses is { Count: > 0 })
+        {
+            query = query.Where(r => request.Statuses.Contains(r.ApplicationTracking.Status));
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        var startOfWeek = today.AddDays(-((int)today.DayOfWeek + 6) % 7);
+        var startOfMonth = new DateOnly(today.Year, today.Month, 1);
+
+        query = request.DateFilter switch
+        {
+            ResumeSummaryDateFilter.Today => query.Where(r => r.ApplicationTracking.Applied == today),
+
+            ResumeSummaryDateFilter.ThisWeek => query.Where(r => r.ApplicationTracking.Applied >= startOfWeek),
+
+            ResumeSummaryDateFilter.ThisMonth => query.Where(r => r.ApplicationTracking.Applied >= startOfMonth),
+
+            _ => query
+        };
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        IOrderedQueryable<Resume> orderedQuery = request.SortBy switch
+        {
+            ResumeSummarySortBy.AppliedDate =>
+                request.Descending
+                    ? query.OrderByDescending(r => r.ApplicationTracking.Applied)
+                    : query.OrderBy(r => r.ApplicationTracking.Applied),
+
+            ResumeSummarySortBy.InterviededDate =>
+                request.Descending
+                    ? query.OrderByDescending(r => r.ApplicationTracking.Interviewed)
+                    : query.OrderBy(r => r.ApplicationTracking.Interviewed),
+
+            ResumeSummarySortBy.Salary =>
+                request.Descending
+                    ? query.OrderByDescending(r => r.JobPosting.Salary)
+                    : query.OrderBy(r => r.JobPosting.Salary),
+
+            _ => query.OrderByDescending(j => j.ApplicationTracking.Applied)
+        };
+
+        var items = await orderedQuery
+            .ThenBy(j => j.Id)
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
             .ToListAsync(cancellationToken);
+
+        return new PagedResult<Resume>(items, totalCount, request.Page, request.PageSize);
     }
 
     public async Task<Resume?> GetResumeAsync(int id, CancellationToken cancellationToken = default)
