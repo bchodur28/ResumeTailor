@@ -191,10 +191,9 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
             ?? throw new NotFoundException($"Account was not found when updating bullets.");
 
-        var companyIds = requests.Select(r => r.CompanyId).ToHashSet();
         var bulletIds = requests.Select(r => r.Id ?? 0).ToHashSet();
 
-        var existingBullets = await experienceRepository.GetBulletsForUpdatingByCompanyIdsAsync(accountId, companyIds, bulletIds, cancellationToken);
+        var existingBullets = await experienceRepository.GetBulletsForUpdatingAsync(accountId, bulletIds, cancellationToken);
         var bulletById = existingBullets.ToDictionary(c => c.Id);
 
         foreach (var request in requests)
@@ -217,20 +216,11 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
             ?? throw new NotFoundException(
                 "Account was not found when deleting bullets.");
 
-        var companyIds = requests
-            .Select(r => r.CompanyId)
-            .ToHashSet();
-
         var bulletIds = requests
             .Select(r => r.BulletId)
             .ToHashSet();
 
-        var existingBullets =
-            await experienceRepository.GetBulletsForUpdatingByCompanyIdsAsync(
-                accountId,
-                companyIds,
-                bulletIds,
-                cancellationToken);
+        var existingBullets = await experienceRepository.GetBulletsForUpdatingAsync(accountId, bulletIds, cancellationToken);
 
         var bulletById = existingBullets.ToDictionary(b => b.Id);
 
@@ -238,12 +228,9 @@ public class ExperienceService(IAccountRepository accountRepository, IExperience
         // to the requested company/account.
         foreach (var request in requests)
         {
-            if (!bulletById.TryGetValue(request.BulletId, out var bullet) ||
-                bullet.CompanyId != request.CompanyId)
+            if (!bulletById.TryGetValue(request.BulletId, out var bullet))
             {
-                throw new NotFoundException(
-                    $"Bullet with Id {request.BulletId} was not found " +
-                    $"for company with id {request.CompanyId} when deleting.");
+                throw new NotFoundException($"Bullet with Id {request.BulletId} was not found");
             }
         }
 

@@ -25,7 +25,7 @@ public interface IExperienceRepository
     void RemoveProjects(IEnumerable<Project> projects);
 
     Task<IReadOnlyCollection<CompanyBullets>> GetCompanyBulletsByAccountIdAsync(int accountId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyCollection<Bullet>> GetBulletsForUpdatingByCompanyIdsAsync(int accountId, HashSet<int> companyIds, HashSet<int> bulletIds, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<Bullet>> GetBulletsForUpdatingAsync(int accountId, HashSet<int> bulletIds, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<Bullet>> GetBulletsNotReferencedByResumeAsync(HashSet<int> bulletIds, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<CompanyAiContext>> GetCompaniesForAiGenerationAsync(int accountId, CancellationToken cancellationToken = default);
     Task<Dictionary<int, string>> GetBulletIdMappingAsync(int accountId, CancellationToken cancellationToken = default);

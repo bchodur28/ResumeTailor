@@ -73,7 +73,13 @@ internal sealed class ResumeManagementService(
         var existingApplicationTracking = await repository.GetResumeApplicationTrackingForUpdatingAsync(resumeId, cancellationToken)
             ?? throw new NotFoundException($"Resume application tracking with resume ID {resumeId} was not found while updating application tracking.");
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var centralTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
+
+        var centralNow = TimeZoneInfo.ConvertTimeFromUtc(
+            DateTime.UtcNow,
+            centralTimeZone);
+
+        var today = DateOnly.FromDateTime(centralNow);
 
         existingApplicationTracking.UpdateStatus(request, today);
 

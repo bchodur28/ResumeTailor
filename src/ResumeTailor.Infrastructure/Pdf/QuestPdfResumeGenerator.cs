@@ -54,7 +54,15 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                             ComposeProjects(column, resume);
                     });
             });
-        });
+        })
+            .WithMetadata(new DocumentMetadata {
+                Title = $"{resume.PersonName} - Resume",
+                Subject = "Professional Resume",
+                Language = "en-US"
+            })
+            .WithSettings(new DocumentSettings {
+                PDFUA_Conformance = PDFUA_Conformance.PDFUA_1
+            });
 
         return document.GeneratePdf();
     }
@@ -69,6 +77,7 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
             .Column(header =>
             {
                 Align(header.Item(), appearance.TopHeaderAlignment)
+                    .SemanticHeading1()
                     .Text(resume.PersonName)
                     .FontSize(appearance.TitleFontSize)
                     .SemiBold();
@@ -155,13 +164,14 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
         {
             column.Item()
                 .PaddingTop(index == 0 ? SectionContentSpacing : CompanySpacing)
+                .SemanticSection()
                 .Column(companyColumn =>
                 {
                     var date = company.Ended is DateOnly ended
                         ? $"{company.Started:MMM-yyyy} - {company.Ended:MMM-yyyy}"
                         : $"{company.Started:MMM-yyyy} - Present";
 
-                    TwoColumn(companyColumn, company.Name, date, bold: true);
+                    TwoColumn(companyColumn, company.Name, date, bold: true, isHeading: true);
                     TwoColumn(companyColumn, company.Title, company.Location ?? "Remote");
 
                     if (company.Bullets.Count > 0)
@@ -177,6 +187,7 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                                 {
                                     bullets
                                         .Item()
+                                        .SemanticListItem()
                                         .Row(row =>
                                         {
                                             row.ConstantItem(BulletIndent)
@@ -210,7 +221,7 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                         ? ended.ToString("MMM-yyyy")
                         : $"{education.Started:MMM-yyyy-dd} - Present";
 
-                    TwoColumn(educationColumn, education.SchoolName, date, true);
+                    TwoColumn(educationColumn, education.SchoolName, date, true, isHeading: true);
 
                     TwoColumn(educationColumn, education.Degree, education.Major);
                 });
@@ -234,7 +245,7 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                         ? ended.ToString("MMM-yyyy")
                         : $"{project.Started:MMM-yyyy} - Present";
 
-                    TwoColumn(projectColumn, project.Name, date, bold: true);
+                    TwoColumn(projectColumn, project.Name, date, bold: true, isHeading: true);
 
                     if (!string.IsNullOrWhiteSpace(project.Description))
                     {
@@ -288,21 +299,25 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
             .PaddingTop(SectionTopSpacing)
             .BorderBottom(0.75f)
             .PaddingBottom(1)
+            .SemanticHeading2()
             .Text(title)
             .FontSize(appearance.SectionHeaderFontSize)
             .FontColor(Color.FromHex(appearance.FontColor))
             .SemiBold();
     }
 
-    private static void TwoColumn(ColumnDescriptor column,string? left,string? right,bool bold = false)
+    private static void TwoColumn(ColumnDescriptor column,string? left,string? right,bool bold = false, bool isHeading = false)
     {
         column
             .Item()
             .Row(row =>
             {
-                var leftText = row
-                    .RelativeItem(3)
-                    .Text(left ?? string.Empty);
+                var leftContainer = row.RelativeItem(3);
+
+                if (isHeading)
+                    leftContainer = leftContainer.SemanticHeading3();
+
+                var leftText = leftContainer.Text(left ?? string.Empty);
 
                 var rightText = row
                     .RelativeItem(2)

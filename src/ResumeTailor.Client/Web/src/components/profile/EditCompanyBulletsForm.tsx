@@ -62,7 +62,7 @@ const EditCompanyBulletsForm = () => {
       bullets: companyBullets.flatMap((company) =>
         company.bullets.map((bullet) => ({
           id: bullet.id,
-          companyId: bullet.companyId,
+          companyId: company.companyId,
           value: bullet.value,
           aiScore: bullet.aiScore,
           resumeCount: bullet.resumeCount,
@@ -114,7 +114,6 @@ const EditCompanyBulletsForm = () => {
         .filter((bullet) => !submittedIds.has(bullet.id))
         .map((bullet) => ({
           bulletId: bullet.id,
-          companyId: bullet.companyId,
         }));
 
       const requests: Promise<void>[] = [];

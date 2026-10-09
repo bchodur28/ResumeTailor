@@ -158,18 +158,17 @@ internal class ExperienceRepository(ResumeTailorDbContext dbContext) : IExperien
         return companies;
     }
 
-    public async Task<IReadOnlyCollection<Bullet>> GetBulletsForUpdatingByCompanyIdsAsync(int accountId, HashSet<int> companyIds, HashSet<int> bulletIds, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<Bullet>> GetBulletsForUpdatingAsync(int accountId, HashSet<int> bulletIds, CancellationToken cancellationToken = default)
     {
-        return await dbContext.Bullets
+    return await dbContext.Bullets
         .Where(b =>
             b.DeletedDate == null &&
             bulletIds.Contains(b.Id) &&
-            companyIds.Contains(b.CompanyId) &&
             dbContext.Companies.Any(c =>
                 c.Id == b.CompanyId &&
                 c.AccountId == accountId))
         .ToListAsync(cancellationToken);
-    }
+}
 
     public async Task<IReadOnlyCollection<Bullet>> GetBulletsNotReferencedByResumeAsync(HashSet<int> bulletIds, CancellationToken cancellationToken = default)
     {
