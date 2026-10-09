@@ -189,3 +189,22 @@
 .color-border{
   border: 1px solid var(--primary-color-light);
 }
+
+/**
+ * Filter Button Styles
+ */
+
+.filter-btn {
+  padding: 6px 10px;
+  background-color: hsl(0, 0%, 95%);
+  color: hsl(0, 0%, 20%);
+  border-radius: calc(infinity * 1px);
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: 1px solid var(--color-gray-300);
+  font-weight: 600;
+}
+
+.filter-btn:hover {
+  background-color: hsl(0, 0%, 85%);
+}

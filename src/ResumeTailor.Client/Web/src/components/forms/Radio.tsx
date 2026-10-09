@@ -6,12 +6,12 @@ type InputProps = {
   registration?: UseFormRegisterReturn;
 };
 
-const Checkbox = ({ id, label, registration }: InputProps) => {
+const Radio = ({ id, label, registration }: InputProps) => {
   return (
     <div className="flex items-center gap-2">
       <input
         className="h-4 w-4 cursor-pointer translate-y-0.5"
-        type="checkbox"
+        type="radio"
         id={id}
         {...registration}
       />
@@ -22,4 +22,4 @@ const Checkbox = ({ id, label, registration }: InputProps) => {
   );
 };
 
-export default Checkbox;
+export default Radio;
