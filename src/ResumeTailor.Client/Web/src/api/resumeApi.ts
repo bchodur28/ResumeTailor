@@ -1,8 +1,10 @@
 import type { ResumeDetailsResponse } from "./contracts/resumes/ResumeDetailsResponse";
 import type { ResumeSummaryResponse } from "./contracts/resumes/ResumeSummaryResponse";
+import type { ResumeSummaryQuery } from "./contracts/resumes/ResumeSummaryQuery";
 import type { GenerateResumeRequest } from "./contracts/GenerateResumeRequest";
 import type { UpdateResumeRequest } from "./contracts/resumes/UpdateResumeRequest";
 import type { ApplicationStatusValue } from "../models/resumes/ApplicationStatus";
+import type { PagedResult } from "../models/common/PagedResult";
 
 const resumeUrl = "https://localhost:7139/api/resumes/";
 
@@ -53,9 +55,22 @@ export const getResumeDetails = async (
 };
 
 export const getResumeSummaries = async (
-  accountId: number,
-): Promise<ResumeSummaryResponse[]> => {
-  const response = await fetch(`${resumeUrl}?accountId=${accountId}`, {
+  request: ResumeSummaryQuery,
+): Promise<PagedResult<ResumeSummaryResponse>> => {
+  const params = new URLSearchParams();
+
+  params.append("accountId", request.accountId.toString());
+  params.append("page", request.page.toString());
+  params.append("pageSize", request.pageSize.toString());
+  params.append("sortBy", request.sortBy);
+  params.append("descending", request.descending.toString());
+  params.append("dateFilter", request.dateFilter);
+
+  request.statuses?.forEach((status) => {
+    params.append("statuses", status);
+  });
+
+  const response = await fetch(`${resumeUrl}?${params.toString()}`, {
     method: "GET",
   });
 

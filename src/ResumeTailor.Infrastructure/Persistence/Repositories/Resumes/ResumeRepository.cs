@@ -56,8 +56,8 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
 
             ResumeSummarySortBy.Salary =>
                 request.Descending
-                    ? query.OrderByDescending(r => r.JobPosting.Salary)
-                    : query.OrderBy(r => r.JobPosting.Salary),
+                    ? query.OrderByDescending(r => r.JobPosting.Salary ?? r.JobPosting.SalaryMax)
+                    : query.OrderBy(r => r.JobPosting.Salary ?? r.JobPosting.SalaryMin),
 
             _ => query.OrderByDescending(j => j.ApplicationTracking.Applied)
         };
