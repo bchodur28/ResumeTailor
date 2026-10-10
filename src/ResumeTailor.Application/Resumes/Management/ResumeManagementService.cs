@@ -36,6 +36,7 @@ internal sealed class ResumeManagementService(
         return new PagedResult<ResumeSummaryResponse>(
             Items: summeries,
             TotalCount: result.TotalCount,
+            TotalUnfilteredCount: result.TotalUnfilteredCount,
             Page: result.Page,
             PageSize: result.PageSize);
     }

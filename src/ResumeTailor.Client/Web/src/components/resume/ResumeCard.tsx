@@ -13,6 +13,8 @@ import applicationIcon from "../../assets/icons/application.png";
 import interviewingIcon from "../../assets/icons/job-interview.png";
 import handShakeIcon from "../../assets/icons/handshake.png";
 import rejectedIcon from "../../assets/icons/reject.png";
+import DropdownButton from "../ui/DropdownButton";
+import ActionList from "../ui/ActionList";
 
 type ResumeCardProps = {
   resume: ResumeSummaryResponse;
@@ -162,123 +164,135 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
   };
 
   return (
-    <div className="flex h-full flex-col border rounded-lg shadow-md border-gray-300 gap-2 max-w-lg">
-      <div
-        style={{
-          backgroundColor: getStatusColor(currentStatus)[0],
-          color: getStatusColor(currentStatus)[1],
-        }}
-        className="flex items-center p-3 rounded-t-lg shadow-md"
-      >
-        <h1 className="text-md font-semibold">{getDisplayName(resume.name)}</h1>
-      </div>
-      <div>
-        {statusUpdatedSuccessfully === true && (
-          <Message
-            type="success"
-            message="Status updated successfully"
-            onClose={() => setStatusUpdatedSuccessfully(null)}
-          />
-        )}
-        {statusUpdatedSuccessfully === false && (
-          <Message
-            type="error"
-            message="Failed to update status"
-            onClose={() => setStatusUpdatedSuccessfully(null)}
-          />
-        )}
-      </div>
+    <div className="resume-card">
+      <Link className="flex flex-col gap-2 flex-1" to={`/resumes/${resume.id}`}>
+        <div
+          style={{
+            backgroundColor: getStatusColor(currentStatus)[0],
+            color: getStatusColor(currentStatus)[1],
+          }}
+          className="flex items-center p-3 rounded-t-lg shadow-md"
+        >
+          <h1 className="text-md font-semibold">
+            {getDisplayName(resume.name)}
+          </h1>
+        </div>
+        <div>
+          {statusUpdatedSuccessfully === true && (
+            <Message
+              type="success"
+              message="Status updated successfully"
+              onClose={() => setStatusUpdatedSuccessfully(null)}
+            />
+          )}
+          {statusUpdatedSuccessfully === false && (
+            <Message
+              type="error"
+              message="Failed to update status"
+              onClose={() => setStatusUpdatedSuccessfully(null)}
+            />
+          )}
+        </div>
 
-      <div className="grid grid-cols-3 px-4 justify-between gap-6">
-        {appliedOn && (
-          <img
-            src={applicationIcon}
-            alt="Applied"
-            className="h-16 w-16 object-cover"
-          />
-        )}
-        {interviewedOn && (
-          <img
-            src={interviewingIcon}
-            alt="Interviewing"
-            className="h-16 w-16 object-cover"
-          />
-        )}
-        {offerReceivedOn && (
-          <img
-            src={handShakeIcon}
-            alt="Offer Received"
-            className="h-16 w-16 object-cover"
-          />
-        )}
-        {rejectedOn && (
-          <img
-            src={rejectedIcon}
-            alt="Offer Rejected"
-            className="h-16 w-16 object-cover"
-          />
-        )}
-      </div>
-      <div className="flex-1 px-4">
-        {renderInfo("Company", resume.jobPosting?.companyName)}
-        {renderInfo("Job Title", resume.jobPosting?.jobTitle)}
-        {renderInfo("Location", resume.jobPosting?.location)}
-        {renderInfo("Work Style", resume.jobPosting?.workStyle)}
-        {renderInfo(
-          "Salary",
-          formatSalary(
-            resume.jobPosting?.salaryMin,
-            resume.jobPosting?.salaryMax,
-            resume.jobPosting?.salaryPeriod,
-            resume.jobPosting?.salaryCurrency,
-            resume.jobPosting?.salary,
-          ),
-        )}
-        {renderInfo("Status", currentStatus)}
-        {appliedOn && renderInfo("Applied on", formatDate(appliedOn))}
-        {interviewedOn &&
-          renderInfo("Interviewed on", formatDate(interviewedOn))}
-        {offerReceivedOn &&
-          renderInfo("Received offer on", formatDate(offerReceivedOn))}
-        {offerAcceptedOn &&
-          renderInfo("Accepted offer on", formatDate(offerAcceptedOn))}
-        {rejectedOn && renderInfo("Rejected on", formatDate(rejectedOn))}
-      </div>
-      <div className="shrink-0 p-2 border-t border-gray-300 flex justify-center gap-2">
-        <ActionDropdown
+        <div className="grid grid-cols-3 px-4 justify-between gap-6">
+          {appliedOn && (
+            <img
+              src={applicationIcon}
+              alt="Applied"
+              className="h-16 w-16 object-cover"
+            />
+          )}
+          {interviewedOn && (
+            <img
+              src={interviewingIcon}
+              alt="Interviewing"
+              className="h-16 w-16 object-cover"
+            />
+          )}
+          {offerReceivedOn && (
+            <img
+              src={handShakeIcon}
+              alt="Offer Received"
+              className="h-16 w-16 object-cover"
+            />
+          )}
+          {rejectedOn && (
+            <img
+              src={rejectedIcon}
+              alt="Offer Rejected"
+              className="h-16 w-16 object-cover"
+            />
+          )}
+        </div>
+        <div className="flex-1 px-4">
+          {renderInfo("Company", resume.jobPosting?.companyName)}
+          {renderInfo("Job Title", resume.jobPosting?.jobTitle)}
+          {renderInfo("Location", resume.jobPosting?.location)}
+          {renderInfo("Work Style", resume.jobPosting?.workStyle)}
+          {renderInfo(
+            "Salary",
+            formatSalary(
+              resume.jobPosting?.salaryMin,
+              resume.jobPosting?.salaryMax,
+              resume.jobPosting?.salaryPeriod,
+              resume.jobPosting?.salaryCurrency,
+              resume.jobPosting?.salary,
+            ),
+          )}
+          {renderInfo("Status", currentStatus)}
+          {appliedOn && renderInfo("Applied on", formatDate(appliedOn))}
+          {interviewedOn &&
+            renderInfo("Interviewed on", formatDate(interviewedOn))}
+          {offerReceivedOn &&
+            renderInfo("Received offer on", formatDate(offerReceivedOn))}
+          {offerAcceptedOn &&
+            renderInfo("Accepted offer on", formatDate(offerAcceptedOn))}
+          {rejectedOn && renderInfo("Rejected on", formatDate(rejectedOn))}
+        </div>
+      </Link>
+      <div className="sshrink-0 p-2 border-t border-gray-300 flex justify-center gap-2">
+        <DropdownButton
           label="Edit Post"
-          actions={[
-            {
-              actionName: "Edit",
-              actionFn: () => console.log("Edit clicked"),
-            },
-          ]}
-        />
-        <ActionDropdown
+          styleType="filter"
+          containerAlignment="center"
+        >
+          <ActionList
+            actions={[
+              {
+                actionName: "Edit",
+                actionFn: () => console.log("Edit clicked"),
+              },
+            ]}
+          />
+        </DropdownButton>
+        <DropdownButton
           label="Set Status"
-          actions={[
-            {
-              actionName: "Applied",
-              actionFn: () => handleStatusChange(ApplicationStatus.Applied),
-            },
-            {
-              actionName: "Interviewing",
-              actionFn: () => handleStatusChange(ApplicationStatus.Interviewed),
-            },
-            {
-              actionName: "Offered",
-              actionFn: () =>
-                handleStatusChange(ApplicationStatus.OfferReceived),
-            },
-            {
-              actionName: "Rejected",
-              actionFn: () => handleStatusChange(ApplicationStatus.Rejected),
-            },
-          ]}
-        />
-        <Link className="btn-secondary" to={`/resumes/${resume.id}`}>
-          View Resume
-        </Link>
+          styleType="filter"
+          containerAlignment="center"
+        >
+          <ActionList
+            actions={[
+              {
+                actionName: "Applied",
+                actionFn: () => handleStatusChange(ApplicationStatus.Applied),
+              },
+              {
+                actionName: "Interviewing",
+                actionFn: () =>
+                  handleStatusChange(ApplicationStatus.Interviewed),
+              },
+              {
+                actionName: "Offered",
+                actionFn: () =>
+                  handleStatusChange(ApplicationStatus.OfferReceived),
+              },
+              {
+                actionName: "Rejected",
+                actionFn: () => handleStatusChange(ApplicationStatus.Rejected),
+              },
+            ]}
+          />
+        </DropdownButton>
       </div>
     </div>
   );

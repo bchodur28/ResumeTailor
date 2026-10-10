@@ -19,6 +19,19 @@
   background-color: hsl(0, 0%, 95%);
 }
 
+.btn-container {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-gray-50);
+  padding: calc(var(--spacing) * 0.5);
+  border: 1px solid var(--primary-color-light);
+  border-radius: calc(infinity * 1px);
+  font-weight: 600;
+  box-shadow: var(--small-shadow-light);
+}
+
 .btn{
   padding: 8px 10px;
   background-color: var(--primary-color);
@@ -196,15 +209,44 @@
 
 .filter-btn {
   padding: 6px 10px;
-  background-color: hsl(0, 0%, 95%);
-  color: hsl(0, 0%, 20%);
+  /* background-color: hsl(0, 0%, 95%); */
+  background: white;
+  /* color: hsl(0, 0%, 20%); */
+  color: var(--color-gray-700);
   border-radius: calc(infinity * 1px);
   cursor: pointer;
   transition: background-color 0.3s;
-  border: 1px solid var(--color-gray-300);
+  /* border: 1px solid var(--color-gray-300); */
+  border: 1px solid var(--primary-color-light);
   font-weight: 600;
 }
 
 .filter-btn:hover {
-  background-color: hsl(0, 0%, 85%);
+  background-color: var(--color-gray-100);
+}
+
+
+
+/**
+ * ResumeCard Styles
+ */
+
+ .resume-card{
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  border-radius: var(--radius-lg);
+  border-color: var(--color-gray-300);
+  gap: calc(var(--spacing) * 2);
+  max-width: var(--container-lg);
+
+  transition: box-shadow 0.3s, transform 0.3s;
+ }
+
+ .resume-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: scale(1.01);
+  cursor: pointer;
 }

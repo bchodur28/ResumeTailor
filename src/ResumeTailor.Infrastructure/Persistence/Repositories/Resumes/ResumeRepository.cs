@@ -20,6 +20,8 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
             .Include(r => r.JobPosting)
             .Where(r => r.AccountId == request.AccountId);
 
+        var totalUnfilteredCount = await query.CountAsync();
+
         if (request.Statuses is { Count: > 0 })
         {
             query = query.Where(r => request.Statuses.Contains(r.ApplicationTracking.Status));
@@ -68,7 +70,7 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        return new PagedResult<Resume>(items, totalCount, request.Page, request.PageSize);
+        return new PagedResult<Resume>(items, totalCount, totalUnfilteredCount, request.Page, request.PageSize);
     }
 
     public async Task<Resume?> GetResumeAsync(int id, CancellationToken cancellationToken = default)
