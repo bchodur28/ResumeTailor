@@ -25,7 +25,7 @@ const Input = ({
   return (
     <div className="flex flex-col flex-1">
       <div className={`flex ${error ? "justify-between" : "justify-start"}`}>
-        <label className="text-md" htmlFor={id}>
+        <label className="font-semibold text-gray-600" htmlFor={id}>
           {label}
         </label>
         {error && <span className="text-red-500">{error}</span>}

@@ -1,4 +1,6 @@
+using ResumeTailor.Application.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
+using ResumeTailor.Application.Library.Interfaces;
 using ResumeTailor.Application.Profile.Education.Interfaces;
 using ResumeTailor.Application.Profile.Experience.Interfaces;
 using ResumeTailor.Application.Resumes.Common.Models;
@@ -6,27 +8,18 @@ using ResumeTailor.Application.Resumes.Generation.Interfaces;
 using ResumeTailor.Application.Resumes.Generation.Models;
 using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.GeneratedResumes.AI;
+using ResumeTailor.Domain.Resumes.Content;
 using ResumeTailor.Domain.Resumes.JobPositing;
 
 namespace ResumeTailor.Application.Resumes.Generation;
 
-public sealed class ResumeCreator(
-    IExperienceRepository experienceRepository,
-    IEducationRepository educationRepository,
-    IResumeRepository resumeRepository) : IResumeCreator
+public sealed class ResumeCreator(IEducationRepository educationRepository, IResumeRepository resumeRepository) : IResumeCreator
 {
-    public async Task<int> CreateResumeAsync(int accountId, ResumeAiGenerationResult result, CancellationToken cancellationToken = default)
+
+    public async Task<int> CreateResumeAsync(int accountId, AiResult<AiResumeDataOutput> aiResumeData, IReadOnlyCollection<ResolvedResumeExperience> resolvedExperiences, CancellationToken cancellationToken = default)
     {
         var educationIds = await educationRepository.GetEducationIdsForCreationAsync(accountId, cancellationToken);
-        var projectIds = await experienceRepository.GetProjectIdsForCreationAsync(accountId, cancellationToken);
-        var bulletIdMapping = await experienceRepository.GetBulletIdMappingAsync(accountId, cancellationToken);
-        var remainingCompanyBullets = await GetRemainingCompanyBullets(accountId, result, cancellationToken);
-
-        var companyBullets = result.CompanyBullets
-            .Concat(remainingCompanyBullets)
-            .ToList();
-
-        var resume = BuildResume(accountId, result, companyBullets, educationIds, projectIds, bulletIdMapping);
+        var resume = BuildResume(accountId, aiResumeData, resolvedExperiences, educationIds, cancellationToken);
 
         await resumeRepository.CreateResumeAsync(resume, cancellationToken);
         await resumeRepository.SaveAsync(cancellationToken);
@@ -34,70 +27,54 @@ public sealed class ResumeCreator(
         return resume.Id;
     }
 
-    private async Task<List<CompanyBulletAiResult>> GetRemainingCompanyBullets(int accountId, ResumeAiGenerationResult result, CancellationToken cancellationToken)
+    private static Resume BuildResume(int accountId, AiResult<AiResumeDataOutput> aiResumeData, IReadOnlyCollection<ResolvedResumeExperience> resolvedExperience, IEnumerable<int> educationIds, CancellationToken cancellationToken = default)
     {
-        var companyIds = await experienceRepository.GetCompanyIdsByAccountIdAsync(accountId, cancellationToken);
-        var remainingCompanyIds = companyIds.Except(result.CompanyBullets.Select(cb => cb.CompanyId)).ToHashSet();
+        var jobPosting = CreateJobPosting(aiResumeData.Value.JobPostingData);
+        var metaData = CreateAiMetaData(aiResumeData.MetaData);
+        var aiScore = aiResumeData.Value.JobMatchAnalysis.AiScore;
 
-        var remainingCompaniesToAdd = await experienceRepository.GetCompaniesWithBulletsByIds(remainingCompanyIds, cancellationToken);
-
-        var remainingCompanyBullets = remainingCompaniesToAdd
-            .SelectMany(company => company.Bullets.Select(bullet =>
-                new CompanyBulletAiResult(
-                    CompanyId: company.Id,
-                    BulletId: bullet.Id,
-                    AlternativeValue: null)))
-            .ToList();
-        return remainingCompanyBullets;
-    }
-
-    private static Resume BuildResume(int accountId, ResumeAiGenerationResult result, IReadOnlyList<CompanyBulletAiResult> companyBullets, IEnumerable<int> educationIds, IEnumerable<int> projectIds, IReadOnlyDictionary<int, string> bulletIdMapping)
-    {
-        var resume = new Resume(accountId, CreateResumeName(result.JobPosting), result.AiScore, MapToAiMetaData(result), MapToJobPosting(result));
-
+        var resume = new Resume(accountId, CreateResumeName(aiResumeData.Value.JobPostingData), aiScore, metaData, jobPosting);
         AddEducationSelections(educationIds, resume);
-        AddProjectSelections(projectIds, resume);
-        AddCompanySelectionsWithBullets(companyBullets, bulletIdMapping, resume);
+        AddExperienceWithBullets(resolvedExperience, resume);
+        SetAiAnalysis(aiResumeData.Value.JobMatchAnalysis, resume);
 
-        SetAiAnalysis(result, resume);
-        
         return resume;
     }
 
-    private static ResumeAiMetaData MapToAiMetaData(ResumeAiGenerationResult result)
+    private static ResumeAiMetaData CreateAiMetaData(AiMetaData aiMetaData)
     {
         return new ResumeAiMetaData(
-            model: result.MetaData.Model,
-            inputTokens: result.MetaData.InputTokens,
-            outputTokens: result.MetaData.OutputTokens,
-            totalTokens: result.MetaData.TotalTokens,
-            cost: result.MetaData.Cost);
+            model: aiMetaData.Model,
+            inputTokens: aiMetaData.InputTokens,
+            outputTokens: aiMetaData.OutputTokens,
+            totalTokens: aiMetaData.TotalTokens,
+            cost: aiMetaData.Cost);
     }
 
-    private static ResumeJobPosting MapToJobPosting(ResumeAiGenerationResult result)
+    private static ResumeJobPosting CreateJobPosting(AiJobPostingDataOutput aiJobPosting)
     {
         return new ResumeJobPosting(
-            companyName: result.JobPosting.CompanyName,
-            jobTitle: result.JobPosting.JobTitle,
-            location: result.JobPosting.Location,
-            workStyle: result.JobPosting.WorkStyle,
-            salaryMin: result.JobPosting.SalaryMin,
-            salaryMax: result.JobPosting.SalaryMax,
-            salary: result.JobPosting.Salary,
-            salaryPeriod: result.JobPosting.SalaryPeriod,
-            salaryCurrency: result.JobPosting.SalaryCurrency);
+            companyName: aiJobPosting.CompanyName,
+            jobTitle: aiJobPosting.JobTitle,
+            location: aiJobPosting.Location,
+            workStyle: aiJobPosting.WorkStyle,
+            salaryMin: aiJobPosting.SalaryMin,
+            salaryMax: aiJobPosting.SalaryMax,
+            salary: aiJobPosting.Salary,
+            salaryPeriod: aiJobPosting.SalaryPeriod,
+            salaryCurrency: aiJobPosting.SalaryCurrency);
     }
 
-    private static void SetAiAnalysis(ResumeAiGenerationResult result, Resume resume)
+    private static void SetAiAnalysis(AiJobMatchAnalysisOutput jobMatchAnalysis, Resume resume)
     {
-        resume.SetAiAnalysis(new ResumeAiAnalysis(summary: result.AiAnalysis.Summary));
+        resume.SetAiAnalysis(new ResumeAiAnalysis(summary: jobMatchAnalysis.Summary));
 
-        foreach (var strength in result.AiAnalysis.Strengths)
+        foreach (var strength in jobMatchAnalysis.Strengths)
         {
             resume.AiAnalysis?.AddInsight(ResumeAiInsightType.Strength, strength);
         }
 
-        foreach (var weakness in result.AiAnalysis.Weaknesses)
+        foreach (var weakness in jobMatchAnalysis.Weaknesses)
         {
             resume.AiAnalysis?.AddInsight(ResumeAiInsightType.Weakness, weakness);
         }
@@ -113,49 +90,28 @@ public sealed class ResumeCreator(
         }
     }
 
-    private static void AddProjectSelections(IEnumerable<int> projectIds, Resume resume)
+    private static void AddExperienceWithBullets(IReadOnlyCollection<ResolvedResumeExperience> resolvedExperiences, Resume resume)
     {
-        var projectOrder = 1;
-        foreach (var projectId in projectIds)
-        {
-            resume.AddProjectSelection(projectId, projectOrder);
-            projectOrder++;
-        }
-    }
+        var experienceOrder = 1;
 
-    private static void AddCompanySelectionsWithBullets(IReadOnlyList<CompanyBulletAiResult> companyBullets, IReadOnlyDictionary<int, string> bulletIdMapping, Resume resume)
-    {
-        var companyOrder = 1;
-        foreach (var companyGroup in companyBullets.GroupBy(cb => cb.CompanyId))
+        foreach (var experience in resolvedExperiences)
         {
-            var companySelection = resume.AddCompanySelection(companyGroup.Key, companyOrder);
+            var resumeExperience = resume.AddExperience(experience.ExperienceId, experience.SummaryId, experienceOrder++);
 
             var bulletOrder = 1;
-            foreach (var bullet in companyGroup)
+
+            foreach (var bullet in experience.Bullets)
             {
-                if (!bulletIdMapping.TryGetValue(bullet.BulletId, out var bulletValue))
-                {
-                    continue;
-                }
-
-                companySelection.AddResumeBullet(
-                    sourceBulletId: bullet.BulletId,
-                    value: bulletValue,
-                    alternativeValue: bullet.AlternativeValue,
-                    sortOrder: bulletOrder);
-
-                bulletOrder++;
+                resumeExperience.AddBullet(bullet.BulletId, bullet.Alternative, bullet.Reasoning, bulletOrder++);
             }
-
-            companyOrder++;
         }
     }
 
-    private static string CreateResumeName(JobPostingResult jobPosting)
+    private static string CreateResumeName(AiJobPostingDataOutput aiJobPosting)
     {
-        var companyName = jobPosting.CompanyName?.Trim();
-        var jobTitle = jobPosting.JobTitle?.Trim();
-        var location = jobPosting.Location?.Trim();
+        var companyName = aiJobPosting.CompanyName?.Trim();
+        var jobTitle = aiJobPosting.JobTitle?.Trim();
+        var location = aiJobPosting.Location?.Trim();
 
         if (!string.IsNullOrWhiteSpace(companyName) &&
             !string.IsNullOrWhiteSpace(jobTitle))
@@ -179,7 +135,7 @@ public sealed class ResumeCreator(
             return $"{jobTitle} - {Random.Shared.Next(1000, 10000)}";
         }
 
-        if(!string.IsNullOrWhiteSpace(location))
+        if (!string.IsNullOrWhiteSpace(location))
         {
             return $"{location} - {Random.Shared.Next(1000, 10000)}";
         }

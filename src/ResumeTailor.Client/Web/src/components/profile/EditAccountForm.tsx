@@ -8,7 +8,7 @@ import type { AccountEditForm } from "../../models/forms/AccountEditForm";
 import { useAccount } from "../../contexts/AccountContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import type { AccountRequest } from "../../models/profile/AccountRequest";
-import Message from "../ui/Message";
+import Message from "../ui/feedback/Message";
 import Input from "../forms/Input";
 import SearchableSelect from "../forms/SearchableSelect";
 import { Trash3 } from "react-bootstrap-icons";

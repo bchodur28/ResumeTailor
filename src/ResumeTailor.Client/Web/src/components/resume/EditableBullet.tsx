@@ -15,6 +15,10 @@ import styles from "./Resume.module.css";
 import EditToolBar from "./EditToolBar";
 import EditToolBarButton from "./EditToolBarButton";
 import { useResumeEdit } from "../../contexts/ResumeEditContext";
+import ButtonContainer from "../ui/buttons/ButtonContainer";
+import Button from "../ui/buttons/Button";
+import DropdownButton from "../ui/buttons/DropdownButton";
+import SearchDropdown from "../../pages/ResumeDetails/components/SearchDropdown";
 
 type EditableBulletProps = {
   item: ResumeBulletViewModel;
@@ -102,11 +106,16 @@ const EditableBullet = ({
       </button>
 
       {isEditing && (
-        <EditToolBar>
-          <EditToolBarButton
+        <ButtonContainer
+          hasStyle={true}
+          isRelative={false}
+          align="space-between"
+        >
+          <Button
             label="Delete"
-            icon={() => <Trash3 size={20} className="danger-color" />}
-            labelClassName="danger-color"
+            styleType="filter"
+            labelSlideOut={true}
+            iconComponent={() => <Trash3 size={20} className="danger-color" />}
             onClick={() => {
               onBulletChange(
                 companyIndex,
@@ -118,48 +127,60 @@ const EditableBullet = ({
             }}
           />
 
-          <EditToolBarButton
+          <DropdownButton
             label="Replace"
-            icon={() => <ArrowLeftRight size={20} />}
-            additionalActions={additionalBullets.map((bullet) => ({
-              label: bullet.value,
-              onClick: () => {
-                onBulletChange(
-                  companyIndex,
-                  bulletIndex,
-                  bullet.id,
-                  bullet.value,
-                );
-              },
-            }))}
-          />
+            iconComponent={() => <ArrowLeftRight size={20} />}
+            styleType="filter"
+            labelSlideOut={true}
+            positionRelativeTo="container"
+          >
+            <SearchDropdown
+              filteredActions={additionalBullets.map((bullet) => ({
+                label: bullet.value,
+                onClick: () => {
+                  onBulletChange(
+                    companyIndex,
+                    bulletIndex,
+                    bullet.id,
+                    bullet.value,
+                  );
+                },
+              }))}
+            ></SearchDropdown>
+          </DropdownButton>
 
           {hasAlternative && (
-            <EditToolBarButton
+            <Button
               label="Use Alternative"
-              icon={() => <ArrowRepeat size={20} />}
+              iconComponent={() => <ArrowRepeat size={20} />}
               onClick={() =>
                 handleBulletSwapWithAlternative(item.alternativeValue!)
               }
+              styleType="filter"
+              labelSlideOut={true}
             />
           )}
 
           {!isFirstBullet && (
-            <EditToolBarButton
+            <Button
               label="Move Up"
-              icon={() => <ArrowUp size={20} />}
+              iconComponent={() => <ArrowUp size={20} />}
               onClick={onBulletMoveUp}
+              styleType="filter"
+              labelSlideOut={true}
             />
           )}
 
           {!isLastBullet && (
-            <EditToolBarButton
+            <Button
               label="Move Down"
-              icon={() => <ArrowDown size={20} />}
+              iconComponent={() => <ArrowDown size={20} />}
               onClick={onBulletMoveDown}
+              styleType="filter"
+              labelSlideOut={true}
             />
           )}
-        </EditToolBar>
+        </ButtonContainer>
       )}
     </li>
   );

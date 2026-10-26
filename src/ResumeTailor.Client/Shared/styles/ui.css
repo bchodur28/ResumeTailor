@@ -10,7 +10,7 @@
   transition: background-color 0.3s;
   border: solid 1px white;
   height: 100%;
-  /* border: solid 1px hsl(256, 55%, 80%); */
+  border: solid 1px hsl(256, 55%, 80%);
 }
 
 .nav-btn:hover{
@@ -21,30 +21,178 @@
 
 .btn-container {
   display: flex;
-  gap: calc(var(--spacing) * 2);
-  justify-content: center;
   align-items: center;
-  background-color: var(--color-gray-50);
+  gap: calc(var(--spacing) * 2);
   padding: calc(var(--spacing) * 0.5);
+  min-width: 300px;
+}
+
+.btn-container-relative {
+  position: relative;
+  z-index: 200;
+  width: fit-content;
+  overflow: visible;
+}
+
+.btn-container-absolute {
+  position: absolute;
+
+  top: 100%;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  z-index: 200;
+
+  margin-top: 4px;
+
+  overflow: visible;
+}
+
+.btn-container-style {
+  background-color: var(--color-gray-50);
   border: 1px solid var(--primary-color-light);
   border-radius: calc(infinity * 1px);
-  font-weight: 600;
+  
   box-shadow: var(--small-shadow-light);
 }
 
-.btn{
-  padding: 8px 10px;
-  background-color: var(--primary-color);
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  -webkit-box-shadow: 0px 2px 3px 0px hsl(0, 0%, 80%);
-  box-shadow: 0px 2px 3px 0px hsl(0, 0%, 80%);
+
+.dropdown-container{
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  min-width: 300px;
+  margin-top: 0.5rem;
+  max-width: 600px;
+  width: fit-content;
+
+  z-index: 15;
+  overflow: hidden;
+
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  border: 1px var(--tw-border-style) var(--color-gray-300);
+
+  box-shadow: var(--shadow-md);
 }
 
-.btn:hover{
+.dropdown-container-parent-width {
+  min-width: 100%;
+  width: max-content;
+}
+
+.btn-base {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.btn-content-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-content-hidden {
+  display: flex;
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+}
+
+.btn-label {
+  margin: 0;
+}
+
+.btn-label-slide-out {
+  max-width: 0;
+
+  margin-left: 0;
+
+  opacity: 0;
+
+  overflow: hidden;
+  white-space: nowrap;
+
+  transition:
+    max-width 0.5s ease,
+    opacity 0.5s ease,
+    margin-left 0.5s ease;
+}
+
+.btn-base:hover .btn-label-slide-out{
+  max-width: 250px;
+
+  margin-left: 0.5rem;
+
+  opacity: 1;
+}
+
+.dropdown-btn-container{
+  display: inline-block;
+  position: relative;
+}
+
+.dropdown-btn-container-parent-width {
+  display: contents;
+}
+
+.btn-main{
+  padding: 10px 12px;
+  cursor: pointer;
+
+  background-color: var(--primary-color);
+  border: 1px solid var(--primary-color-light);
+  color: white;
+
+  border-radius: 8px;
+  
+  box-shadow: var(--small-shadow-light);
+}
+
+.btn-main-active{
   background-color: var(--primary-color-dark);
+  border: 1px solid var(--primary-color-light);
+  box-shadow: var(--small-shadow-light);
+}
+
+.btn-filter{
+  padding: 10px 12px;
+  cursor: pointer;
+
+  color: var(--color-gray-600);
+  border: 1px solid transparent;
+  border-radius: calc(infinity * 1px);
+
+  font-weight: 600;
+  padding: 10px 12px;
+
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-filter-active,
+.btn-filter:hover{
+  border: 1px solid var(--primary-color-light);
+  color: var(--color-gray-700);
+
+  box-shadow: var(--small-shadow-light);
+}
+
+.btn-filter-active {
+  background-color: var(--primary-color-very-light);
+}
+
+.active-btn {
+  border: 1px solid var(--primary-color-light);
+  border-radius: calc(infinity * 1px);
+  background-color: var(--primary-color-very-light);
+  box-shadow: var(--small-shadow-light);
 }
 
 .btn:disabled{
@@ -204,30 +352,6 @@
 }
 
 /**
- * Filter Button Styles
- */
-
-.filter-btn {
-  padding: 6px 10px;
-  /* background-color: hsl(0, 0%, 95%); */
-  background: white;
-  /* color: hsl(0, 0%, 20%); */
-  color: var(--color-gray-700);
-  border-radius: calc(infinity * 1px);
-  cursor: pointer;
-  transition: background-color 0.3s;
-  /* border: 1px solid var(--color-gray-300); */
-  border: 1px solid var(--primary-color-light);
-  font-weight: 600;
-}
-
-.filter-btn:hover {
-  background-color: var(--color-gray-100);
-}
-
-
-
-/**
  * ResumeCard Styles
  */
 
@@ -249,4 +373,31 @@
   box-shadow: var(--shadow-md);
   transform: scale(1.01);
   cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 1024px) {
+  .btn-container {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    position: relative;
+  }
+
+  .dropdown-btn-container {
+    display: contents;
+  }
+
+  .dropdown-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    transform: none;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .btn-content-hidden {
+    display: none;
+  }
 }

@@ -221,9 +221,9 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                         ? ended.ToString("MMM-yyyy")
                         : $"{education.Started:MMM-yyyy-dd} - Present";
 
-                    TwoColumn(educationColumn, education.SchoolName, date, true, isHeading: true);
+                    TwoColumn(educationColumn, education.InstitutionName, date, true, isHeading: true);
 
-                    TwoColumn(educationColumn, education.Degree, education.Major);
+                    TwoColumn(educationColumn, education.Qualification, education.FieldOfStudy);
                 });
             index++;
         }

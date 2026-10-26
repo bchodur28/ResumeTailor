@@ -2,7 +2,7 @@ import type { AccountRequest } from "./contracts/accounts/AccountRequest";
 import type { AccountResponse } from "./contracts/accounts/AccountResponse";
 
 export const createAccount = async (request: AccountRequest, token: string) => {
-  const response = await fetch("https://localhost:7139/api/accounts", {
+  const response = await fetch("/api/accounts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -21,7 +21,7 @@ export const createAccount = async (request: AccountRequest, token: string) => {
 export const getAccount = async (
   token: string,
 ): Promise<AccountResponse | null> => {
-  const response = await fetch("https://localhost:7139/api/accounts/me", {
+  const response = await fetch("/api/accounts/me", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -42,7 +42,7 @@ export const updateAccountAsync = async (
   request: AccountRequest,
   token: string,
 ) => {
-  const response = await fetch("https://localhost:7139/api/accounts/me", {
+  const response = await fetch("/api/accounts/me", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

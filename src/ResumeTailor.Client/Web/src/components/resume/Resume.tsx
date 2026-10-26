@@ -186,7 +186,6 @@ const Resume = ({
                     onClick: () => onRemoveEducation(index),
                     label: "Remove",
                     icon: () => <Trash3 size={20} className="danger-color" />,
-                    labelClassName: "danger-color",
                   },
                   ...(availableEducation.length === 0
                     ? []
@@ -196,7 +195,7 @@ const Resume = ({
                           icon: () => <ArrowLeftRight size={20} />,
                           additionalActions: availableEducation.map(
                             (education) => ({
-                              label: education.schoolName,
+                              label: education.institutionName,
                               onClick: () =>
                                 onUpdateEducation(index, education.id),
                             }),
@@ -206,14 +205,17 @@ const Resume = ({
                 ]}
               >
                 <TwoColumn
-                  left={education.schoolName}
+                  left={education.institutionName}
                   right={
                     education.ended
                       ? education.ended
                       : education.started + " - Present"
                   }
                 />
-                <TwoColumn left={education.degree} right={education.major} />
+                <TwoColumn
+                  left={education.qualification}
+                  right={education.fieldOfStudy ?? ""}
+                />
               </EditableInnerSection>
             ))}
           </Section>
@@ -231,7 +233,6 @@ const Resume = ({
                       onClick: () => onRemoveProjects(index),
                       label: "Remove",
                       icon: () => <Trash3 size={20} className="danger-color" />,
-                      labelClassName: "danger-color",
                     },
                     ...(availableProjects.length === 0
                       ? []

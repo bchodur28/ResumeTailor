@@ -1,4 +1,5 @@
 :root {
+    --primary-color-very-light: hsl(218, 62%, 95%);
     --primary-color-light: hsl(218, 62%, 49%);
     --primary-color: hsl(218, 62%, 39%);
     --primary-color-dark: hsl(218, 62%, 29%);

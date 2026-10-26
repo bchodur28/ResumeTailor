@@ -86,7 +86,7 @@ const SearchableSelect = ({
       <div
         className={`flex ${visibleError ? "justify-between" : "justify-start"}`}
       >
-        <label className="text-md" htmlFor={id}>
+        <label className="font-semibold text-gray-600" htmlFor={id}>
           {label}
         </label>
         {visibleError && <span className="text-red-500">{visibleError}</span>}

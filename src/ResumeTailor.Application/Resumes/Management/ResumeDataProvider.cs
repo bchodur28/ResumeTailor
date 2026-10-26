@@ -24,7 +24,7 @@ namespace ResumeTailor.Application.Resumes.Management
                 .ToHashSet();
 
             var educationIds = resume.EducationSelections
-                .Select(x => x.EducationId)
+                .Select(x => x.LibraryEducationId)
                 .ToHashSet();
 
             var projectIds = resume.ProjectSelections

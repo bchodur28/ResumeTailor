@@ -16,7 +16,7 @@ internal sealed class ResumeEducationConfiguration : IEntityTypeConfiguration<Re
         builder.Property(education => education.ResumeId)
             .IsRequired();
 
-        builder.Property(education => education.EducationId)
+        builder.Property(education => education.LibraryEducationId)
             .IsRequired();
 
         builder.Property(education => education.SortOrder)

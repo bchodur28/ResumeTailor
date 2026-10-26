@@ -6,9 +6,24 @@ import type { ProjectResponse } from "./contracts/projects/ProjectResponse.ts";
 import type { BulletRequest } from "./contracts/bullets/BulletRequest.ts";
 import type { BulletDeleteRequest } from "./contracts/bullets/BulletDeleteRequest.ts";
 
-const companyUrl = "https://localhost:7139/api/experience/me/companies";
-const projectUrl = "https://localhost:7139/api/experience/me/projects";
-const bulletUrl = "https://localhost:7139/api/experience/me/bullets";
+const companyUrl = "/api/experience/me/companies";
+const projectUrl = "/api/experience/me/projects";
+const bulletUrl = "/api/experience/me/bullets";
+const experience = "/api/experience/summaries";
+
+export const getExperienceSummaries = async (token: string): Promise<any[]> => {
+  const response = await fetch(experience, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch experience summaries");
+  }
+  return await response.json();
+};
 
 // Companies API functions
 export const getCompanies = async (

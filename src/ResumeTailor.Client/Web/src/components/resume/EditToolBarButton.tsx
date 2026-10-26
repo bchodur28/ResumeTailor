@@ -1,6 +1,8 @@
 import type { Icon } from "react-bootstrap-icons";
 import { useState } from "react";
 import styles from "./Resume.module.css";
+import Button from "../ui/buttons/Button";
+import ButtonContainer from "../ui/buttons/ButtonContainer";
 
 export type EditToolBarAction = {
   label: string;
@@ -30,7 +32,7 @@ const EditToolBarButton = ({
 
   const filteredActions =
     additionalActions?.filter((action) =>
-      action.label.toLowerCase().includes(searchValue.toLowerCase()),
+      action?.label?.toLowerCase().includes(searchValue.toLowerCase()),
     ) ?? [];
 
   const handleClick = () => {
@@ -42,22 +44,14 @@ const EditToolBarButton = ({
     onClick?.();
   };
   return (
-    <div
-      className={`${styles.editToolBarButtonContainer} ${
-        isOpen ? styles.editToolBarButtonContainerOpen : ""
-      }`}
-    >
-      <button
-        type="button"
-        className={styles.editToolBarButton}
-        onClick={(e) => {
-          e.stopPropagation();
-          handleClick();
-        }}
-      >
-        <Icon />
-        <span className={labelClassName}>{label}</span>
-      </button>
+    <ButtonContainer align="space-between">
+      <Button
+        label={label}
+        onClick={handleClick}
+        iconComponent={Icon}
+        styleType="filter"
+        labelSlideOut={true}
+      />
 
       {isOpen && hasAdditionalActions && (
         <div className={styles.editToolBarDropdown}>
@@ -93,7 +87,7 @@ const EditToolBarButton = ({
           </ul>
         </div>
       )}
-    </div>
+    </ButtonContainer>
   );
 };
 

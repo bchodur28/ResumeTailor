@@ -3,7 +3,7 @@ using ResumeTailor.Application.Common.Exceptions;
 using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Education.Interfaces;
-using EducationEntity = ResumeTailor.Domain.Profile.Education;
+using EducationEntity = ResumeTailor.Domain.Profile.LibraryEducation;
 
 
 namespace ResumeTailor.Application.Profile.Education;
@@ -48,7 +48,15 @@ public class EducationService(IAccountRepository accountRepository, IEducationRe
                 throw new NotFoundException($"Education with Id {request.Id} was not found when updating.");
             }
 
-            education.Update(request.SchoolName, request.Degree, request.Major, request.Started, request.Ended, request.UseForResume);
+            education.Update(
+                institutionName: request.InstitutionName,
+                qualification: request.Qualification,
+                fieldOfStudy: request.FieldOfStudy,
+                gpa: request.Gpa,
+                location: request.Location,
+                started: request.Started,
+                ended: request.Ended,
+                useForResume: request.UseForResume);
         }
 
         await educationRepository.SaveAsync(cancellationToken);
@@ -81,9 +89,11 @@ public class EducationService(IAccountRepository accountRepository, IEducationRe
     (
         Id: education.Id,
         SelectionId: null,
-        SchoolName: education.SchoolName,
-        Degree: education.Degree,
-        Major: education.Major,
+        InstitutionName: education.InstitutionName,
+        Qualification: education.Qualification,
+        FieldOfStudy: education.FieldOfStudy,
+        Gpa: education.Gpa,
+        Location: education.Location,
         Started: education.Started,
         Ended: education.Ended,
         UseForResume: education.UseForResume
@@ -92,9 +102,11 @@ public class EducationService(IAccountRepository accountRepository, IEducationRe
     private static EducationEntity MapToDomain(EducationRequest request, int accountId) => new EducationEntity
     (
         accountId,
-        request.SchoolName,
-        request.Degree,
-        request.Major,
+        request.InstitutionName,
+        request.Qualification,
+        request.FieldOfStudy,
+        request.Gpa,
+        request.Location,
         request.Started,
         request.Ended,
         request.UseForResume

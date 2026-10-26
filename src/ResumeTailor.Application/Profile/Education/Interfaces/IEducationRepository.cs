@@ -1,4 +1,4 @@
-using EducationEntity = ResumeTailor.Domain.Profile.Education;
+using EducationEntity = ResumeTailor.Domain.Profile.LibraryEducation;
 
 namespace ResumeTailor.Application.Profile.Education.Interfaces;
 

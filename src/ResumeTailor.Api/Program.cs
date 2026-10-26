@@ -1,7 +1,4 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi;
 using ResumeTailor.Api.ErrorHandling;
 using ResumeTailor.Api.OpenApi;
 using ResumeTailor.Application;

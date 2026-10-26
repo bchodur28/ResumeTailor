@@ -6,7 +6,7 @@ import type { UpdateResumeRequest } from "./contracts/resumes/UpdateResumeReques
 import type { ApplicationStatusValue } from "../models/resumes/ApplicationStatus";
 import type { PagedResult } from "../models/common/PagedResult";
 
-const resumeUrl = "https://localhost:7139/api/resumes/";
+const resumeUrl = "/api/resumes/";
 
 export const generateResume = async (
   accountId: number,

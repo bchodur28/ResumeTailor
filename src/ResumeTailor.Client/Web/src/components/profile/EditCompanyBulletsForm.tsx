@@ -12,7 +12,7 @@ import {
   updateBullets,
   deleteBullets,
 } from "../../api/experienceApi";
-import Message from "../ui/Message";
+import Message from "../ui/feedback/Message";
 import ToggleableViewTextArea from "../forms/ToggleableViewTextArea";
 
 const EditCompanyBulletsForm = () => {

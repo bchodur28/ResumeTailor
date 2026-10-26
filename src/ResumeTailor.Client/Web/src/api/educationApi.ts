@@ -1,7 +1,7 @@
 import type { EducationRequest } from "./contracts/education/EducationRequest.ts";
 import type { EducationResponse } from "./contracts/education/EducationResponse.ts";
 
-const educationUrl = "https://localhost:7139/api/education/me";
+const educationUrl = "/api/education/me";
 
 export const getEducation = async (
   token: string,

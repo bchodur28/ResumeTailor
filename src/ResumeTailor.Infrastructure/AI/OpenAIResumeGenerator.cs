@@ -119,7 +119,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
     }
     """;
 
-    public async Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiContext context, CancellationToken cancellationToken = default)
+    public async Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiInput context, CancellationToken cancellationToken = default)
     {
         var prompt = BuildPrompt(context);
 
@@ -148,11 +148,11 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
                 Converters = { new JsonStringEnumConverter() }
             }) ?? throw new InvalidOperationException("OpenAI returned an empty resume analysis response.");
 
-        var companyBulletResults = ValidateAndMapCompanyBulletResults(aiResponse.CompanyBullets, context.Companies);
+        var companyBulletResults = ValidateAndMapCompanyBulletResults(aiResponse.ExperienceBullets, context.Experiences);
 
         var metaData = CreateAiMetaData(response);
         var jobPosting = CreateJobPosting(aiResponse.JobPosting);
-        var aiAnalysis = CreateCompanyAiAnalysis(aiResponse.CompanyAnalysis);
+        var aiAnalysis = CreateCompanyAiAnalysis(aiResponse.OrganizationAnalysis);
 
         return new ResumeAiGenerationResult(
             AiScore: aiResponse.AiScore,
@@ -163,7 +163,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
             );
     }
 
-    private static CompanyAiAnalysisResult CreateCompanyAiAnalysis(AiCompanyAnalysisResponse companyAnalysisResponse)
+    private static CompanyAiAnalysisResult CreateCompanyAiAnalysis(AiOrganizationAnalysisResponse companyAnalysisResponse)
     {
         return new CompanyAiAnalysisResult(
             Summary: companyAnalysisResponse.Summary,
@@ -206,20 +206,20 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
     }
 
     private static IReadOnlyList<CompanyBulletAiResult> ValidateAndMapCompanyBulletResults(
-    IReadOnlyCollection<AiCompanyBulletResponse> responses,
-    IReadOnlyCollection<CompanyAiContext> companies)
+    IReadOnlyCollection<AiExperienceBulletResponse> aiResponses,
+    IReadOnlyCollection<LibraryExperienceAiInput> actualExperiences)
     {
-        var companiesById = companies.ToDictionary(c => c.CompanyId);
+        var experiencesById = actualExperiences.ToDictionary(c => c.ExperienceId);
         var validResults = new List<CompanyBulletAiResult>();
 
-        foreach (var response in responses)
+        foreach (var response in aiResponses)
         {
-            if(!companiesById.TryGetValue(response.CompanyId, out var companyContext))
+            if(!experiencesById.TryGetValue(response.ExperienceId, out var companyContext))
             {
                 continue;
             }
 
-            var bulletExists = companyContext.Bullets.Any(b => b.BulletId == response.BulletId);
+            var bulletExists = companyContext.Bullets.Any(b => b.Key == response.BulletId);
 
             if(!bulletExists)
             {
@@ -227,7 +227,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
             }
 
             validResults.Add(new CompanyBulletAiResult(
-                CompanyId: response.CompanyId,
+                CompanyId: response.ExperienceId,
                 BulletId: response.BulletId,
                 AlternativeValue: response.AlternativeValue
             ));
@@ -236,20 +236,20 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
         return validResults
             .DistinctBy(x => (x.CompanyId, x.BulletId))
             .GroupBy(x => x.CompanyId)
-            .OrderByDescending(group => companiesById[group.Key].Ended is null)
-            .ThenByDescending(group => companiesById[group.Key].Ended)
-            .ThenByDescending(group => companiesById[group.Key].Started)
+            .OrderByDescending(group => experiencesById[group.Key].Ended is null)
+            .ThenByDescending(group => experiencesById[group.Key].Ended)
+            .ThenByDescending(group => experiencesById[group.Key].Started)
             .SelectMany(group =>
             {
-                var maxBullets = companiesById[group.Key].MaxBullets;
-                return group.Take(maxBullets);
+                var maxBullets = experiencesById[group.Key].MaxBullets;
+                return group.Take(maxBullets ?? 0);
             })
             .ToList();
     }
 
-    private static string BuildPrompt(ResumeAiContext context)
+    private static string BuildPrompt(ResumeAiInput context)
     {
-        var companiesJson = JsonSerializer.Serialize(context.Companies, new JsonSerializerOptions { WriteIndented = true });
+        var experienceJson = JsonSerializer.Serialize(context.Experiences, new JsonSerializerOptions { WriteIndented = true });
 
         return $$"""
             Analyze the candidate's experience against the provided job description
@@ -259,7 +259,7 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
             {{context.JobDescription}}
 
             RESUME EXPERIENCE:
-            {{companiesJson}}
+            {{experienceJson}}
 
             BULLET SELECTION:
 
@@ -385,14 +385,14 @@ public sealed class OpenAIResumeGenerator(ResponsesClient client, IOptions<OpenA
 
     private sealed record AiResumeResponse(
         int AiScore,
-        IReadOnlyCollection<AiCompanyBulletResponse> CompanyBullets,
-        AiCompanyAnalysisResponse CompanyAnalysis,
+        IReadOnlyCollection<AiExperienceBulletResponse> ExperienceBullets,
+        AiOrganizationAnalysisResponse OrganizationAnalysis,
         AiJobPostingResponse JobPosting
     );
 
-    private sealed record AiCompanyBulletResponse(int CompanyId, int BulletId, string? AlternativeValue);
+    private sealed record AiExperienceBulletResponse(int ExperienceId, int BulletId, string? AlternativeValue);
 
-    private sealed record AiCompanyAnalysisResponse(string Summary, IReadOnlyCollection<string> Strengths, IReadOnlyCollection<string> Weaknesses);
+    private sealed record AiOrganizationAnalysisResponse(string Summary, IReadOnlyCollection<string> Strengths, IReadOnlyCollection<string> Weaknesses);
 
     private sealed record AiJobPostingResponse(
         string? CompanyName,

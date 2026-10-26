@@ -1,7 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using ResumeTailor.Application.Profile.Education.Interfaces;
-using EducationEntity = ResumeTailor.Domain.Profile.Education;
+using EducationEntity = ResumeTailor.Domain.Profile.LibraryEducation;
 
 namespace ResumeTailor.Infrastructure.Persistence.Repositories.Accounts;
 

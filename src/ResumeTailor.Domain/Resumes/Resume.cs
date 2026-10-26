@@ -3,6 +3,7 @@ using ResumeTailor.Domain.GeneratedResumes.AI;
 using ResumeTailor.Domain.GeneratedResumes.Content;
 using ResumeTailor.Domain.Resumes;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
+using ResumeTailor.Domain.Resumes.Content;
 using ResumeTailor.Domain.Resumes.JobPositing;
 using ResumeTailor.Domain.Resumes.ResumeAppearance;
 
@@ -27,6 +28,9 @@ public class Resume : Entity
     private readonly List<ResumeProjectSelection> _projectSelections = [];
     public IReadOnlyCollection<ResumeProjectSelection> ProjectSelections => _projectSelections.AsReadOnly();
 
+    private readonly List<ResumeExperience> _experiences = [];
+    public IReadOnlyCollection<ResumeExperience> Experiences => _experiences.AsReadOnly();
+
     public ResumeAiAnalysis? AiAnalysis { get; private set; }
 
     public ResumeAiMetaData AiMetaData { get; private set; } = null!;
@@ -45,7 +49,7 @@ public class Resume : Entity
     public Resume(
         int accountId,
         string name,
-        int aiScore,
+        int? aiScore,
         ResumeAiMetaData aiMetaData,
         ResumeJobPosting jobPosting)
     {
@@ -71,6 +75,18 @@ public class Resume : Entity
         {
             AiScoreStaleness = staleness;
         }
+    }
+
+    public ResumeExperience AddExperience(int libraryExperienceId, int? librarySummaryId, int sortOrder)
+    {
+        var experience = new ResumeExperience(libraryExperienceId, librarySummaryId, sortOrder);
+        _experiences.Add(experience);
+        return experience;
+    }
+
+    public void RemoveExperience(ResumeCompanySelection companySelection)
+    {
+        _companySelections.Remove(companySelection);
     }
 
     public ResumeCompanySelection AddCompanySelection(int companyId, int sortOrder)

@@ -2,6 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using ResumeTailor.Application.Extraction;
 using ResumeTailor.Application.Extraction.Interfaces;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
+using ResumeTailor.Application.Library;
+using ResumeTailor.Application.Library.Interfaces;
 using ResumeTailor.Application.Profile.Accounts;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Education;
@@ -30,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IExperenceService, ExperienceService>();
         services.AddScoped<IResumeUpdater, ResumeUpdater>();
         services.AddScoped<IResumeCreator, ResumeCreator>();
+        services.AddScoped<ILibraryExperienceService, LibraryExperienceService>();
 
         return services;
     }

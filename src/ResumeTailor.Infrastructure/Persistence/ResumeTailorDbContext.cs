@@ -32,7 +32,11 @@ public sealed class ResumeTailorDbContext(DbContextOptions<ResumeTailorDbContext
     public DbSet<Title> Titles => Set<Title>();
     public DbSet<Skill> Skills => Set<Skill>();
     public DbSet<PersonalLink> AccountPersonalLinks => Set<PersonalLink>();
-    public DbSet<Education> Education => Set<Education>();
+    public DbSet<LibraryEducation> Education => Set<LibraryEducation>();
+
+    public DbSet<LibraryExperience> LibraryExperiences => Set<LibraryExperience>();
+    public DbSet<LibraryBullet> LibraryBullets => Set<LibraryBullet>();
+    public DbSet<LibrarySummary> LibrarySummaries => Set<LibrarySummary>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

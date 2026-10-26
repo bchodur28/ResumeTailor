@@ -6,7 +6,7 @@ namespace ResumeTailor.Infrastructure.AI;
 
 internal sealed class UnavailableAiGenerator : IResumeAiGenerator
 {
-    public Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiContext context, CancellationToken cancellationToken = default)
+    public Task<ResumeAiGenerationResult> GenerateAsync(ResumeAiInput context, CancellationToken cancellationToken = default)
     {
         throw new AiNotConfiguredException();
     }

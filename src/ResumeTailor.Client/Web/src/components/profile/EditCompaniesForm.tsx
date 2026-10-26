@@ -13,7 +13,7 @@ import {
 } from "../../api/experienceApi";
 import Input from "../forms/Input";
 import Checkbox from "../forms/Checkbox";
-import Message from "../ui/Message";
+import Message from "../ui/feedback/Message";
 
 const EditCompaniesForm = () => {
   const { getAccessTokenSilently } = useAuth0();

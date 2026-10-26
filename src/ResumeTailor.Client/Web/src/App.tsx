@@ -7,13 +7,17 @@ import {
 import AccountSetup from "./pages/AccountSetup";
 import RootLayout from "./layouts/RootLayout";
 import Generate from "./pages/Generate";
+import LibraryLayout from "./layouts/LibraryLayout";
 import Manage from "./pages/Manage";
-import Track from "./pages/Track";
+import Track from "./pages/ResumeTracker/ResumeTrackingPage";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import Login from "./pages/Login";
 import AccountRequiredRoute from "./components/routes/AccountRequiredRoute";
-import ResumeDetails from "./pages/ResumeDetails";
+import ResumeDetailsPage from "./pages/ResumeDetails/ResumeDetailsPage";
+import LibraryExperiencePage from "./pages/Library/LibraryExperiencePage";
+import LibraryEducationPage from "./pages/Library/LibraryEducationPage";
+import LibraryHeaderPage from "./pages/Library/LibraryHeaderPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -27,8 +31,13 @@ const router = createBrowserRouter(
             <Route index element={<Track />} />
             <Route path="generate" element={<Generate />} />
             <Route path="manage" element={<Manage />} />
-            <Route path="resumes/:id" element={<ResumeDetails />} />
+            <Route path="resumes/:id" element={<ResumeDetailsPage />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="library" element={<LibraryLayout />}>
+              <Route index element={<LibraryHeaderPage />} />
+              <Route path="experience" element={<LibraryExperiencePage />} />
+              <Route path="education" element={<LibraryEducationPage />} />
+            </Route>
           </Route>
         </Route>
       </Route>

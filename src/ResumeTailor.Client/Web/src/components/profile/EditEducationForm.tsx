@@ -14,7 +14,7 @@ import {
   deleteEducation,
 } from "../../api/educationApi";
 import Checkbox from "../forms/Checkbox";
-import Message from "../ui/Message";
+import Message from "../ui/feedback/Message";
 
 const EditEducationForm = () => {
   const { getAccessTokenSilently } = useAuth0();

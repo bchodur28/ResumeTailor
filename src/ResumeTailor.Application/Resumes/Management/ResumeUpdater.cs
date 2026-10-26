@@ -130,7 +130,7 @@ public sealed class ResumeUpdater : IResumeUpdater
             .ToHashSet();
 
         var educationSelectionsToDelete = resume.EducationSelections
-            .Where(s => !requestedEducationIds.Contains(s.EducationId))
+            .Where(s => !requestedEducationIds.Contains(s.LibraryEducationId))
             .ToList();
 
         foreach (var selection in educationSelectionsToDelete)

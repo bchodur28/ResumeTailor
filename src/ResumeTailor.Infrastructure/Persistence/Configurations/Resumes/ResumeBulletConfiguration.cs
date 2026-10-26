@@ -1,26 +1,33 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ResumeTailor.Domain.GeneratedResumes.Content;
-using ResumeTailor.Domain.Profile;
+using ResumeTailor.Domain.Resumes.Content;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace ResumeTailor.Infrastructure.Persistence.Configurations.Resumes;
-
-internal sealed class ResumeBulletConfiguration : IEntityTypeConfiguration<ResumeCompanyBullet>
+namespace ResumeTailor.Infrastructure.Persistence.Configurations.Resumes
 {
-    public void Configure(EntityTypeBuilder<ResumeCompanyBullet> builder)
+    internal class ResumeBulletConfiguration : IEntityTypeConfiguration<ResumeBullet>
     {
-        builder.ToTable(nameof(ResumeCompanyBullet));
-        builder.HasKey(bullet => bullet.Id);
+        public void Configure(EntityTypeBuilder<ResumeBullet> builder)
+        {
+            builder.ToTable(nameof(ResumeBullet));
+            builder.HasKey(b => b.Id);
 
-        builder.HasIndex(bullet => bullet.SourceBulletId);
+            builder.Property(b => b.Id)
+                .ValueGeneratedOnAdd();
 
-        builder.Property(bullet => bullet.Value).IsRequired();
+            builder.Property(b => b.ResumeExperienceId)
+                .IsRequired();
 
-        builder
-           .HasOne<Bullet>()
-           .WithMany()
-           .HasForeignKey(x => x.SourceBulletId)
-           .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(b => b.LibraryBulletId)
+                .IsRequired();
 
+            builder.Property(b => b.Alternative);
+            builder.Property(b => b.Reasoning);
+
+            builder.Property(b => b.SortOrder)
+                .IsRequired();
+        }
     }
 }

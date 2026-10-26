@@ -57,14 +57,16 @@ public sealed class ResumeDetailsAssembler
             .Select(education =>
             {
                 var selection = resume.EducationSelections
-                    .Single(x => x.EducationId == education.Id);
+                    .Single(x => x.LibraryEducationId == education.Id);
 
                 return new EducationResponse(
                     Id: education.Id,
                     SelectionId: selection.Id,
-                    SchoolName: education.SchoolName,
-                    Degree: education.Degree,
-                    Major: education.Major,
+                    InstitutionName: education.InstitutionName,
+                    Qualification: education.Qualification,
+                    FieldOfStudy: education.FieldOfStudy,
+                    Gpa: education.Gpa,
+                    Location: education.Location,
                     Started: education.Started,
                     Ended: education.Ended,
                     UseForResume: education.UseForResume);

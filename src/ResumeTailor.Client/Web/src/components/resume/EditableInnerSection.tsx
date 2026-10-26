@@ -1,16 +1,26 @@
 import { useState } from "react";
-import EditToolBarButton, {
-  type EditToolBarButtonProps,
-} from "./EditToolBarButton";
 import styles from "./Resume.module.css";
 import EditToolBar from "./EditToolBar";
 import { useResumeEdit } from "../../contexts/ResumeEditContext";
+import ButtonContainer from "../ui/buttons/ButtonContainer";
+import SearchDropdown from "../../pages/ResumeDetails/components/SearchDropdown";
+import type { Icon } from "react-bootstrap-icons";
+import type { EditToolBarButtonProps } from "./EditToolBarButton";
+import DropdownButton from "../ui/buttons/DropdownButton";
+import Button from "../ui/buttons/Button";
+
+export type EditableInnerSectionAction = {
+  label: string;
+  icon: Icon;
+  onClick?: () => void;
+  additionalActions?: { label: string; onClick: () => void }[];
+};
 
 type EditableInnerSectionProps = {
   editorId: string;
   topPtSpacing: number;
   children: React.ReactNode;
-  actions: EditToolBarButtonProps[];
+  actions: EditableInnerSectionAction[];
 };
 
 const EditableInnerSection = ({
@@ -49,20 +59,42 @@ const EditableInnerSection = ({
       </div>
 
       {isEditing && actions.length > 0 && (
-        <EditToolBar>
-          {actions.map(
-            ({ onClick, label, icon, labelClassName, additionalActions }) => (
-              <EditToolBarButton
+        <ButtonContainer
+          hasStyle={true}
+          isRelative={false}
+          align="space-between"
+        >
+          {actions.map(({ onClick, label, icon, additionalActions }) =>
+            onClick ? (
+              <Button
                 key={label}
                 label={label}
-                onClick={onClick}
-                icon={icon}
-                labelClassName={labelClassName}
-                additionalActions={additionalActions}
+                iconComponent={icon}
+                styleType="filter"
+                onClick={() => onClick?.()}
+                labelSlideOut={true}
               />
+            ) : (
+              <DropdownButton
+                key={label}
+                label={label}
+                iconComponent={icon}
+                styleType="filter"
+                labelSlideOut={true}
+                positionRelativeTo="container"
+              >
+                <SearchDropdown
+                  filteredActions={
+                    additionalActions?.map(({ label, onClick }) => ({
+                      label,
+                      onClick,
+                    })) ?? []
+                  }
+                />
+              </DropdownButton>
             ),
           )}
-        </EditToolBar>
+        </ButtonContainer>
       )}
     </div>
   );

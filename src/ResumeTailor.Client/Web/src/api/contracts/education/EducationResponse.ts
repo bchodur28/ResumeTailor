@@ -1,9 +1,10 @@
 export type EducationResponse = {
   id: number;
   selectionId: number | null;
-  schoolName: string;
-  degree: string;
-  major: string;
+  institutionName: string;
+  qualification: string;
+  fieldOfStudy: string | null;
+  gpa: number | null;
   started: string;
   ended: string | null;
   useForResume: boolean;

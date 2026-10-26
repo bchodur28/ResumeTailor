@@ -10,7 +10,7 @@ import SearchableSelect from "../forms/SearchableSelect";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
-import Message from "../ui/Message";
+import Message from "../ui/feedback/Message";
 import EditAccountForm from "./EditAccountForm";
 
 type PopupModelProps = {
