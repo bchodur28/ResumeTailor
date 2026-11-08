@@ -32,7 +32,6 @@ internal sealed class ResumeExperienceConfiguration : IEntityTypeConfiguration<R
             .HasForeignKey(e => e.LibraryExperienceId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        
 
         builder.Navigation(e => e.Bullets)
             .UsePropertyAccessMode(PropertyAccessMode.Field);

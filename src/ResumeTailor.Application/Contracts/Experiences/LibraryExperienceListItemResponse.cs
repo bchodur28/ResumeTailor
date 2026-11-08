@@ -10,4 +10,5 @@ public sealed record LibraryExperienceListItemResponse(
     string Title,
     string? Organization,
     int BulletCount,
-    int SummaryCount);
+    int SummaryCount,
+    int ResumeCount);

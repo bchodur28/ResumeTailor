@@ -83,8 +83,14 @@ const LibraryExperiencePage = () => {
                           {experience.summaryCount}
                         </span>
                       </p>
+                      <p className="text-gray-500 text-sm font-medium">
+                        Resume Count:{" "}
+                        <span className="text-base font-medium text-gray-700">
+                          {experience.resumeCount}
+                        </span>
+                      </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex items-end gap-2">
                       <Button
                         label="Delete"
                         iconComponent={Trash3}

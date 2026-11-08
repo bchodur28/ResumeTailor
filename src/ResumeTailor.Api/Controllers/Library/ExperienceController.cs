@@ -22,11 +22,11 @@ public class ExperienceController(ILibraryExperienceService experienceService) :
     }
 
     [HttpGet("list-items")]
-    public async Task<ActionResult<IReadOnlyCollection<LibraryExperienceListItemResponse>>> GetExperienceListItemsAsync(CancellationToken cancellationToken = default)
+    public async Task<ActionResult<IReadOnlyCollection<LibraryExperienceListItemResponse>>> GetExperienceListItemsAsync([FromQuery] bool archived = false, CancellationToken cancellationToken = default)
     {
         var auth0UserId = GetAuth0UserId();
 
-        var listItems = await experienceService.GetLibraryExperiencesListItemsAsync(auth0UserId, cancellationToken);
+        var listItems = await experienceService.GetLibraryExperiencesListItemsAsync(auth0UserId, archived, cancellationToken);
         return Ok(listItems);
     }
 
@@ -63,6 +63,24 @@ public class ExperienceController(ILibraryExperienceService experienceService) :
         var auth0UserId = GetAuth0UserId();
 
         await experienceService.DeleteExperienceAsync(auth0UserId, id, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPatch("{id:int}/archive")]
+    public async Task<IActionResult> ArchiveExperienceAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var auth0UserId = GetAuth0UserId();
+
+        await experienceService.ArchiveExperienceAsync(auth0UserId, id, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPatch("{id:int}/restore")]
+    public async Task<IActionResult> RestoreExperienceAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var auth0UserId = GetAuth0UserId();
+
+        await experienceService.RestoreExperienceAsync(auth0UserId, id, cancellationToken);
         return NoContent();
     }
 

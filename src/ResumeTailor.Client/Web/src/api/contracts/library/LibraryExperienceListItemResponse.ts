@@ -7,4 +7,5 @@ export type LibraryExperienceListItemResponse = {
   organization: string | null;
   bulletCount: number;
   summaryCount: number;
+  resumeCount: number;
 };

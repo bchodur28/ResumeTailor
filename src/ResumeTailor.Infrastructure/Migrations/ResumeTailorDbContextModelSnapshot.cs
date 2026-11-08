@@ -617,6 +617,9 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("ArchiveDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 

@@ -2,6 +2,7 @@ using ResumeTailor.Application.Contracts.Experiences;
 using ResumeTailor.Application.Library.Interfaces;
 using ResumeTailor.Application.Mappers;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
+using ResumeTailor.Domain.Common.Exceptions;
 using ResumeTailor.Domain.Profile;
 
 namespace ResumeTailor.Application.Library;
@@ -28,12 +29,12 @@ public sealed class LibraryExperienceService(
         return experiences.Select(LibraryExperienceMapper.MapEntityToResponse).ToList();
     }
 
-    public async Task<IReadOnlyCollection<LibraryExperienceListItemResponse>> GetLibraryExperiencesListItemsAsync(string Auth0UserId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<LibraryExperienceListItemResponse>> GetLibraryExperiencesListItemsAsync(string Auth0UserId, bool archived, CancellationToken cancellationToken = default)
     {
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when fetching an experience list item");
 
-        return await experienceRepository.GetListItemsAsync(accountId, cancellationToken);
+        return await experienceRepository.GetListItemsAsync(accountId, archived, cancellationToken);
     }
 
     public async Task<LibraryExperienceResponse> GetExperienceAsync(string Auth0UserId, int experienceId, CancellationToken cancellationToken = default)
@@ -101,11 +102,46 @@ public sealed class LibraryExperienceService(
             ?? throw new DirectoryNotFoundException($"Account was not found when deleting an experience");
 
         var experience = await experienceRepository.GetForUpdatingByIdAsync(experienceId)
-            ?? throw new DirectoryNotFoundException($"Experience with Id {experienceId} was not found during updating.");
+            ?? throw new DirectoryNotFoundException($"Experience with Id {experienceId} was not found during deletion.");
 
         CheckAuthorizationForExperience(experience.AccountId, accountId);
 
+        var isUsed = await experienceRepository.IsUsedInResumeAsync(experienceId, cancellationToken);
+
+        if (isUsed)
+        {
+            throw new ExperienceInUseException();
+        }
+
         experienceRepository.Remove(experience);
+        await experienceRepository.SaveAync(cancellationToken);
+    }
+
+    public async Task ArchiveExperienceAsync(string Auth0UserId, int experienceId, CancellationToken cancellationToken = default)
+    {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when deleting an experience");
+
+        var experience = await experienceRepository.GetForUpdatingByIdAsync(experienceId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Experience with Id {experienceId} was not found during archiving.");
+
+        CheckAuthorizationForExperience(experience.AccountId, accountId);
+
+        experience.Archive();
+        await experienceRepository.SaveAync(cancellationToken);
+    }
+
+    public async Task RestoreExperienceAsync(string Auth0UserId, int experienceId, CancellationToken cancellationToken = default)
+    {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when deleting an experience");
+
+        var experience = await experienceRepository.GetForUpdatingByIdAsync(experienceId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Experience with Id {experienceId} was not found during restoring.");
+
+        CheckAuthorizationForExperience(experience.AccountId, accountId);
+
+        experience.Restore();
         await experienceRepository.SaveAync(cancellationToken);
     }
 

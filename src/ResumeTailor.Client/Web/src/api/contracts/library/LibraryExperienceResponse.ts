@@ -10,4 +10,5 @@ export type LibraryExperienceResponse = Experience & {
   letAiChooseBullets: boolean;
   maxBulletsToChoose: number | null;
   bullets: LibraryBulletResponse[];
+  resumeCount: number;
 };

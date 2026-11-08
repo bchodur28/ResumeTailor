@@ -30,6 +30,8 @@ public sealed class LibraryExperience : Entity
     private readonly List<LibraryBullet> _bullets = [];
     public IReadOnlyCollection<LibraryBullet> Bullets => _bullets.AsReadOnly();
 
+    public DateTime? ArchiveDate { get; private set; }
+
     public LibraryExperience(int accountId, ExperienceType type, string title, string? organization, string? location, DateOnly? started, DateOnly? ended, bool letAiChooseSummary, string? link, string? techStack, bool letAiChooseBullets, int? maxBulletsToChoose)
     {
         AccountId = accountId;
@@ -103,5 +105,15 @@ public sealed class LibraryExperience : Entity
     public void SetTitle(string title)
     {
         Title = title;
+    }
+
+    public void Archive()
+    {
+        ArchiveDate ??= DateTime.UtcNow;
+    }
+
+    public void Restore()
+    {
+        ArchiveDate = null;
     }
 }

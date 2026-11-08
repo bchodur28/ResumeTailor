@@ -38,19 +38,24 @@ internal class LibraryExperienceRepository(ResumeTailorDbContext dbContext) : IL
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<LibraryExperienceListItemResponse>> GetListItemsAsync(int accountId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<LibraryExperienceListItemResponse>> GetListItemsAsync(int accountId, bool archived, CancellationToken cancellationToken = default)
     {
         return await dbContext.LibraryExperiences
             .AsNoTracking()
-            .Where(ex => ex.AccountId == accountId)
+            .Where(ex => ex.AccountId == accountId && (archived == (ex.ArchiveDate != null)))
             .Select(ex => new LibraryExperienceListItemResponse(
                 ex.Id,
                 ex.Type,
                 ex.Title,
                 ex.Organization,
                 ex.Bullets.Count(b => b.DeletedDate == null),
-                ex.Summaries.Count(b => b.DeletedDate == null)))
-            .ToListAsync();
+                ex.Summaries.Count(b => b.DeletedDate == null),
+                dbContext.Resumes.Count(
+                    r => r.AccountId == accountId && (r.Experiences.Any(
+                        e => e.LibraryExperienceId == ex.Id)
+                    ))
+                ))
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<LibraryExperience?> GetByIdAsync(int id, CancellationToken cancellationToken)
@@ -81,7 +86,7 @@ internal class LibraryExperienceRepository(ResumeTailorDbContext dbContext) : IL
     {
         var experiences = await dbContext.LibraryExperiences
             .AsNoTracking()
-            .Where(lex => lex.AccountId == accountId)
+            .Where(lex => lex.AccountId == accountId && lex.ArchiveDate == null)
             .Include(lex => lex.Summaries
                 .Where(sum => sum.DeletedDate == null))
             .Include(lex => lex.Bullets
@@ -196,6 +201,12 @@ internal class LibraryExperienceRepository(ResumeTailorDbContext dbContext) : IL
             .Include(ex => ex.Summaries)
             .Include(ex => ex.Bullets)
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<bool> IsUsedInResumeAsync(int experienceId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Resumes.AnyAsync(r => r.Experiences.Any(
+            r => r.LibraryExperienceId == experienceId), cancellationToken);
     }
 
     public void Add(LibraryExperience experiences)
