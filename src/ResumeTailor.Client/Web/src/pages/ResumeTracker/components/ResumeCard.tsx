@@ -252,7 +252,7 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
       </Link>
       <div className="shrink-0 p-2 border-t border-gray-300 flex justify-center gap-2">
         <ButtonContainer align="center" isRelative={true}>
-          <DropdownButton label="Edit Post" styleType="filter">
+          <DropdownButton label="Edit Post" styleType="edit">
             <ActionList
               actions={[
                 {
@@ -262,7 +262,7 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
               ]}
             />
           </DropdownButton>
-          <DropdownButton label="Set Status" styleType="filter">
+          <DropdownButton label="Set Status" styleType="edit">
             <ActionList
               actions={[
                 {

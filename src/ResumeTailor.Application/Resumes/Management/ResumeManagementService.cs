@@ -2,8 +2,10 @@ using ResumeTailor.Application.Common.Exceptions;
 using ResumeTailor.Application.Common.Models;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
+using ResumeTailor.Application.Library.Interfaces;
 using ResumeTailor.Application.Resumes.Common.Models;
 using ResumeTailor.Application.Resumes.Management.Interfaces;
+using ResumeTailor.Application.Resumes.Management.Models;
 using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
 
@@ -12,17 +14,15 @@ namespace ResumeTailor.Application.Resumes.Management;
 
 internal sealed class ResumeManagementService(
     IResumeRepository repository,
-    IResumeDataProvider resumeDataProvider,
-    IResumeUpdater resumeUpdater) : IResumeManagementService
+    IResumeUpdater resumeUpdater,
+    ILibraryExperienceRepository libraryExperienceRepository) : IResumeManagementService
 {
     public async Task<ResumeDetailsResponse> GetResumeDetailsAsync(int id, CancellationToken cancellationToken = default)
     {
-        var resume = await repository.GetResumeAsync(id, cancellationToken)
-            ?? throw new NotFoundException($"Resume with ID {id} was not found.");
+        var resumeDetails = await repository.GetResumeDetails(id, cancellationToken)
+            ?? throw new NotFoundException($"Resume details with ID {id} was not found.");
 
-        var sourceData = await resumeDataProvider.GetResumeSourceDataForExistingResumeAsync(resume, cancellationToken);
-
-        return ResumeDetailsAssembler.Assemble(sourceData, resume);
+        return resumeDetails;
     }
 
     public async Task<PagedResult<ResumeSummaryResponse>> GetPagedResumeSummariesByAccountIdAsync(ResumeSummaryQuery request, CancellationToken cancellationToken = default)
@@ -45,6 +45,32 @@ internal sealed class ResumeManagementService(
     {
         var existingResume = await repository.GetResumeForUpdatingAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Resume with ID {id} was not found while updating.");
+
+        var accountId = existingResume.AccountId;
+
+        // 1. Validate the request's internal consistency.
+        ValidateExperienceSelections(request.Experience);
+        ValidateExistingSelections(existingResume, request.Experience);
+
+        // 2. Validate Library ownership and relationships.
+        var selections = request.Experience
+            .Select(e => new ExperienceSelectionValidation(
+                e.LibraryExperienceId,
+                e.LibrarySummaryId,
+                e.Bullets.Select(b => b.LibraryBulletId).ToArray()
+            ))
+            .ToArray();
+
+        var valid = await libraryExperienceRepository.AreSelectionsValidAsync(
+            accountId,
+            selections,
+            cancellationToken
+        );
+
+        if (!valid)
+        {
+            throw new InvalidOperationException("One or more Library selections are invalid.");
+        }
 
         resumeUpdater.Update(existingResume, request);
 
@@ -97,6 +123,94 @@ internal sealed class ResumeManagementService(
         await repository.SaveAsync(cancellationToken);
     }
 
+    private static void ValidateExistingSelections(Resume resume, IReadOnlyCollection<ResumeExperienceRequest> requests)
+    {
+        var experiencesById = resume.Experiences
+            .ToDictionary(e => e.Id);
+
+        foreach (var request in requests)
+        {
+            if (request.Id is not int experienceId)
+            {
+                if (request.Bullets.Any(b => b.Id.HasValue))
+                {
+                    throw new InvalidOperationException(
+                        "A new experience cannot reference existing resume bullet IDs.");
+                }
+
+                continue;
+            }
+
+            if (!experiencesById.TryGetValue(
+                experienceId, out var experience))
+            {
+                throw new NotFoundException(
+                    $"Resume experience {experienceId} was not found.");
+            }
+
+            if (experience.LibraryExperienceId != request.LibraryExperienceId)
+            {
+                throw new InvalidOperationException(
+                    "An existing experience cannot change its LibraryExperienceId.");
+            }
+
+            var existingBulletIds = experience.Bullets
+                .Select(b => b.Id)
+                .ToHashSet();
+
+            foreach (var bullet in request.Bullets)
+            {
+                if (bullet.Id is int bulletId &&
+                    !existingBulletIds.Contains(bulletId))
+                {
+                    throw new NotFoundException(
+                        $"Resume bullet {bulletId} does not belong to experience {experienceId}.");
+                }
+            }
+        }
+    }
+
+    private static void ValidateExperienceSelections(IReadOnlyCollection<ResumeExperienceRequest> experiences)
+    {
+        var experienceIds = new HashSet<int>();
+        var libraryExperienceIds = new HashSet<int>();
+        var resumeBulletIds = new HashSet<int>();
+
+        foreach (var experience in experiences)
+        {
+            if (experience.Id is int experienceId &&
+                !experienceIds.Add(experienceId))
+            {
+                throw new InvalidOperationException(
+                    $"Duplicate resume experience ID {experienceId}.");
+            }
+
+            if (!libraryExperienceIds.Add(experience.LibraryExperienceId))
+            {
+                throw new InvalidOperationException(
+                    $"Duplicate Library experience ID {experience.LibraryExperienceId}.");
+            }
+
+            var libraryBulletIds = new HashSet<int>();
+
+            foreach (var bullet in experience.Bullets)
+            {
+                if (bullet.Id is int bulletId && !resumeBulletIds.Add(bulletId))
+                {
+                    throw new InvalidOperationException(
+                        $"Duplicate resume bullet ID {bulletId}.");
+                }
+
+                if (!libraryBulletIds.Add(bullet.LibraryBulletId))
+                {
+                    throw new InvalidOperationException(
+                        $"Duplicate Library bullet ID {bullet.LibraryBulletId} " +
+                        $"in experience {experience.LibraryExperienceId}.");
+                }
+            }
+        }
+    }
+
     // Mapping Methods
     private static ResumeSummaryResponse MapToResumeSummaryResponse(Resume resume)
     {
@@ -114,7 +228,8 @@ internal sealed class ResumeManagementService(
                 SalaryMax: resume.JobPosting.SalaryMax,
                 Salary: resume.JobPosting.Salary,
                 SalaryPeriod: resume.JobPosting.SalaryPeriod,
-                SalaryCurrency: resume.JobPosting.SalaryCurrency),
+                SalaryCurrency: resume.JobPosting.SalaryCurrency
+            ),
 
             ApplicationTracking: new ApplicationTrackingResponse(
                 Status: resume.ApplicationTracking.Status,

@@ -140,89 +140,41 @@
   cursor: default;
 }
 
-.bulletListItem:not(.editableControlLocked):hover {
-  background-color: var(--color-gray-50);
-  transform: scale(1.02);
-  padding: 0.5rem;
-  border: 1px solid var(--primary-color-light);
-  border-radius: 0.5rem;
-  font-weight: 600;
-  box-shadow: var(--small-shadow-light);
-}
-
-.editableInnerSection:not(.editableControlLocked):hover {
-  background-color: var(--color-gray-50);
-  transform: scale(1.02);
-  padding: 0.5rem;
-  border: 1px solid var(--primary-color-light);
-  border-radius: 0.5rem;
-  font-weight: 600;
-  box-shadow: var(--small-shadow-light);
-}
-
-
-/*
- * Only apply the parent section hover effect when we are NOT
- * currently hovering/interacting with one of its editable bullets.
- *
- * Otherwise hovering a bullet dropdown also causes the whole
- * company section to scale.
- */
-.editableInnerSectionAction {
-  background-color: var(--color-gray-50);
-
-  transform: scale(1.02);
-  padding: 0.5rem;
-
-  border: 1px solid var(--primary-color-light);
-  border-radius: 0.5rem;
-
-  font-weight: 600;
-  box-shadow: var(--small-shadow-light);
-}
-
-
-/* Active bullet stays highlighted */
-.bulletListItemActive {
-  background-color: var(--color-gray-50);
-
-  transform: scale(1.02);
-  padding: 0.5rem;
-
-  border: 1px solid var(--primary-color-light);
-  border-radius: 0.5rem;
-
-  font-weight: 600;
-  box-shadow: var(--small-shadow-light);
-}
-
-/* ================================
-   TOOLBAR CONTAINERS
-   ================================ */
-
-.editToolBarContainerAbsolute {
-  position: absolute;
-
-  top: 100%;
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  z-index: 200;
-
-  margin-top: 4px;
-
-  overflow: visible;
-}
-
-.editToolBarContainerRelative {
+.bulletListItem,
+.editableInnerSection {
   position: relative;
+  transition: transform 0.2s ease;
+}
 
-  z-index: 200;
+.bulletListItem::before,
+.editableInnerSection::before {
+  content: "";
+  position: absolute;
+  inset: -0.7rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-gray-50);
+  outline: 1px solid var(--primary-color-light);
+  box-shadow: var(--small-shadow-light);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
 
-  width: fit-content;
+.bulletListItem:not(.editableControlLocked):hover,
+.editableInnerSection:not(.editableControlLocked):hover,
+.bulletListItemActive,
+.editableInnerSectionAction {
+  transform: scale(1.02);
+  text-shadow: 0.2px 0 currentColor, -0.2px 0 currentColor;
+  z-index: 1;
+}
 
-  overflow: visible;
+
+.bulletListItem:not(.editableControlLocked):hover::before,
+.editableInnerSection:not(.editableControlLocked):hover::before,
+.bulletListItemActive::before,
+.editableInnerSectionAction::before {
+  opacity: 1;
 }
 
 /* ================================
@@ -231,107 +183,16 @@
 
 .editToolBar {
   position: relative;
-
   display: flex;
   align-items: center;
-
   gap: 8px;
-
   width: fit-content;
-
   padding: calc(var(--spacing) * 0.5);
-
   overflow: visible;
-
   background-color: var(--color-white);
-
   border: 1px solid var(--primary-color-light);
   border-radius: calc(infinity * 1px);
-
   box-shadow: var(--small-shadow-light);
-}
-
-/* ================================
-   TOOLBAR BUTTON CONTAINER
-   ================================ */
-
-.editToolBarButtonContainer {
-  position: relative;
-  z-index: 1;
-
-  overflow: visible;
-}
-
-.editToolBarButtonContainer:hover,
-.editToolBarButtonContainer:focus-within,
-.editToolBarButtonContainerOpen {
-  z-index: 10;
-}
-
-/* ================================
-   TOOLBAR BUTTON
-   ================================ */
-
-.editToolBarButton {
-  display: flex;
-  align-items: center;
-
-  gap: 0;
-
-  padding: 0.5rem;
-
-  border: 1px solid var(--color-white);
-  border-radius: calc(infinity * 1px);
-
-  background: none;
-
-  cursor: pointer;
-
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-gray-800);
-
-  white-space: nowrap;
-
-  transition:
-    background-color 0.5s,
-    border-color 0.5s;
-}
-
-.editToolBarButtonContainer:hover .editToolBarButton,
-.editToolBarButtonContainer:focus-within .editToolBarButton,
-.editToolBarButtonContainerOpen .editToolBarButton {
-  background-color: var(--color-gray-100);
-  border-color: var(--primary-color-light);
-}
-
-/* ================================
-   TOOLBAR BUTTON LABEL
-   ================================ */
-
-.editToolBarButton span {
-  max-width: 0;
-
-  margin-left: 0;
-
-  opacity: 0;
-
-  overflow: hidden;
-  white-space: nowrap;
-
-  transition:
-    max-width 0.5s ease,
-    opacity 0.4s ease,
-    margin-left 0.5s ease;
-}
-
-.editToolBarButtonContainer:hover .editToolBarButton span,
-.editToolBarButtonContainer:focus-within .editToolBarButton span,
-.editToolBarButtonContainerOpen .editToolBarButton span {
-  max-width: 130px;
-
-  margin-left: 0.5rem;
-
-  opacity: 1;
 }
 
 .editToolBarList::-webkit-scrollbar {
@@ -344,37 +205,13 @@
 }
 
 /* ================================
-   TOOLBAR DROPDOWN
-   ================================ */
-
-.editToolBarDropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-
-  z-index: 100;
-
-  width: 670px;
-  max-width: var(--container-2xl);
-
-  background-color: var(--color-white);
-
-  border: 1px solid var(--primary-color-light);
-  border-radius: var(--radius-lg);
-
-  box-shadow: var(--small-shadow-light);
-
-  overflow: hidden;
-}
-
-/* ================================
    TOOLBAR SEARCH
    ================================ */
 
 .editToolBarSearchContainer {
   padding: calc(var(--spacing) * 0.5);
   border-bottom: 1px solid var(--primary-color-light);
+  width: auto;
 }
 
 .editToolBarSearch {
@@ -412,6 +249,8 @@
   flex-direction: column;
   gap: 4px;
 
+  width: 100%;
+
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color) transparent;
 }
@@ -437,13 +276,12 @@
   text-align: left;
 
   background: var(--color-white);
+  color: var(--color-gray-800);
 
   border: 1px solid transparent;
   border-radius: var(--radius-md);
 
   cursor: pointer;
-
-  color: var(--color-gray-800);
 }
 
 .editToolBarList button:hover {

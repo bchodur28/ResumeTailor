@@ -1,6 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEducation } from "../../hooks/useEducation";
+import { useLibraryEducation } from "../../hooks/useLibraryEducation";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useState } from "react";
 import type { EducationForm } from "../../models/forms/EducationForm";
@@ -20,7 +20,7 @@ const EditEducationForm = () => {
   const { getAccessTokenSilently } = useAuth0();
   const queryClient = useQueryClient();
 
-  const { data: education, isLoading, isError } = useEducation();
+  const { data: education, isLoading, isError } = useLibraryEducation();
 
   const [isSavedSuccessfully, setIsSavedSuccessfully] = useState<
     boolean | null

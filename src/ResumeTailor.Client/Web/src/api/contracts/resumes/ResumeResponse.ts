@@ -1,9 +1,9 @@
-import type { ResumeCompanyResponse } from "./ResumeCompanyResponse";
 import type { ResumeAppearanceResponse } from "./ResumeAppearanceResponse";
 import type { PersonalLinkResponse } from "../accounts/PersonalLinkResponse";
-import type { EducationResponse } from "../education/EducationResponse";
-import type { ProjectResponse } from "../projects/ProjectResponse";
 import type { SkillResponse } from "../accounts/SkillResponse";
+import type { ResumeExperienceResponse } from "./ResumeExperienceResponse";
+import type { ResumeEducationResponse } from "./ResumeEducationResponse";
+
 export type ResumeResponse = {
   id: number | null;
   accountId: number;
@@ -17,8 +17,7 @@ export type ResumeResponse = {
   location: string;
   personalLinks: PersonalLinkResponse[];
   skills: SkillResponse[];
-  companies: ResumeCompanyResponse[];
-  education: EducationResponse[];
-  projects: ProjectResponse[];
+  education: ResumeEducationResponse[];
+  experiences: ResumeExperienceResponse[];
   appearance: ResumeAppearanceResponse;
 };

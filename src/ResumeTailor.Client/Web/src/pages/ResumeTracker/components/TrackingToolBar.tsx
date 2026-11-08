@@ -123,7 +123,6 @@ const TrackingToolBar = ({
         label="Filter"
         iconComponent={Filter}
         styleType="filter"
-        containerAlignment="center"
         labelSlideOut={true}
       >
         <div className="p-4 flex flex-col gap-4">
@@ -219,7 +218,6 @@ const TrackingToolBar = ({
         label={getSortLabel()}
         iconComponent={SortUp}
         styleType="filter"
-        containerAlignment="center"
       >
         <div className="p-4">
           <div className="flex gap-2 w-64 justify-between">
@@ -318,7 +316,6 @@ const TrackingToolBar = ({
           iconComponent={Files}
           hideLabel={false}
           styleType="filter"
-          containerAlignment="center"
         >
           <ul className="flex flex-col justify-end">
             {Array.from({ length: totalPages }, (_, index) => (
@@ -336,7 +333,6 @@ const TrackingToolBar = ({
       <DropdownButton
         label={`${totalCount < query.pageSize ? totalCount : query.pageSize}`}
         styleType="filter"
-        containerAlignment="center"
         iconComponent={List}
         hideLabel={false}
       >
@@ -371,7 +367,6 @@ const TrackingToolBar = ({
         label="Stats (Per Page)"
         iconComponent={Info}
         styleType="filter"
-        containerAlignment="center"
         labelSlideOut={true}
       >
         <ul className="flex flex-col justify-end gap-2 p-2 text-sm">

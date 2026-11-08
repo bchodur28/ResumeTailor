@@ -12,7 +12,7 @@ public sealed record LibraryExperienceResponse(
     DateOnly? Ended,
     LibrarySummaryResponse? PrimarySummary,
     bool LetAiChooseSummary,
-    IReadOnlyCollection<LibrarySummaryResponse> Summeries,
+    IReadOnlyCollection<LibrarySummaryResponse> Summaries,
     string? Link,
     string? TechStack,
     bool LetAiChooseBullets,

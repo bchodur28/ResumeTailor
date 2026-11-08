@@ -1,96 +1,207 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import type { ResumeDetailsForm } from "../../models/forms/ResumeDetailsForm";
-import type { ResumeEducationSelectionRequest } from "../../api/contracts/resumes/ResumeEducationSelectionRequest";
 import { useParams } from "react-router-dom";
 import { useResumeDetails } from "../../hooks/useResumeDetails";
-import { useProjects } from "../../hooks/useProjects";
 import Card from "../../components/ui/Card";
-import Resume from "../../components/resume/Resume";
 import RatingBar from "../../components/ui/feedback/RatingBar";
 import type { ResumeResponse } from "../../api/contracts/resumes/ResumeResponse";
-import type { EducationResponse } from "../../api/contracts/education/EducationResponse";
-import type { ProjectResponse } from "../../api/contracts/projects/ProjectResponse";
-import type { ResumeProjectSelectionRequest } from "../../api/contracts/resumes/ResumeProjectSelectionRequest";
-import { useEducation } from "../../hooks/useEducation";
-import type { ResumeCompanySelectionRequest } from "../../api/contracts/resumes/ResumeCompanySelectionRequest";
-import EditToolBar from "../../components/resume/EditToolBar";
-import EditToolBarButton from "../../components/resume/EditToolBarButton";
+import type { ResumeEducationRequest } from "../../api/contracts/resumes/ResumeEducationRequest";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLibraryEducation } from "../../hooks/useLibraryEducation";
 import {
   Book,
   Folder2Open,
   TypeH2,
   TypeH1,
   Paragraph,
-  Search,
 } from "react-bootstrap-icons";
 import { useCompanyBullets } from "../../hooks/useCompanyBullet";
-import { ResumeEditProvider } from "../../contexts/ResumeEditContext";
-import type { SkillResponse } from "../../api/contracts/accounts/SkillResponse";
 import { getResumePdf } from "../../api/resumeApi";
 import { useUpdateResume } from "../../hooks/useUpdateResume";
 import Message from "../../components/ui/feedback/Message";
-import type {
-  ResumeViewModel,
-  ResumeCompanyViewModel,
-} from "../../models/forms/ResumeViewModel";
 import ListItem from "../../components/ui/lists/ListItem";
 import ScaledResumePreview from "./components/ScaledResumePreview";
 import ButtonContainer from "../../components/ui/buttons/ButtonContainer";
 import DropdownButton from "../../components/ui/buttons/DropdownButton";
 import SearchDropdown from "./components/SearchDropdown";
+import type { UpdateResumeRequest } from "../../api/contracts/resumes/UpdateResumeRequest";
+import type { ResumeExperienceRequest } from "../../api/contracts/resumes/ResumeExperienceRequest";
+import { useLibraryExperiences } from "../../hooks/useLibraryExperiences";
+import type { ResolvedEducation } from "../../models/education/ResolvedEducation";
+import type { LibraryEducationResponse } from "../../api/contracts/education/LibraryEducationResponse";
+import type { ResolvedResume } from "../../models/resumes/ResolvedResume";
+import type { ResolvedExperience } from "../../models/Experience/ResolvedExperience";
+import type { LibraryExperienceResponse } from "../../api/contracts/library/LibraryExperienceResponse";
+import Resume from "../../components/resume/Resume";
+import { ResumeEditProvider } from "../../contexts/ResumeEditContext";
+import type { SkillResponse } from "../../api/contracts/accounts/SkillResponse";
 
-const mapResumeToForm = (
-  resume: ResumeResponse,
-  resumeId: number,
-): ResumeDetailsForm => ({
+const mapResumeToRequest = (resume: ResumeResponse): UpdateResumeRequest => ({
   name: resume.resumeName ?? "",
 
-  companies: resume.companies.map((company, index) => ({
-    id: company.selectionId,
-    resumeId: resumeId,
-    companyId: company.companyId,
-    sortOrder: index + 1,
-    bullets: company.bullets.map((bullet, index) => ({
-      id: bullet.id,
-      bulletId: bullet.sourceBulletId,
-      value: bullet.value,
-      alternativeValue: bullet.alternativeValue,
-      sortOrder: bullet.sortOrder ?? index + 1,
-      isSourceDeleted: bullet.isSourceDeleted,
-    })),
-  })),
-
   education: resume.education.map((education, index) => ({
-    id: education.selectionId,
-    educationId: education.id,
+    id: education.id,
+    libraryEducationId: education.libraryEducationId,
     sortOrder: index + 1,
   })),
 
-  projects: resume.projects.map((project, index) => ({
-    id: project.selectionId,
-    projectId: project.id,
+  experiences: resume.experiences.map((experience, index) => ({
+    id: experience.id,
+    libraryExperienceId: experience.libraryExperienceId,
+    librarySummaryId: experience.primarySummary?.librarySummaryId ?? null,
     sortOrder: index + 1,
+    bullets: experience.bullets.map((bullet, index) => ({
+      id: bullet.id,
+      libraryBulletId: bullet.libraryBulletId,
+      sortOrder: bullet.sortOrder ?? index + 1,
+    })),
   })),
 
   appearance: resume.appearance,
 });
+
+const resolveLibraryExperience = (
+  experience: LibraryExperienceResponse,
+): ResolvedExperience => {
+  return {
+    ...experience,
+    resumeExperienceId: null,
+    libraryExperienceId: experience.id,
+    sortOrder: 0,
+    useInResume: false,
+
+    summaries: (experience.summaries ?? []).map((summary) => ({
+      ...summary,
+      resumeSummaryId: null,
+      librarySummaryId: summary.id,
+      wasManuallyChanged: false,
+      aiReasoning: null,
+      sortOrder: 0,
+      useInResume: false,
+    })),
+
+    bullets: (experience.bullets ?? []).map((bullet) => ({
+      ...bullet,
+      resumeBulletId: null,
+      libraryBulletId: bullet.id,
+      aiAlternativeValue: null,
+      aiReasoning: null,
+      sortOrder: 0,
+      isSourceDeleted: false,
+      useInResume: false,
+    })),
+  };
+};
+
+const resolveLibraryEducation = (
+  education: LibraryEducationResponse,
+): ResolvedEducation => {
+  return {
+    resumeEducationId: null,
+    libraryEducationId: education.id,
+    type: education.type,
+    institutionName: education.institutionName,
+    qualification: education.qualification,
+    fieldOfStudy: education.fieldOfStudy,
+    gpa: education.gpa,
+    location: education.location,
+    started: education.started,
+    ended: education.ended,
+    sortOrder: 0,
+    useInResume: false,
+  };
+};
 
 const ResumeDetailsPage = () => {
   const { id } = useParams();
   const resumeId = Number(id);
 
   const { data: resumeDetails, isLoading, error } = useResumeDetails(resumeId);
-  const { data: availableEducation = [] } = useEducation();
-  const { data: availableProjects = [] } = useProjects();
-  const { data: availableCompanyBullets = [] } = useCompanyBullets();
+  const { data: availableEducation = [] } = useLibraryEducation();
+  const { data: availableLibraryExperiences = [] } = useLibraryExperiences();
+
+  console.log("RESUME DETAILS", availableLibraryExperiences);
+
+  // Latest saved resume state
+  const [savedResume, setSavedResume] = useState<ResumeResponse | null>(null);
+  const baseResume = savedResume ?? resumeDetails?.resume;
+
+  const educationMapping = useMemo(() => {
+    return new Map<number, ResolvedEducation>(
+      availableEducation.map((education) => [
+        education.id,
+        resolveLibraryEducation(education),
+      ]),
+    );
+  }, [availableEducation]);
+
+  const experienceMapping = useMemo(() => {
+    const map = new Map<number, ResolvedExperience>();
+
+    // 1. Start with all library experiences
+    availableLibraryExperiences.forEach((lib) => {
+      map.set(lib.id, resolveLibraryExperience(lib));
+    });
+
+    // 2. Merge saved resume selections and AI metadata
+    baseResume?.experiences.forEach((resume) => {
+      const experience = map.get(resume.libraryExperienceId);
+
+      if (!experience) return;
+
+      experience.resumeExperienceId = resume.id;
+      experience.sortOrder = resume.sortOrder;
+      experience.useInResume = true;
+
+      // Merge selected summary information
+      if (resume.primarySummary) {
+        experience.summaries = experience.summaries.map((summary) =>
+          summary.librarySummaryId === resume.primarySummary?.librarySummaryId
+            ? {
+                ...summary,
+                resumeSummaryId: resume.primarySummary.id,
+                wasManuallyChanged: resume.primarySummary.wasManuallyChanged,
+                aiReasoning: resume.primarySummary.aiReasoning,
+                sortOrder: resume.primarySummary.sortOrder,
+                value: resume.primarySummary.value,
+                useInResume: true,
+              }
+            : summary,
+        );
+      }
+
+      // Merge selected bullet information
+      const resumeBullets = new Map(
+        resume.bullets.map((bullet) => [bullet.libraryBulletId, bullet]),
+      );
+
+      experience.bullets = experience.bullets.map((bullet) => {
+        const selected = resumeBullets.get(bullet.libraryBulletId);
+
+        if (!selected) return bullet;
+
+        return {
+          ...bullet,
+          resumeBulletId: selected.id,
+          value: selected.value,
+          aiAlternativeValue: selected.aiAlternativeValue,
+          aiReasoning: selected.aiReasoning,
+          sortOrder: selected.sortOrder,
+          isSourceDeleted: selected.isSourceDeleted,
+          useInResume: true,
+        };
+      });
+    });
+
+    return map;
+  }, [availableLibraryExperiences, baseResume?.experiences]);
+
   const updateResumeMutation = useUpdateResume(resumeId);
 
-  const lastSavedRef = useRef<ResumeDetailsForm | null>(null);
+  const lastSavedRef = useRef<UpdateResumeRequest | null>(null);
   const [revertSnapshot, setRevertSnapshot] =
-    useState<ResumeDetailsForm | null>(null);
-
-  const [savedResume, setSavedResume] = useState<ResumeResponse | null>(null);
+    useState<UpdateResumeRequest | null>(null);
 
   const [isSavedSuccessfully, setIsSavedSuccessfully] = useState<
     boolean | null
@@ -100,12 +211,11 @@ const ResumeDetailsPage = () => {
   const deletedBulletsWarningInitialized = useRef(false);
 
   const { handleSubmit, reset, control, setValue, getValues } =
-    useForm<ResumeDetailsForm>({
+    useForm<UpdateResumeRequest>({
       defaultValues: {
         name: "",
-        companies: [] as ResumeCompanySelectionRequest[],
-        education: [] as ResumeEducationSelectionRequest[],
-        projects: [] as ResumeProjectSelectionRequest[],
+        education: [] as ResumeEducationRequest[],
+        experiences: [] as ResumeExperienceRequest[],
         appearance: {
           titleFontSize: 11,
           sectionHeaderFontSize: 10,
@@ -124,20 +234,25 @@ const ResumeDetailsPage = () => {
 
     setSavedResume(resumeDetails.resume);
 
-    const formData: ResumeDetailsForm = mapResumeToForm(
+    const updateResumeRequest: UpdateResumeRequest = mapResumeToRequest(
       resumeDetails.resume,
-      resumeId,
     );
 
-    reset(formData);
+    console.log("Resume API experiences:", resumeDetails.resume.experiences);
+    console.log("Mapped request experiences:", updateResumeRequest.experiences);
 
-    lastSavedRef.current = structuredClone(formData);
+    reset(updateResumeRequest);
+
+    lastSavedRef.current = structuredClone(updateResumeRequest);
+
+    console.log("Form after reset:", getValues("experiences"));
 
     setRevertSnapshot(null);
 
     if (!deletedBulletsWarningInitialized.current) {
-      const hasDeletedSourceBullets = resumeDetails.resume.companies.some(
-        (company) => company.bullets.some((bullet) => bullet.isSourceDeleted),
+      const hasDeletedSourceBullets = resumeDetails.resume.experiences.some(
+        (experience) =>
+          experience.bullets.some((bullet) => bullet.isSourceDeleted),
       );
 
       setDeletedBulletsWarning(hasDeletedSourceBullets);
@@ -156,95 +271,185 @@ const ResumeDetailsPage = () => {
     keyName: "fieldId",
   });
 
-  const {
-    append: appendProjects,
-    remove: removeProjects,
-    update: updateProjects,
-  } = useFieldArray({
+  const { append: appendExperience, remove: removeExperience } = useFieldArray({
     control,
-    name: "projects",
+    name: "experiences",
     keyName: "fieldId",
   });
 
-  const handleBulletChange = (
-    companyIndex: number,
-    bulletIndex: number,
-    bulletId: number,
-    value: string,
+  const handleBulletReplace = (
+    libraryExperienceId: number,
+    currentLibraryBulletId: number,
+    newLibraryBulletId: number,
   ) => {
-    setValue(
-      `companies.${companyIndex}.bullets.${bulletIndex}.bulletId`,
-      bulletId,
+    const experienceIndex = getExperienceIndex(libraryExperienceId);
+
+    if (experienceIndex === -1) return;
+
+    const path = `experiences.${experienceIndex}.bullets` as const;
+    const bullets = getValues(path);
+
+    const bulletIndex = bullets.findIndex(
+      (bullet) => bullet.libraryBulletId === currentLibraryBulletId,
     );
 
-    setValue(`companies.${companyIndex}.bullets.${bulletIndex}.value`, value);
+    if (bulletIndex === -1) return;
+
+    // Prevent selecting the same library bullet twice
+    if (
+      bullets.some(
+        (bullet, index) =>
+          index !== bulletIndex &&
+          bullet.libraryBulletId === newLibraryBulletId,
+      )
+    ) {
+      return;
+    }
+
+    setValue(
+      `experiences.${experienceIndex}.bullets.${bulletIndex}.libraryBulletId`,
+      newLibraryBulletId,
+      { shouldDirty: true },
+    );
   };
 
   const handleBulletAdd = (
-    companyIndex: number,
-    bulletId: number,
-    value: string,
+    libraryExperienceId: number,
+    libraryBulletId: number,
   ) => {
-    const bullets = getValues(`companies.${companyIndex}.bullets`);
+    const experienceIndex = getExperienceIndex(libraryExperienceId);
+    if (experienceIndex === -1) return;
 
-    setValue(`companies.${companyIndex}.bullets`, [
-      ...bullets,
-      {
-        id: null,
-        bulletId,
-        value,
-        alternativeValue: null,
-        sortOrder: bullets.length + 1,
-      },
-    ]);
+    const path = `experiences.${experienceIndex}.bullets` as const;
+    const bullets = getValues(path);
+
+    if (bullets.some((b) => b.libraryBulletId === libraryBulletId)) return;
+
+    setValue(
+      path,
+      [
+        ...bullets,
+        {
+          id: null,
+          libraryBulletId,
+          sortOrder: bullets.length + 1,
+        },
+      ],
+      { shouldDirty: true },
+    );
   };
 
-  const handleBulletMoveUp = (companyIndex: number, bulletIndex: number) => {
-    if (bulletIndex === 0) {
-      return;
-    }
+  const handleBulletMoveUp = (
+    libraryExperienceId: number,
+    libraryBulletId: number,
+  ) => {
+    const experienceIndex = getExperienceIndex(libraryExperienceId);
+    if (experienceIndex === -1) return;
 
-    const bullets = getValues(`companies.${companyIndex}.bullets`);
-    const updatedBullets = [...bullets];
-    const [movedBullet] = updatedBullets.splice(bulletIndex, 1);
-    updatedBullets.splice(bulletIndex - 1, 0, movedBullet);
+    const path = `experiences.${experienceIndex}.bullets` as const;
+    const bullets = [...getValues(path)].sort(
+      (a, b) => a.sortOrder - b.sortOrder,
+    );
 
-    const reorderedBullets = updatedBullets.map((bullet, index) => ({
-      ...bullet,
-      sortOrder: index + 1,
-    }));
+    const bulletIndex = bullets.findIndex(
+      (bullet) => bullet.libraryBulletId === libraryBulletId,
+    );
 
-    console.log("Reordered Bullets UP:", reorderedBullets);
+    if (bulletIndex <= 0) return;
 
-    setValue(`companies.${companyIndex}.bullets`, reorderedBullets);
+    [bullets[bulletIndex - 1], bullets[bulletIndex]] = [
+      bullets[bulletIndex],
+      bullets[bulletIndex - 1],
+    ];
+
+    setValue(
+      path,
+      bullets.map((bullet, index) => ({
+        ...bullet,
+        sortOrder: index + 1,
+      })),
+      { shouldDirty: true },
+    );
   };
 
-  const handleBulletMoveDown = (companyIndex: number, bulletIndex: number) => {
-    const bullets = getValues(`companies.${companyIndex}.bullets`);
-    if (bulletIndex === bullets.length - 1) {
-      return;
-    }
+  const handleBulletMoveDown = (
+    libraryExperienceId: number,
+    libraryBulletId: number,
+  ) => {
+    const experienceIndex = getExperienceIndex(libraryExperienceId);
+    if (experienceIndex === -1) return;
 
-    const updatedBullets = [...bullets];
+    const path = `experiences.${experienceIndex}.bullets` as const;
+    const bullets = [...getValues(path)].sort(
+      (a, b) => a.sortOrder - b.sortOrder,
+    );
 
-    const [movedBullet] = updatedBullets.splice(bulletIndex, 1);
+    const bulletIndex = bullets.findIndex(
+      (bullet) => bullet.libraryBulletId === libraryBulletId,
+    );
 
-    updatedBullets.splice(bulletIndex + 1, 0, movedBullet);
+    if (bulletIndex === -1 || bulletIndex >= bullets.length - 1) return;
 
-    const reorderedBullets = updatedBullets.map((bullet, index) => ({
-      ...bullet,
-      sortOrder: index + 1,
-    }));
+    [bullets[bulletIndex], bullets[bulletIndex + 1]] = [
+      bullets[bulletIndex + 1],
+      bullets[bulletIndex],
+    ];
 
-    console.log("Reordered Bullets DOWN:", reorderedBullets);
-
-    setValue(`companies.${companyIndex}.bullets`, reorderedBullets);
+    setValue(
+      path,
+      bullets.map((bullet, index) => ({
+        ...bullet,
+        sortOrder: index + 1,
+      })),
+      { shouldDirty: true },
+    );
   };
 
-  const handleAppendEducation = (educationId: number) => {
+  const handleBulletRemove = (
+    libraryExperienceId: number,
+    libraryBulletId: number,
+  ) => {
+    const experienceIndex = getExperienceIndex(libraryExperienceId);
+    if (experienceIndex === -1) return;
+
+    const path = `experiences.${experienceIndex}.bullets` as const;
+
+    const bullets = getValues(path);
+
+    const updatedBullets = bullets
+      .filter((bullet) => bullet.libraryBulletId !== libraryBulletId)
+      .map((bullet, index) => ({
+        ...bullet,
+        sortOrder: index + 1,
+      }));
+
+    setValue(path, updatedBullets, { shouldDirty: true });
+  };
+
+  const handleAppendExperience = (libraryExperienceId: number) => {
+    const experiences = getValues("experiences");
+
+    const experience = experienceMapping.get(libraryExperienceId);
+
+    appendExperience({
+      id: null,
+      libraryExperienceId,
+      sortOrder: experiences.length + 1,
+      librarySummaryId: experience?.summaries[0]?.librarySummaryId ?? null,
+      bullets: [],
+    });
+  };
+
+  const getExperienceIndex = (libraryExperienceId: number): number => {
+    return getValues("experiences").findIndex(
+      (experience) => experience.libraryExperienceId === libraryExperienceId,
+    );
+  };
+
+  const handleAppendEducation = (libraryEducationId: number) => {
     appendEducation({
       id: null,
-      educationId,
+      libraryEducationId,
       sortOrder: (formValues?.education?.length ?? 0) + 1,
     });
   };
@@ -253,7 +458,7 @@ const ResumeDetailsPage = () => {
     removeEducation(index);
   };
 
-  const handleUpdateEducation = (index: number, educationId: number) => {
+  const handleUpdateEducation = (index: number, libraryEducationId: number) => {
     const current = formValues.education?.[index];
 
     if (!current) {
@@ -262,36 +467,19 @@ const ResumeDetailsPage = () => {
 
     updateEducation(index, {
       id: current.id ?? null,
-      educationId,
+      libraryEducationId,
       sortOrder: current.sortOrder ?? index + 1,
     });
   };
 
-  const handleAppendProject = (projectId: number) => {
-    appendProjects({
-      id: null,
-      projectId,
-      sortOrder: (formValues?.projects?.length ?? 0) + 1,
-    });
-  };
+  const handleRemoveExperience = (libraryExperienceId: number) => {
+    const index = getValues("experiences").findIndex(
+      (experience) => experience.libraryExperienceId === libraryExperienceId,
+    );
 
-  const handleRemoveProject = (index: number) => {
-    removeProjects(index);
-  };
+    if (index === -1) return;
 
-  const handleUpdateProject = (index: number, projectId: number) => {
-    const current = formValues.projects?.[index];
-
-    if (!current) {
-      return;
-    }
-
-    updateProjects(index, {
-      id: current.id ?? null,
-      projectId,
-      sortOrder: current.sortOrder ?? index + 1,
-    });
-    console.log("Updated Projects:", formValues.projects);
+    removeExperience(index);
   };
 
   const handleTitleFontSizeChange = (size: number) => {
@@ -324,7 +512,7 @@ const ResumeDetailsPage = () => {
       const updatedDetails =
         await updateResumeMutation.mutateAsync(previousVersion);
 
-      const revertedFormData = mapResumeToForm(updatedDetails.resume, resumeId);
+      const revertedFormData = mapResumeToRequest(updatedDetails.resume);
 
       setSavedResume(updatedDetails.resume); // <-- add this
 
@@ -351,9 +539,8 @@ const ResumeDetailsPage = () => {
 
   const orderSkills = (
     skills: SkillResponse[],
-    companies: ResumeCompanyViewModel[],
-    projects: ProjectResponse[],
-  ) => {
+    experiences: ResolvedExperience[],
+  ): SkillResponse[] => {
     const orderedSkills: SkillResponse[] = [];
     const usedSkillIds = new Set<number>();
 
@@ -361,9 +548,7 @@ const ResumeDetailsPage = () => {
       const normalizedText = text.toLowerCase();
 
       for (const skill of skills) {
-        if (usedSkillIds.has(skill.id)) {
-          continue;
-        }
+        if (usedSkillIds.has(skill.id)) continue;
 
         if (normalizedText.includes(skill.value.toLowerCase())) {
           orderedSkills.push(skill);
@@ -372,10 +557,22 @@ const ResumeDetailsPage = () => {
       }
     };
 
-    for (const company of companies) {
-      const bullets = [...company.bullets].sort(
-        (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
-      );
+    const selectedExperiences = experiences
+      .filter((exp) => exp.useInResume)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+
+    const employment = selectedExperiences.filter(
+      (exp) => exp.type === "employment",
+    );
+
+    const projects = selectedExperiences.filter(
+      (exp) => exp.type === "personalProject",
+    );
+
+    for (const company of employment) {
+      const bullets = company.bullets
+        .filter((bullet) => bullet.useInResume)
+        .sort((a, b) => a.sortOrder - b.sortOrder);
 
       for (const bullet of bullets) {
         addSkillsFromText(bullet.value);
@@ -383,21 +580,32 @@ const ResumeDetailsPage = () => {
     }
 
     for (const project of projects) {
-      addSkillsFromText(project.name);
-      addSkillsFromText(project.description ?? "");
+      const bullets = project.bullets
+        .filter((bullet) => bullet.useInResume)
+        .sort((a, b) => a.sortOrder - b.sortOrder);
+
+      const summary = project.summaries.find((s) => s.useInResume);
+
+      for (const bullet of bullets) {
+        addSkillsFromText(bullet.value);
+      }
+
+      addSkillsFromText(project.title ?? "");
+      addSkillsFromText(summary?.value ?? "");
       addSkillsFromText(project.techStack ?? "");
     }
 
-    // for (const skill of skills) {
-    //   if (!usedSkillIds.has(skill.id)) {
-    //     orderedSkills.push(skill);
-    //   }
-    // }
+    // Append skills that weren't found in the resume content
+    for (const skill of skills) {
+      if (!usedSkillIds.has(skill.id)) {
+        orderedSkills.push(skill);
+      }
+    }
 
     return orderedSkills;
   };
 
-  const onSubmit = async (values: ResumeDetailsForm) => {
+  const onSubmit = async (values: UpdateResumeRequest) => {
     try {
       const previousSavedVersion = lastSavedRef.current
         ? structuredClone(lastSavedRef.current)
@@ -405,7 +613,7 @@ const ResumeDetailsPage = () => {
 
       const updatedDetails = await updateResumeMutation.mutateAsync(values);
 
-      const updatedFormData = mapResumeToForm(updatedDetails.resume, resumeId);
+      const updatedFormData = mapResumeToRequest(updatedDetails.resume);
 
       setRevertSnapshot(previousSavedVersion);
 
@@ -425,6 +633,24 @@ const ResumeDetailsPage = () => {
     control,
   });
 
+  const selectedEducations = new Map(
+    (formValues.education ?? [])
+      .filter((education) => education.libraryEducationId != null)
+      .map((education) => [education.libraryEducationId!, education]),
+  );
+
+  const selectedExperiences = new Map(
+    (formValues.experiences ?? [])
+      .filter((experience) => experience.libraryExperienceId != null)
+      .map((experience) => [experience.libraryExperienceId!, experience]),
+  );
+
+  console.log("Form experiences:", formValues.experiences);
+
+  console.log("Selected experience IDs:", [...selectedExperiences.keys()]);
+
+  console.log("Library experience IDs:", [...experienceMapping.keys()]);
+
   if (isLoading) {
     return <div>Loading resume details...</div>;
   }
@@ -433,7 +659,7 @@ const ResumeDetailsPage = () => {
     return <div>Error loading resume details: {error.message}</div>;
   }
 
-  if (resumeDetails?.resume == null) {
+  if (!baseResume) {
     return <h1>Resume not found</h1>;
   }
 
@@ -444,7 +670,7 @@ const ResumeDetailsPage = () => {
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${resumeDetails.resume.resumeName}.pdf`;
+    link.download = `${baseResume.resumeName}.pdf`;
 
     document.body.appendChild(link);
     link.click();
@@ -453,128 +679,85 @@ const ResumeDetailsPage = () => {
     URL.revokeObjectURL(url);
   };
 
-  const baseResume = savedResume ?? resumeDetails.resume;
-
-  const previewResume: ResumeViewModel = {
+  const resolvedResume: ResolvedResume = {
     ...baseResume,
-
-    appearance: {
-      id: baseResume.appearance.id,
-
-      titleFontSize:
-        formValues.appearance?.titleFontSize ??
-        baseResume.appearance.titleFontSize,
-
-      sectionHeaderFontSize:
-        formValues.appearance?.sectionHeaderFontSize ??
-        baseResume.appearance.sectionHeaderFontSize,
-
-      mainBodyFontSize:
-        formValues.appearance?.mainBodyFontSize ??
-        baseResume.appearance.mainBodyFontSize,
-
-      fontFamily:
-        formValues.appearance?.fontFamily ?? baseResume.appearance.fontFamily,
-
-      fontColor:
-        formValues.appearance?.fontColor ?? baseResume.appearance.fontColor,
-
-      topHeaderAlignment:
-        formValues.appearance?.topHeaderAlignment ??
-        baseResume.appearance.topHeaderAlignment,
-    },
-
-    companies: baseResume.companies.map((company) => {
-      const formCompany = formValues.companies?.find(
-        (x) => x.companyId === company.companyId,
-      );
+    education: [...educationMapping.values()].map((education) => {
+      const selected = selectedEducations.get(education.libraryEducationId);
 
       return {
-        ...company,
-        bullets:
-          formCompany?.bullets
-            ?.map((formBullet) => {
-              const originalBullet = company.bullets.find(
-                (bullet) => bullet.id === formBullet.id,
-              );
-
-              return {
-                selectionId: originalBullet?.id ?? 0,
-                id: formBullet.id ?? null,
-                sourceBulletId: formBullet.bulletId!,
-                value: formBullet.value ?? "",
-                alternativeValue: formBullet.alternativeValue ?? null,
-                sortOrder: formBullet.sortOrder ?? 0,
-                isSourceDeleted: originalBullet?.isSourceDeleted ?? false,
-              };
-            })
-            .toSorted((a, b) => a.sortOrder - b.sortOrder) ??
-          [...company.bullets].sort(
-            (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
-          ),
+        ...education,
+        resumeEducationId: selected?.id ?? null,
+        sortOrder: selected?.sortOrder ?? 0,
+        useInResume: !!selected,
       };
     }),
 
-    education:
-      formValues.education
-        ?.map((selection) =>
-          availableEducation.find(
-            (education: EducationResponse) =>
-              education.id === selection.educationId,
-          ),
-        )
-        .filter((x) => x != null) ?? [],
+    experiences: [...experienceMapping.values()].map((experience) => {
+      const selected = selectedExperiences.get(experience.libraryExperienceId);
 
-    projects:
-      formValues.projects
-        ?.map((selection) =>
-          availableProjects.find(
-            (project: ProjectResponse) => project.id === selection.projectId,
-          ),
-        )
-        .filter((x) => x != null) ?? [],
+      const selectedBullets = new Map(
+        (selected?.bullets ?? [])
+          .filter((bullet) => bullet.libraryBulletId != null)
+          .map((bullet) => [bullet.libraryBulletId!, bullet]),
+      );
+
+      return {
+        ...experience,
+        resumeExperienceId: selected?.id ?? null,
+        sortOrder: selected?.sortOrder ?? 0,
+        useInResume: !!selected,
+
+        summaries: experience.summaries.map((summary) => ({
+          ...summary,
+          useInResume:
+            !!selected &&
+            selected.librarySummaryId === summary.librarySummaryId,
+        })),
+
+        bullets: experience.bullets.map((bullet) => {
+          const selectedBullet = selectedBullets.get(bullet.libraryBulletId);
+
+          return {
+            ...bullet,
+            resumeBulletId: selectedBullet?.id ?? null,
+            sortOrder: selectedBullet?.sortOrder ?? 0,
+            useInResume: !!selectedBullet,
+          };
+        }),
+      };
+    }),
+
+    appearance: {
+      // Keep your existing appearance mapping here
+      ...baseResume.appearance,
+      ...formValues.appearance,
+      id: baseResume.appearance.id,
+    },
   };
 
-  const availableProjectsButExcludingCurrent = availableProjects.filter(
-    (project) =>
-      !previewResume.projects.some(
-        (currentProject) => currentProject.id === project.id,
-      ),
+  resolvedResume.skills = orderSkills(
+    resolvedResume.skills ?? [],
+    resolvedResume.experiences ?? [],
   );
 
-  console.log(
-    "availableProjectsButExcludingCurrent",
-    availableProjectsButExcludingCurrent,
+  console.log("RESOLVED RESUME:", resolvedResume);
+
+  const availableEducationButExcludingCurrent = resolvedResume.education.filter(
+    (education) => !education.useInResume,
   );
 
-  const availableEducationButExcludingCurrent = availableEducation.filter(
-    (education) =>
-      !previewResume.education.some(
-        (currentEducation) => currentEducation.id === education.id,
-      ),
-  );
+  const availableProjectsButExcludingCurrent =
+    resolvedResume.experiences.filter(
+      (experience) =>
+        !experience.useInResume && experience.type === "personalProject",
+    );
 
-  const currentBulletIds = new Set(
-    previewResume.companies
-      .flatMap((company) => company.bullets)
-      .map((bullet) => bullet.sourceBulletId)
-      .filter((id) => id != null),
-  );
+  console.log("AVAILABLE PROJECTS:", availableProjectsButExcludingCurrent);
 
-  const availableCompanyBulletsButExcludingCurrent = availableCompanyBullets
-    .map((company) => ({
-      ...company,
-      bullets: company.bullets?.filter(
-        (bullet) => !currentBulletIds.has(bullet.id),
-      ),
-    }))
-    .filter((company) => company.bullets && company.bullets.length > 0);
-
-  const orderedSkills = orderSkills(
-    previewResume.skills,
-    previewResume.companies,
-    previewResume.projects,
-  );
+  // const orderedSkills = orderSkills(
+  //   previewResume.skills,
+  //   previewResume.companies,
+  // );
 
   return (
     <div className="flex w-full min-w-0 items-start gap-6 max-[1600px]:flex-col">
@@ -620,37 +803,36 @@ const ResumeDetailsPage = () => {
                   filteredActions={availableEducationButExcludingCurrent.map(
                     (education) => ({
                       label: education.institutionName,
-                      onClick: () => handleAppendEducation(education.id),
+                      onClick: () =>
+                        handleAppendEducation(education.libraryEducationId),
+                    }),
+                  )}
+                />
+              </DropdownButton>
+            )}
+            {availableProjectsButExcludingCurrent.length > 0 && (
+              <DropdownButton
+                label="Add Project"
+                iconComponent={() => <Folder2Open size={20} />}
+                styleType="filter"
+                labelSlideOut={true}
+              >
+                <SearchDropdown
+                  filteredActions={availableProjectsButExcludingCurrent.map(
+                    (project) => ({
+                      label: project.title,
+                      onClick: () =>
+                        handleAppendExperience(project.libraryExperienceId),
                     }),
                   )}
                 />
               </DropdownButton>
             )}
             <DropdownButton
-              label="Add Project"
-              iconComponent={() => <Folder2Open size={20} />}
-              styleType="filter"
-              labelSlideOut={true}
-              positionRelativeTo="container"
-            >
-              <SearchDropdown
-                filteredActions={availableProjectsButExcludingCurrent.map(
-                  (project) => ({
-                    label: project.name,
-                    onClick: () => {
-                      console.log(`Appending project with id: ${project.id}`);
-                      handleAppendProject(project.id);
-                    },
-                  }),
-                )}
-              />
-            </DropdownButton>
-            <DropdownButton
               label={`Title (${formValues.appearance?.titleFontSize ?? 16}pt)`}
               iconComponent={() => <TypeH1 size={20} />}
               styleType="filter"
               labelSlideOut={true}
-              positionRelativeTo="container"
             >
               <SearchDropdown
                 filteredActions={[16, 17, 18, 19, 20].map((size) => ({
@@ -664,7 +846,6 @@ const ResumeDetailsPage = () => {
               iconComponent={() => <TypeH2 size={20} />}
               styleType="filter"
               labelSlideOut={true}
-              positionRelativeTo="container"
             >
               <SearchDropdown
                 filteredActions={[14, 15, 16, 17, 18, 19, 20].map((size) => ({
@@ -678,7 +859,6 @@ const ResumeDetailsPage = () => {
               iconComponent={() => <Paragraph size={20} />}
               styleType="filter"
               labelSlideOut={true}
-              positionRelativeTo="container"
             >
               <SearchDropdown
                 filteredActions={[10, 11, 12].map((size) => ({
@@ -693,21 +873,16 @@ const ResumeDetailsPage = () => {
           <div className="resume-preview">
             <ResumeEditProvider>
               <Resume
-                resume={{ ...previewResume, skills: orderedSkills }}
-                onBulletChange={handleBulletChange}
+                resume={resolvedResume}
+                onBulletReplace={handleBulletReplace}
                 onBulletMoveUp={handleBulletMoveUp}
                 onBulletMoveDown={handleBulletMoveDown}
                 onBulletAdd={handleBulletAdd}
+                onBulletRemove={handleBulletRemove}
                 onRemoveEducation={handleRemoveEducation}
                 onUpdateEducation={handleUpdateEducation}
-                onRemoveProjects={handleRemoveProject}
-                onUpdateProjects={handleUpdateProject}
+                onRemoveExperience={handleRemoveExperience}
                 onTopHeaderAlignmentChange={handleTopHeaderAlignmentChange}
-                availableProjects={availableProjectsButExcludingCurrent}
-                availableEducation={availableEducationButExcludingCurrent}
-                availableCompanyBullets={
-                  availableCompanyBulletsButExcludingCurrent
-                }
               />
             </ResumeEditProvider>
           </div>
@@ -750,7 +925,7 @@ const ResumeDetailsPage = () => {
       {/*Resume Summary */}
       <div className="w-full flex flex-col items-center gap-6">
         <Card className="w-full">
-          <RatingBar rating={resumeDetails.resume.aiScore ?? 0} />
+          <RatingBar rating={resumeDetails?.resume.aiScore ?? 0} />
         </Card>
         {/* AI Summary Section */}
         <Card className="w-full">
@@ -761,9 +936,9 @@ const ResumeDetailsPage = () => {
         <Card className="w-full">
           <h3 className="primary-color text-xl">Alternative Bullets</h3>
           <ul>
-            {baseResume.companies.map((company) =>
+            {baseResume.experiences.map((company) =>
               company.bullets
-                .map((bullet) => bullet.alternativeValue)
+                .map((bullet) => bullet.aiAlternativeValue)
                 .filter((value) => value !== null)
                 .map((value, index) => (
                   <ListItem key={index} content={value} />

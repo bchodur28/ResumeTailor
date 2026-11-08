@@ -1,22 +1,32 @@
-import type { BulletResponse } from "../../api/contracts/bullets/BulletResponse";
+import type { ResolvedBullet } from "../../models/Experience/ResolvedBullets";
 import type { ResumeBulletViewModel } from "../../models/forms/ResumeViewModel";
 import EditableBullet from "./EditableBullet";
 import styles from "./Resume.module.css";
 
 type BulletListProps = {
-  bullets: ResumeBulletViewModel[];
-  availableBullets: BulletResponse[];
+  bullets: ResolvedBullet[];
+  availableBullets: ResolvedBullet[];
   topListPtSpacing: number;
   verticalItemPtSpacing: number;
   companyIndex: number;
-  onBulletChange: (
-    companyIndex: number,
-    bulletIndex: number,
-    bulletId: number,
-    value: string,
+  libraryExperienceId: number;
+  onBulletReplace: (
+    libraryExperienceId: number,
+    currentBulletId: number,
+    newLibraryBulletId: number,
   ) => void;
-  onBulletMoveUp: (companyIndex: number, bulletIndex: number) => void;
-  onBulletMoveDown: (companyIndex: number, bulletIndex: number) => void;
+  onBulletMoveUp: (
+    libraryExperienceId: number,
+    libraryBulletId: number,
+  ) => void;
+  onBulletMoveDown: (
+    libraryExperienceId: number,
+    libraryBulletId: number,
+  ) => void;
+  onBulletRemove: (
+    libraryExperienceId: number,
+    libraryBulletId: number,
+  ) => void;
 };
 
 const BulletList = ({
@@ -25,9 +35,11 @@ const BulletList = ({
   topListPtSpacing = 1,
   verticalItemPtSpacing = 1,
   companyIndex,
-  onBulletChange,
+  libraryExperienceId,
+  onBulletReplace,
   onBulletMoveUp,
   onBulletMoveDown,
+  onBulletRemove,
 }: BulletListProps) => {
   return (
     <ul
@@ -40,19 +52,30 @@ const BulletList = ({
       {bullets.map((item, index) => (
         <EditableBullet
           key={
-            item.id != null
-              ? `resume-${item.id}`
-              : item.sourceBulletId != null
-                ? `bullet-${item.sourceBulletId}`
-                : `selection-${item.id}`
+            item.resumeBulletId != null
+              ? `resume-${item.resumeBulletId}`
+              : `library-${item.libraryBulletId}`
           }
           item={item}
           additionalBullets={availableBullets}
           companyIndex={companyIndex}
           bulletIndex={index}
-          onBulletChange={onBulletChange}
-          onBulletMoveUp={() => onBulletMoveUp(companyIndex, index)}
-          onBulletMoveDown={() => onBulletMoveDown(companyIndex, index)}
+          onBulletReplace={(newLibraryBulletId) =>
+            onBulletReplace(
+              libraryExperienceId,
+              item.libraryBulletId,
+              newLibraryBulletId,
+            )
+          }
+          onBulletMoveUp={() =>
+            onBulletMoveUp(libraryExperienceId, item.libraryBulletId)
+          }
+          onBulletMoveDown={() =>
+            onBulletMoveDown(libraryExperienceId, item.libraryBulletId)
+          }
+          onBulletRemove={() =>
+            onBulletRemove(libraryExperienceId, item.libraryBulletId)
+          }
           isLastBullet={index === bullets.length - 1}
           isFirstBullet={index === 0}
         />

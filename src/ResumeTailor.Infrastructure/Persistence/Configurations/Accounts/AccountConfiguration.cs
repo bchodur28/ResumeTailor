@@ -28,14 +28,7 @@ namespace ResumeTailor.Infrastructure.Persistence.Configurations.Accounts
                 .HasMaxLength(20)
                 .IsRequired();
 
-            builder.Property(x => x.City)
-                .HasMaxLength(100)
-                .IsRequired();
-
-            builder.Property(x => x.State)
-                .HasMaxLength(100);
-
-            builder.Property(x => x.Country)
+            builder.Property(x => x.Location)
                 .HasMaxLength(100)
                 .IsRequired();
 

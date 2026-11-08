@@ -1,29 +1,16 @@
-import type { CompanyRequest } from "./contracts/companies/CompanyRequest.ts";
-import type { CompanyResponse } from "./contracts/companies/CompanyResponse.ts";
 import type { CompanyBulletsResponse } from "./contracts/companies/CompanyBulletsResponse.ts";
+import type { CompanyRequest } from "./contracts/companies/CompanyRequest.ts";
 import type { ProjectRequest } from "./contracts/projects/ProjectRequest.ts";
 import type { ProjectResponse } from "./contracts/projects/ProjectResponse.ts";
 import type { BulletRequest } from "./contracts/bullets/BulletRequest.ts";
 import type { BulletDeleteRequest } from "./contracts/bullets/BulletDeleteRequest.ts";
+import type { LibraryExperienceResponse } from "./contracts/library/LibraryExperienceResponse.ts";
+import type { CompanyResponse } from "./contracts/companies/CompanyResponse.ts";
+import type { LibraryExperienceListItemResponse } from "./contracts/library/LibraryExperienceListItemResponse.ts";
 
 const companyUrl = "/api/experience/me/companies";
 const projectUrl = "/api/experience/me/projects";
 const bulletUrl = "/api/experience/me/bullets";
-const experience = "/api/experience/summaries";
-
-export const getExperienceSummaries = async (token: string): Promise<any[]> => {
-  const response = await fetch(experience, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch experience summaries");
-  }
-  return await response.json();
-};
 
 // Companies API functions
 export const getCompanies = async (
@@ -236,4 +223,54 @@ export const deleteBullets = async (
   if (!response.ok) {
     throw new Error("Failed to delete bullets");
   }
+};
+
+// Experience API functions
+export const getExperiences = async (
+  token: string,
+): Promise<LibraryExperienceResponse[]> => {
+  const response = await fetch("/api/experiences", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch experiences");
+  }
+  return await response.json();
+};
+
+export const getLibraryExperienceListItems = async (
+  token: string,
+): Promise<LibraryExperienceListItemResponse[]> => {
+  const response = await fetch("/api/experiences/list-items", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch experience summaries");
+  }
+  return await response.json();
+};
+
+export const getLibraryExperience = async (
+  id: number,
+  token: string,
+): Promise<LibraryExperienceResponse> => {
+  const response = await fetch(`/api/experiences/${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch experience");
+  }
+  return await response.json();
 };

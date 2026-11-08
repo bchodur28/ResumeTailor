@@ -10,6 +10,7 @@ public interface IResumeRepository
 {
     // Generated Resume
     Task<PagedResult<Resume>> GetPagedResumesForSummaryByAccountIdAsync(ResumeSummaryQuery request, CancellationToken cancellationToken = default);
+    Task<ResumeDetailsResponse> GetResumeDetails(int id, CancellationToken cancellationToken = default);
     Task<Resume?> GetResumeAsync(int id, CancellationToken cancellationToken = default);
     Task<Resume?> GetResumeForUpdatingAsync(int id, CancellationToken cancellationToken = default);
     Task CreateResumeAsync(Resume resume, CancellationToken cancellationToken = default);

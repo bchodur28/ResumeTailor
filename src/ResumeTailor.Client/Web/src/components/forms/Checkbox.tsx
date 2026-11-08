@@ -17,6 +17,9 @@ const Checkbox = ({
 }: InputProps) => {
   return (
     <div className="flex items-center gap-2">
+      <label className="ml-1 text-gray-500 text-sm font-medium" htmlFor={id}>
+        {label}
+      </label>
       <input
         className="h-4 w-4 cursor-pointer translate-y-0.5"
         type="checkbox"
@@ -28,9 +31,6 @@ const Checkbox = ({
           onChange?.(e.target.checked);
         }}
       />
-      <label className="text-sm font-semibold text-gray-700" htmlFor={id}>
-        {label}
-      </label>
     </div>
   );
 };

@@ -43,7 +43,7 @@ public sealed class ResumeController(
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResult<ResumeSummaryResponse>>> GetResumeSummariesByAccountIdAsync([FromQuery] ResumeSummaryQuery request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<PagedResult<ResumeExperienceSummaryResponse>>> GetResumeSummariesByAccountIdAsync([FromQuery] ResumeSummaryQuery request, CancellationToken cancellationToken = default)
     {
         var response = await managementService.GetPagedResumeSummariesByAccountIdAsync(request, cancellationToken);
         return Ok(response);

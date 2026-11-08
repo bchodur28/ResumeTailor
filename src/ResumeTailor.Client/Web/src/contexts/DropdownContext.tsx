@@ -3,6 +3,7 @@ import { createContext, useContext } from "react";
 export type DropdownContextValue = {
   openId: string | null;
   toggle: (id: string) => void;
+  close: () => void;
 };
 
 export const DropdownContext = createContext<DropdownContextValue | null>(null);

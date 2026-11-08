@@ -7,9 +7,7 @@ public sealed record AccountResponse(
     string Auth0UserId,
     string Email,
     string DisplayName,
-    string City,
-    string State,
-    string Country,
+    string Location,
     IReadOnlyCollection<PersonalLinkResponse> PersonalLinks,
     IReadOnlyCollection<TitleResponse> Titles,
     IReadOnlyCollection<SkillResponse> Skills

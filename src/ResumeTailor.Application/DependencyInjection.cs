@@ -26,7 +26,6 @@ public static class DependencyInjection
         services.AddScoped<IFieldPatternService, FieldPatternService>();
         services.AddScoped<IResumeManagementService, ResumeManagementService>();
         services.AddScoped<IResumeGenerator, ResumeGeneratorService>();
-        services.AddScoped<IResumeDataProvider, ResumeDataProvider>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IEducationService, EducationService>();
         services.AddScoped<IExperenceService, ExperienceService>();

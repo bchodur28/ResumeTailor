@@ -3,9 +3,7 @@ namespace ResumeTailor.Application.Profile.Accounts.Models;
 public sealed record AccountRequest(
     string Email,
     string DisplayName,
-    string City,
-    string State,
-    string Country,
+    string Location,
     IReadOnlyCollection<PersonalLinkRequest> PersonalLinks,
     IReadOnlyCollection<TitleRequest> Titles
     );

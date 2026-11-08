@@ -7,6 +7,7 @@ import DropdownContainer from "../dropdowns/DropdownContainer";
 export type DropdownButtonProps = Omit<ButtonProps, "onClick"> & {
   children?: React.ReactNode;
   positionRelativeTo?: "button" | "container";
+  closeOnClick?: boolean;
 };
 
 const DropdownButton = ({
@@ -17,6 +18,7 @@ const DropdownButton = ({
   hideLabel,
   labelSlideOut,
   positionRelativeTo = "button",
+  closeOnClick = false,
 }: DropdownButtonProps) => {
   const id = useId();
   const context = useDropdownContext();
@@ -30,6 +32,14 @@ const DropdownButton = ({
       context.toggle(id);
     } else {
       setLocalOpen((prev) => !prev);
+    }
+  };
+
+  const closeDropdown = () => {
+    if (context) {
+      context.close();
+    } else {
+      setLocalOpen(false);
     }
   };
   return (
@@ -52,6 +62,8 @@ const DropdownButton = ({
       {isOpen && (
         <DropdownContainer
           matchParentWidth={positionRelativeTo === "container"}
+          closeOnClick={closeOnClick}
+          onClose={closeDropdown}
         >
           {children}
         </DropdownContainer>

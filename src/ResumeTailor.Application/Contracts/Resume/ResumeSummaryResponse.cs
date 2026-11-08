@@ -1,5 +1,6 @@
 using ResumeTailor.Application.Resumes.Common.Models;
 
+
 namespace ResumeTailor.Application.Contracts.Resume;
 
 public sealed record ResumeSummaryResponse(
@@ -7,4 +8,5 @@ public sealed record ResumeSummaryResponse(
     int AccountId,
     string Name,
     JobPostingResult JobPosting,
-    ApplicationTrackingResponse ApplicationTracking);
+    ApplicationTrackingResponse ApplicationTracking
+    );

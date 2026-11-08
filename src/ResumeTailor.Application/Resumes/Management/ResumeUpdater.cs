@@ -1,10 +1,8 @@
 using ResumeTailor.Application.Common.Exceptions;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.Contracts.Resume.Selection;
-using ResumeTailor.Application.GeneratedResumes.Management.Models;
 using ResumeTailor.Application.Resumes.Management.Interfaces;
 using ResumeTailor.Domain.GeneratedResumes;
-using ResumeTailor.Domain.GeneratedResumes.Content;
 using ResumeTailor.Domain.Resumes;
 
 namespace ResumeTailor.Application.Resumes.Management;
@@ -16,9 +14,8 @@ public sealed class ResumeUpdater : IResumeUpdater
         resume.Update(request.Name);
         UpdateAppearance(request, resume);
 
-        UpdateCompanySelections(resume, request.Companies);
         UpdateEducationSelections(resume, request.Education);
-        UpdateProjectSelections(resume, request.Projects);
+        UpdateExperience(resume, request.Experience);
     }
 
     private static void UpdateAppearance(UpdateResumeRequest request, Resume existingResume)
@@ -33,100 +30,132 @@ public sealed class ResumeUpdater : IResumeUpdater
     }
 
 
-    private static void UpdateCompanySelections(Resume resume, IReadOnlyCollection<CompanySelectionRequest> companySelectionRequests)
+    private static void UpdateExperience(Resume resume, IReadOnlyCollection<ResumeExperienceRequest> experienceRequests)
     {
-
-        var requestedCompanyIds = companySelectionRequests
-            .Select(r => r.CompanyId)
+        var requestedExperienceIds = experienceRequests
+            .Where(r => r.Id.HasValue)
+            .Select(r => r.Id!.Value)
             .ToHashSet();
 
-        var companySelectionsToDelete = resume.CompanySelections
-            .Where(s => !requestedCompanyIds.Contains(s.CompanyId))
+        var experiencesToDelete = resume.Experiences
+            .Where(s => !requestedExperienceIds.Contains(s.Id))
             .ToList();
 
-        foreach (var selection in companySelectionsToDelete)
+        foreach (var experience in experiencesToDelete)
         {
             resume.MarkAiScoreStale(AiScoreStaleness.High);
-            resume.RemoveCompanySelection(selection);
+            resume.RemoveExperience(experience);
         }
 
-        foreach (var companyRequest in companySelectionRequests)
+        foreach (var experienceRequest in experienceRequests)
         {
-            if (companyRequest.Id.HasValue)
+            if (experienceRequest.Id is int experienceId)
             {
-                var existingCompanySelection = resume.CompanySelections.FirstOrDefault(s => s.Id == companyRequest.Id.Value)
-                    ?? throw new NotFoundException($"Company selection with ID {companyRequest.Id.Value} was not found while updating.");
+                var existingExperience = resume.Experiences
+                    .FirstOrDefault(e => e.Id == experienceId)
+                    ?? throw new NotFoundException(
+                        $"Resume experience {experienceId} was not found.");
 
-                if (existingCompanySelection.CompanyId != companyRequest.CompanyId)
+                if (existingExperience.LibraryExperienceId != experienceRequest.LibraryExperienceId)
+                {
+                    throw new InvalidOperationException(
+                        "An existing experience cannot change its LibraryExperienceId.");
+                }
+
+                // Summary changes
+                if (existingExperience.ResumeSummary?.LibrarySummaryId != experienceRequest.LibrarySummaryId)
                 {
                     resume.MarkAiScoreStale(AiScoreStaleness.High);
-                } else if (existingCompanySelection.SortOrder != companyRequest.SortOrder)
+                }
+
+                existingExperience.UpdateSummary(experienceRequest.LibrarySummaryId);
+
+                // Experience ordering
+                if (existingExperience.SortOrder != experienceRequest.SortOrder)
                 {
                     resume.MarkAiScoreStale(AiScoreStaleness.Medium);
                 }
 
-                existingCompanySelection.Update(companyRequest.CompanyId, companyRequest.SortOrder);
+                existingExperience.Update(experienceRequest.SortOrder);
 
-                var requestedBulletIds = companyRequest.Bullets
+                // Existing bullet processing goes here.
+
+                var requestedBulletIds = experienceRequest.Bullets
                     .Where(b => b.Id.HasValue)
                     .Select(b => b.Id!.Value)
                     .ToHashSet();
 
-                var bulletsToDelete = existingCompanySelection.Bullets
+                var bulletsToDelete = existingExperience.Bullets
                     .Where(b => !requestedBulletIds.Contains(b.Id))
                     .ToList();
 
                 foreach (var bullet in bulletsToDelete)
                 {
                     resume.MarkAiScoreStale(AiScoreStaleness.High);
-                    existingCompanySelection.RemoveResumeBullet(bullet);
+                    existingExperience.RemoveBullet(bullet);
                 }
 
-                foreach (var bulletRequest in companyRequest.Bullets)
+                foreach (var bulletRequest in experienceRequest.Bullets)
                 {
-                    if (bulletRequest.Id.HasValue)
+                    if (bulletRequest.Id is int bulletId)
                     {
-                        var existingBullet = existingCompanySelection.Bullets.FirstOrDefault(b => b.Id == bulletRequest.Id.Value)
-                            ?? throw new NotFoundException($"Bullet with ID {bulletRequest.Id} was not found while updating.");
+                        var existingBullet = existingExperience.Bullets
+                            .FirstOrDefault(b => b.Id == bulletId)
+                            ?? throw new NotFoundException(
+                                $"Resume bullet {bulletId} was not found.");
 
-                        var staleness = GetBulletStaleness(existingBullet, bulletRequest);
-                        resume.MarkAiScoreStale(staleness);
+                        if (existingBullet.LibraryBulletId != bulletRequest.LibraryBulletId)
+                        {
+                            resume.MarkAiScoreStale(AiScoreStaleness.High);
+                        } else if (existingBullet.SortOrder != bulletRequest.SortOrder)
+                        {
+                            resume.MarkAiScoreStale(AiScoreStaleness.Medium);
+                        }
 
-                        existingBullet.Update(bulletRequest.BulletId, bulletRequest.Value, bulletRequest.AlternativeValue, bulletRequest.SortOrder);
+                        existingBullet.Update(
+                            bulletRequest.LibraryBulletId,
+                            bulletRequest.SortOrder
+                        );
                     } else
                     {
                         resume.MarkAiScoreStale(AiScoreStaleness.High);
 
-                        existingCompanySelection.AddResumeBullet(
-                            bulletRequest.BulletId,
-                            bulletRequest.Value,
-                            bulletRequest.AlternativeValue,
-                            bulletRequest.SortOrder);
+                        existingExperience.AddBullet(
+                            libraryBulletId: bulletRequest.LibraryBulletId,
+                            alternative: null,
+                            reasoning: null,
+                            sortOrder: bulletRequest.SortOrder
+                        );
                     }
-
                 }
+
             } else
             {
                 resume.MarkAiScoreStale(AiScoreStaleness.High);
 
-                var newCompanySelection = resume.AddCompanySelection(companyRequest.CompanyId, companyRequest.SortOrder);
+                var newExperience = resume.AddExperience(
+                    experienceRequest.LibraryExperienceId,
+                    experienceRequest.LibrarySummaryId,
+                    experienceRequest.SortOrder
+                );
 
-                foreach (var bulletRequest in companyRequest.Bullets)
+                foreach (var bulletRequest in experienceRequest.Bullets)
                 {
-                    newCompanySelection.AddResumeBullet(
-                        bulletRequest.BulletId,
-                        bulletRequest.Value,
-                        bulletRequest.AlternativeValue,
-                        bulletRequest.SortOrder);
+                    newExperience.AddBullet(
+                        libraryBulletId: bulletRequest.LibraryBulletId,
+                        alternative: null,
+                        reasoning: null,
+                        sortOrder: bulletRequest.SortOrder
+                    );
                 }
             }
         }
     }
 
-    private static void UpdateEducationSelections(Resume resume, IReadOnlyCollection<EducationSelectionRequest> educationSelectionRequests)
+    private static void UpdateEducationSelections(Resume resume, IReadOnlyCollection<ResumeEducationRequest> educationSelectionRequests)
     {
         var requestedEducationIds = educationSelectionRequests
-            .Select(r => r.EducationId)
+            .Select(r => r.LibraryEducationId)
             .ToHashSet();
 
         var educationSelectionsToDelete = resume.EducationSelections
@@ -143,70 +172,13 @@ public sealed class ResumeUpdater : IResumeUpdater
             if (educationRequest.Id.HasValue)
             {
                 var existingEducationSelection = resume.EducationSelections.FirstOrDefault(s => s.Id == educationRequest.Id)
-                    ?? throw new NotFoundException($"Education selection with ID {educationRequest.EducationId} was not found while updating.");
+                    ?? throw new NotFoundException($"Education selection with ID {educationRequest.LibraryEducationId} was not found while updating.");
 
-                existingEducationSelection.Update(educationRequest.EducationId, educationRequest.SortOrder);
+                existingEducationSelection.Update(educationRequest.LibraryEducationId, educationRequest.SortOrder);
             } else
             {
-                resume.AddEducationSelection(educationRequest.EducationId, educationRequest.SortOrder);
+                resume.AddEducationSelection(educationRequest.LibraryEducationId, educationRequest.SortOrder);
             }
         }
-    }
-
-    private static void UpdateProjectSelections(Resume resume, IReadOnlyCollection<ProjectSelectionRequest> projectSelectionRequests)
-    {
-        var requestedProjectIds = projectSelectionRequests
-            .Select(r => r.ProjectId)
-            .ToHashSet();
-
-        var projectSelectionsToDelete = resume.ProjectSelections
-            .Where(s => !requestedProjectIds.Contains(s.ProjectId))
-            .ToList();
-
-        foreach (var selection in projectSelectionsToDelete)
-        {
-            resume.RemoveProjectSelection(selection);
-        }
-
-        foreach (var projectRequest in projectSelectionRequests)
-        {
-            if (projectRequest.Id.HasValue)
-            {
-                var existingProjectSelection = resume.ProjectSelections.FirstOrDefault(s => s.Id == projectRequest.Id)
-                    ?? throw new NotFoundException($"Project selection with ID {projectRequest.ProjectId} was not found while updating.");
-
-                existingProjectSelection.Update(projectRequest.ProjectId, projectRequest.SortOrder);
-            } else
-            {
-                resume.AddProjectSelection(projectRequest.ProjectId, projectRequest.SortOrder);
-            }
-        }
-    }
-
-    private static AiScoreStaleness GetBulletStaleness(ResumeCompanyBullet existing, BulletSelectionRequest request)
-    {
-        var wasAlternativeSwap =
-            existing.Value == request.AlternativeValue &&
-            existing.AlternativeValue == request.Value;
-
-        if (!wasAlternativeSwap &&
-            (existing.Value != request.Value ||
-             existing.AlternativeValue != request.AlternativeValue ||
-             existing.SourceBulletId != request.BulletId))
-        {
-            return AiScoreStaleness.High;
-        }
-
-        if (existing.SortOrder != request.SortOrder)
-        {
-            return AiScoreStaleness.Medium;
-        }
-
-        if (wasAlternativeSwap)
-        {
-            return AiScoreStaleness.Low;
-        }
-
-        return AiScoreStaleness.None;
     }
 }

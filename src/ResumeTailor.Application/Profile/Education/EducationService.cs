@@ -89,6 +89,7 @@ public class EducationService(IAccountRepository accountRepository, IEducationRe
     (
         Id: education.Id,
         SelectionId: null,
+        Type: education.Type,
         InstitutionName: education.InstitutionName,
         Qualification: education.Qualification,
         FieldOfStudy: education.FieldOfStudy,
@@ -101,14 +102,15 @@ public class EducationService(IAccountRepository accountRepository, IEducationRe
 
     private static EducationEntity MapToDomain(EducationRequest request, int accountId) => new EducationEntity
     (
-        accountId,
-        request.InstitutionName,
-        request.Qualification,
-        request.FieldOfStudy,
-        request.Gpa,
-        request.Location,
-        request.Started,
-        request.Ended,
-        request.UseForResume
+        accountId: accountId,
+        type: request.Type,
+        institutionName: request.InstitutionName,
+        qualification: request.Qualification,
+        fieldOfStudy: request.FieldOfStudy,
+        gpa: request.Gpa,
+        location: request.Location,
+        started: request.Started,
+        ended: request.Ended,
+        useForResume: request.UseForResume
     );
 }

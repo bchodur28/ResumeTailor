@@ -50,8 +50,8 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                         if (resume.Education.Count > 0)
                             ComposeEducation(column, resume);
 
-                        if (resume.Projects.Count > 0)
-                            ComposeProjects(column, resume);
+                        //if (resume.Experiences.Count > 0)
+                        //    ComposeProjects(column, resume);
                     });
             });
         })
@@ -86,22 +86,9 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                     .Text(resume.Profession)
                     .FontSize(14)
                     .FontColor(Color.FromHex(appearance.FontColor));
-
-                var city = resume.Location
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .FirstOrDefault()?
-                    .Trim();
-
-                var state = resume.Location
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Skip(1)
-                    .FirstOrDefault()?
-                    .Trim();
-
-                var stateCode = StateCodeMapping.GetStateCode(state ?? "");
-
+                    
                 Align(header.Item(), appearance.TopHeaderAlignment)
-                    .Text($"{city}, {stateCode}")
+                    .Text(resume.Location)
                     .FontSize(11);
 
                 Align(header.Item(), appearance.TopHeaderAlignment)
@@ -160,7 +147,7 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
         SectionHeader(column, "EXPERIENCE", resume.Appearance);
 
         var index = 0;
-        foreach (var company in resume.Companies)
+        foreach (var company in resume.Experiences)
         {
             column.Item()
                 .PaddingTop(index == 0 ? SectionContentSpacing : CompanySpacing)
@@ -171,7 +158,7 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                         ? $"{company.Started:MMM-yyyy} - {company.Ended:MMM-yyyy}"
                         : $"{company.Started:MMM-yyyy} - Present";
 
-                    TwoColumn(companyColumn, company.Name, date, bold: true, isHeading: true);
+                    TwoColumn(companyColumn, company.Organization, date, bold: true, isHeading: true);
                     TwoColumn(companyColumn, company.Title, company.Location ?? "Remote");
 
                     if (company.Bullets.Count > 0)
@@ -229,68 +216,68 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
         }
     }
 
-    private static void ComposeProjects(ColumnDescriptor column, ResumeResponse resume)
-    {
-        SectionHeader(column, "PROJECTS", resume.Appearance);
+    //private static void ComposeProjects(ColumnDescriptor column, ResumeResponse resume)
+    //{
+    //    SectionHeader(column, "PROJECTS", resume.Appearance);
 
-        var index = 0;
-        foreach (var project in resume.Projects)
-        {
-            column
-                .Item()
-                .PaddingTop(index == 0 ? SectionContentSpacing : CompanySpacing)
-                .Column(projectColumn =>
-                {
-                    var date = project.Ended is DateOnly ended
-                        ? ended.ToString("MMM-yyyy")
-                        : $"{project.Started:MMM-yyyy} - Present";
+    //    var index = 0;
+    //    foreach (var project in resume.Experiences)
+    //    {
+    //        column
+    //            .Item()
+    //            .PaddingTop(index == 0 ? SectionContentSpacing : CompanySpacing)
+    //            .Column(projectColumn =>
+    //            {
+    //                var date = project.Ended is DateOnly ended
+    //                    ? ended.ToString("MMM-yyyy")
+    //                    : $"{project.Started:MMM-yyyy} - Present";
 
-                    TwoColumn(projectColumn, project.Name, date, bold: true, isHeading: true);
+    //                TwoColumn(projectColumn, project.Organization, date, bold: true, isHeading: true);
 
-                    if (!string.IsNullOrWhiteSpace(project.Description))
-                    {
-                        projectColumn
-                            .Item()
-                            .PaddingTop(SectionContentSpacing)
-                            .PaddingLeft(ProjectIndent)
-                            .Text(project.Description);
-                    }
+    //                if (!string.IsNullOrWhiteSpace(project.PrimarySummary?.Value))
+    //                {
+    //                    projectColumn
+    //                        .Item()
+    //                        .PaddingTop(SectionContentSpacing)
+    //                        .PaddingLeft(ProjectIndent)
+    //                        .Text(project.PrimarySummary.Value);
+    //                }
 
-                    if (!string.IsNullOrWhiteSpace(project.TechStack))
-                    {
-                        projectColumn
-                            .Item()
-                            .PaddingTop(SectionContentSpacing)
-                            .PaddingLeft(ProjectIndent)
-                            .Text(text =>
-                            {
-                                text.Span("Tech Stack: ").Bold();
-                                text.Span(project.TechStack);
-                            });
-                    }
+    //                if (!string.IsNullOrWhiteSpace(project))
+    //                {
+    //                    projectColumn
+    //                        .Item()
+    //                        .PaddingTop(SectionContentSpacing)
+    //                        .PaddingLeft(ProjectIndent)
+    //                        .Text(text =>
+    //                        {
+    //                            text.Span("Tech Stack: ").Bold();
+    //                            text.Span(project.TechStack);
+    //                        });
+    //                }
 
-                    if (!string.IsNullOrWhiteSpace(project.Link))
-                    {
-                        projectColumn
-                            .Item()
-                            .PaddingTop(SectionContentSpacing)
-                            .PaddingLeft(ProjectIndent)
-                            .Row(row =>
-                            {
-                                row.AutoItem()
-                                    .Text("Link: ")
-                                    .Bold();
+    //                if (!string.IsNullOrWhiteSpace(project.Link))
+    //                {
+    //                    projectColumn
+    //                        .Item()
+    //                        .PaddingTop(SectionContentSpacing)
+    //                        .PaddingLeft(ProjectIndent)
+    //                        .Row(row =>
+    //                        {
+    //                            row.AutoItem()
+    //                                .Text("Link: ")
+    //                                .Bold();
 
-                                row.RelativeItem()
-                                    .Hyperlink(project.Link)
-                                    .Text(project.Link);
-                            });
-                    }
-                });
+    //                            row.RelativeItem()
+    //                                .Hyperlink(project.Link)
+    //                                .Text(project.Link);
+    //                        });
+    //                }
+    //            });
 
-            index++;
-        }
-    }
+    //        index++;
+    //    }
+    //}
 
     private static void SectionHeader(ColumnDescriptor column, string title, ResumeAppearanceResponse appearance)
     {

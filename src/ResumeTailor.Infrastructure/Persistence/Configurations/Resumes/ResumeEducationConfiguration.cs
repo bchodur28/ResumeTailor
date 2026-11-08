@@ -22,5 +22,10 @@ internal sealed class ResumeEducationConfiguration : IEntityTypeConfiguration<Re
         builder.Property(education => education.SortOrder)
             .IsRequired();
 
+        builder.HasOne(education => education.LibraryEducation)
+            .WithMany()
+            .HasForeignKey(education => education.LibraryEducationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

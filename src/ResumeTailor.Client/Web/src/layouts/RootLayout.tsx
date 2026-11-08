@@ -15,7 +15,6 @@ import EditAccountForm from "../components/profile/EditAccountForm";
 import EditEducationForm from "../components/profile/EditEducationForm";
 import EditCompaniesForm from "../components/profile/EditCompaniesForm";
 import EditProjectsForm from "../components/profile/EditProjectsForm";
-import DropdownButton from "../components/ui/buttons/DropdownButton";
 
 const RootLayout = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);

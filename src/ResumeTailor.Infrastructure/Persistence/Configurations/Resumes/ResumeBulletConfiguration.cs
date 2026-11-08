@@ -28,6 +28,12 @@ namespace ResumeTailor.Infrastructure.Persistence.Configurations.Resumes
 
             builder.Property(b => b.SortOrder)
                 .IsRequired();
+
+
+            builder.HasOne(b => b.LibraryBullet)
+                .WithMany()
+                .HasForeignKey(b => b.LibraryBulletId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

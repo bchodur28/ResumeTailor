@@ -4,9 +4,7 @@ import type { TitleRequest } from "./TitleRequest";
 export type AccountRequest = {
   email: string;
   displayName: string;
-  city: string;
-  state: string;
-  country: string;
+  location: string;
   personalLinks: PersonalLinkRequest[];
   titles: TitleRequest[];
 };

@@ -1,36 +1,38 @@
 using ResumeTailor.Domain.Common;
+using ResumeTailor.Domain.Profile;
 
 
 namespace ResumeTailor.Domain.Resumes.Content;
 
 public class ResumeSummary : Entity
 {
-    public int ExperienceId { get; private set; }
+    public int ResumeExperienceId { get; private set; }
 
     public int LibrarySummaryId { get; private set; }
+    public LibrarySummary LibrarySummary { get; private set; } = null!;
+
     public bool WasManuallyChanged { get; private set; } = false;
 
     public int SortOrder { get; private set; }
-    public string Reasoning { get; private set; }
+    public string? Reasoning { get; private set; }
 
-    public ResumeSummary(int experienceId, int librarySummaryId, int sortOrder, string reasoning)
+    public ResumeSummary() { }
+
+    public ResumeSummary(int librarySummaryId, int sortOrder, string? reasoning)
     {
-        ExperienceId = experienceId;
         LibrarySummaryId = librarySummaryId;
         SortOrder = sortOrder;
         Reasoning = reasoning;
     }
 
-    public void Update(int librarySummaryId, int sortOrder)
+    public void Update(int librarySummaryId)
     {
-        if (LibrarySummaryId != librarySummaryId)
-        {
-            WasManuallyChanged = true;
-            Reasoning = "User changed the selected summary. Original AI reasoning is no longer applicable.";
-        }
+        if (LibrarySummaryId == librarySummaryId)
+            return;
 
         LibrarySummaryId = librarySummaryId;
-        SortOrder = sortOrder;
+        WasManuallyChanged = true;
+        Reasoning = null;
 
         MarkUpdated();
     }

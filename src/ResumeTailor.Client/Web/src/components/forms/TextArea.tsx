@@ -9,6 +9,8 @@ type TextAreaProps = {
   onFocus?: () => void;
   onBlur?: () => void;
   rows?: number;
+  borderColorClass?: string;
+  optionalText?: string;
 };
 
 const TextArea = ({
@@ -20,17 +22,22 @@ const TextArea = ({
   onFocus,
   onBlur,
   rows,
+  borderColorClass,
+  optionalText,
 }: TextAreaProps) => {
   return (
     <div className="flex flex-col flex-1">
       <div className={`flex ${error ? "justify-between" : "justify-start"}`}>
-        <label className="text-md" htmlFor={id}>
+        <label className="text-sm font-medium text-gray-500" htmlFor={id}>
           {label}
+          {optionalText && (
+            <span className="ml-1 text-gray-500 text-sm font-regular">{`(${optionalText})`}</span>
+          )}
         </label>
         {error && <span className="text-red-500">{error}</span>}
       </div>
       <textarea
-        className="border p-2 rounded border-gray-300 bg-white"
+        className={`border p-2 rounded bg-white ${borderColorClass ?? "border-gray-300"}`}
         placeholder={placeholder}
         id={id}
         {...registration}

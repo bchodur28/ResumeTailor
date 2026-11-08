@@ -57,7 +57,7 @@ public static class LibraryExperienceMapper
                     IsDeleted: primarySummary.IsDeleted)
                 : null,
             LetAiChooseSummary: entity.LetAiChooseSummary,
-            Summeries: entity.Summaries.Select(sum => new LibrarySummaryResponse(
+            Summaries: entity.Summaries.Select(sum => new LibrarySummaryResponse(
                     Id: sum.Id,
                     IsPrimary: sum.IsPrimary,
                     Value: sum.Value,

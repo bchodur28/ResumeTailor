@@ -1,15 +1,15 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useQuery } from "@tanstack/react-query";
-import { getExperienceSummaries } from "../api/experienceApi";
+import { getExperiences } from "../api/experienceApi";
 
-export const useExperienceSummaries = () => {
+export const useLibraryExperiences = () => {
   const { getAccessTokenSilently } = useAuth0();
 
   return useQuery({
-    queryKey: ["experience-summaries"],
+    queryKey: ["library-experiences"],
     queryFn: async () => {
       const token = await getAccessTokenSilently();
-      return getExperienceSummaries(token);
+      return getExperiences(token);
     },
   });
 };

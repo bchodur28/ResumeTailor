@@ -6,10 +6,6 @@ import {
   JustifyRight,
   Plus,
 } from "react-bootstrap-icons";
-import type { ResumeViewModel } from "../../models/forms/ResumeViewModel";
-import type { ProjectResponse } from "../../api/contracts/projects/ProjectResponse";
-import type { EducationResponse } from "../../api/contracts/education/EducationResponse";
-import type { CompanyBulletsResponse } from "../../api/contracts/companies/CompanyBulletsResponse";
 import BulletList from "./BulletList";
 import EditableInnerSection from "./EditableInnerSection";
 import InnerSection from "./InnerSection";
@@ -17,52 +13,96 @@ import styles from "./Resume.module.css";
 import Section from "./Section";
 import TwoColumn from "./TwoColumn";
 import { getStateCode } from "../../data/states";
+import type { ResolvedResume } from "../../models/resumes/ResolvedResume";
 
 type ResumeProps = {
-  resume: ResumeViewModel;
-  onBulletChange: (
-    companyIndex: number,
-    bulletIndex: number,
-    bulletId: number,
-    value: string,
+  resume: ResolvedResume;
+  onBulletReplace: (
+    libraryExperienceId: number,
+    currentBulletId: number,
+    newLibraryBulletId: number,
   ) => void;
-  onBulletMoveUp: (companyIndex: number, bulletIndex: number) => void;
-  onBulletMoveDown: (companyIndex: number, bulletIndex: number) => void;
-  onBulletAdd: (companyIndex: number, bulletId: number, value: string) => void;
+  onBulletMoveUp: (
+    libraryExperienceId: number,
+    libraryBulletId: number,
+  ) => void;
+  onBulletMoveDown: (
+    libraryExperienceId: number,
+    libraryBulletId: number,
+  ) => void;
+  onBulletAdd: (libraryExperienceId: number, libraryBulletId: number) => void;
+  onBulletRemove: (
+    libraryExperienceId: number,
+    libraryBulletId: number,
+  ) => void;
 
   onRemoveEducation: (index: number) => void;
   onUpdateEducation: (index: number, educationId: number) => void;
 
-  onRemoveProjects: (index: number) => void;
-  onUpdateProjects: (index: number, projectId: number) => void;
+  onRemoveExperience: (libraryExperienceId: number) => void;
 
   onTopHeaderAlignmentChange: (alignment: "left" | "center" | "right") => void;
-
-  availableProjects: ProjectResponse[];
-  availableEducation: EducationResponse[];
-  availableCompanyBullets: CompanyBulletsResponse[];
 };
 
 const Resume = ({
   resume,
-  onBulletChange,
+  onBulletReplace,
   onBulletMoveUp,
   onBulletMoveDown,
   onBulletAdd,
+  onBulletRemove,
   onRemoveEducation,
   onUpdateEducation,
-  onRemoveProjects,
-  onUpdateProjects,
+  onRemoveExperience,
   onTopHeaderAlignmentChange,
-  availableProjects,
-  availableEducation,
-  availableCompanyBullets,
 }: ResumeProps) => {
   const headerAlignment = {
     left: "flex-start",
     center: "center",
     right: "flex-end",
   }[resume.appearance.topHeaderAlignment];
+
+  const selectedExperiences = resume.experiences
+    .filter((exp) => exp.useInResume && exp.type === "employment")
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  console.table(
+    resume.experiences.map((exp) => ({
+      id: exp.libraryExperienceId,
+      title: exp.title,
+      type: exp.type,
+      useInResume: exp.useInResume,
+      sortOrder: exp.sortOrder,
+      bullets: exp.bullets.length,
+    })),
+  );
+
+  const selectedEducation = resume.education
+    .filter((edu) => edu.useInResume)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const availableEducation = resume.education
+    .filter((edu) => !edu.useInResume)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const selectedProjects = resume.experiences
+    .filter(
+      (project) => project.useInResume && project.type === "personalProject",
+    )
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const availableProjects = resume.experiences.filter(
+    (exp) => !exp.useInResume && exp.type === "personalProject",
+  );
+
+  const [city, state] = (resume.location ?? "").split(",");
+
+  const formattedLocation = [
+    city?.trim(),
+    state ? getStateCode(state.trim()) : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <>
@@ -103,11 +143,7 @@ const Resume = ({
           <div className={styles.topHeader}>
             <h1>{resume.personName}</h1>
             <p className={styles.personProfession}>{resume.profession}</p>
-            <p style={{ fontSize: "11pt" }}>
-              {resume.location.split(",")[0].trim() +
-                ", " +
-                getStateCode(resume.location.split(",")[1].trim())}
-            </p>
+            <p style={{ fontSize: "11pt" }}>{formattedLocation}</p>
             <ul className={`${styles.contactList}`}>
               <li>{resume.email}</li>
               <li>{resume.phoneNumber}</li>
@@ -125,60 +161,66 @@ const Resume = ({
           </InnerSection>
         </Section>
         <Section title="COMPANIES" topPtSpacing={8}>
-          {resume.companies.map((company, companyIndex) => {
+          {selectedExperiences.map((experience, companyIndex) => {
+            const selectedBullets = experience.bullets
+              .filter((bullet) => bullet.useInResume)
+              .sort((a, b) => a.sortOrder - b.sortOrder);
+
+            const availableBullets = experience.bullets.filter(
+              (bullet) => !bullet.useInResume,
+            );
             return (
               <EditableInnerSection
-                editorId={`company:${company.companyId}`}
+                editorId={`company:${experience.libraryExperienceId}`}
                 key={companyIndex}
                 topPtSpacing={companyIndex === 0 ? 4 : 8}
                 actions={[
                   {
                     label: "Add Bullet",
                     icon: () => <Plus size={20} />,
-                    additionalActions: availableCompanyBullets
-                      .filter((cb) => cb.companyId === company.companyId)
-                      .flatMap((cb) =>
-                        cb.bullets.map((bullet) => ({
-                          label: bullet.value,
-                          onClick: () =>
-                            onBulletAdd(companyIndex, bullet.id, bullet.value),
-                        })),
-                      ),
+                    additionalActions: availableBullets.map((bullet) => ({
+                      label: bullet.value,
+                      onClick: () =>
+                        onBulletAdd(
+                          experience.libraryExperienceId,
+                          bullet.libraryBulletId,
+                        ),
+                    })),
                   },
                 ]}
               >
                 <TwoColumn
-                  left={company.name}
-                  right={company.started + " - " + (company.ended ?? "Present")}
+                  left={experience.organization ?? ""}
+                  right={
+                    experience.started + " - " + (experience.ended ?? "Present")
+                  }
                   isBold={true}
                 />
                 <TwoColumn
-                  left={company.title}
-                  right={company.location ?? "Remote"}
+                  left={experience.title}
+                  right={experience.location ?? "Remote"}
                 />
                 <BulletList
-                  bullets={company.bullets}
+                  bullets={selectedBullets}
                   topListPtSpacing={8}
                   verticalItemPtSpacing={4}
                   companyIndex={companyIndex}
-                  onBulletChange={onBulletChange}
+                  libraryExperienceId={experience.libraryExperienceId}
+                  onBulletReplace={onBulletReplace}
                   onBulletMoveUp={onBulletMoveUp}
                   onBulletMoveDown={onBulletMoveDown}
-                  availableBullets={
-                    availableCompanyBullets.find(
-                      (cb) => cb.companyId === company.companyId,
-                    )?.bullets ?? []
-                  }
+                  onBulletRemove={onBulletRemove}
+                  availableBullets={availableBullets}
                 />
               </EditableInnerSection>
             );
           })}
         </Section>
-        {resume.education.length > 0 && (
+        {selectedEducation.length > 0 && (
           <Section title="EDUCATION" topPtSpacing={8}>
-            {resume.education.map((education, index) => (
+            {selectedEducation.map((education, index) => (
               <EditableInnerSection
-                editorId={`education:${education.id}`}
+                editorId={`education:${education.resumeEducationId}`}
                 key={index}
                 topPtSpacing={index === 0 ? 4 : 8}
                 actions={[
@@ -197,7 +239,10 @@ const Resume = ({
                             (education) => ({
                               label: education.institutionName,
                               onClick: () =>
-                                onUpdateEducation(index, education.id),
+                                onUpdateEducation(
+                                  index,
+                                  education.libraryEducationId,
+                                ),
                             }),
                           ),
                         },
@@ -220,67 +265,59 @@ const Resume = ({
             ))}
           </Section>
         )}
-        {resume.projects.length > 0 && (
+        {selectedProjects.length > 0 && (
           <Section title="PROJECTS" topPtSpacing={8}>
-            {resume.projects.map((project, index) => {
-              return (
-                <EditableInnerSection
-                  editorId={`project:${project.id}`}
-                  key={index}
-                  topPtSpacing={index === 0 ? 4 : 8}
-                  actions={[
-                    {
-                      onClick: () => onRemoveProjects(index),
-                      label: "Remove",
-                      icon: () => <Trash3 size={20} className="danger-color" />,
-                    },
-                    ...(availableProjects.length === 0
-                      ? []
-                      : [
-                          {
-                            label: "Replace",
-                            icon: () => <ArrowLeftRight size={20} />,
-                            additionalActions: availableProjects.map(
-                              (project) => ({
-                                label: project.name,
-                                onClick: () =>
-                                  onUpdateProjects(index, project.id),
-                              }),
-                            ),
-                          },
-                        ]),
-                  ]}
-                >
-                  <InnerSection key={index} topPtSpacing={0}>
-                    <TwoColumn
-                      left={project.name}
-                      right={
-                        project.started + " - " + (project.ended ?? "Present")
-                      }
-                      isBold={true}
-                    />
-                    <InnerSection topPtSpacing={4}>
-                      <p className="pl-4">{project.description}</p>
-                    </InnerSection>
-                    {project.techStack && project.techStack.length > 0 && (
-                      <InnerSection topPtSpacing={4}>
-                        <p className="pl-4">
-                          <b>Tech Stack:</b> {project.techStack}
-                        </p>
-                      </InnerSection>
-                    )}
+            {selectedProjects.map((project, index) => (
+              <EditableInnerSection
+                key={project.libraryExperienceId}
+                editorId={`project:${project.libraryExperienceId}`}
+                topPtSpacing={index === 0 ? 4 : 8}
+                actions={[
+                  {
+                    label: "Remove",
+                    icon: () => <Trash3 size={20} className="danger-color" />,
+                    onClick: () =>
+                      onRemoveExperience(project.libraryExperienceId),
+                    releaseLockOnClick: true,
+                  },
+                ]}
+              >
+                <InnerSection topPtSpacing={0}>
+                  <TwoColumn
+                    left={project.title}
+                    right={`${project.started} - ${project.ended ?? "Present"}`}
+                    isBold={true}
+                  />
 
-                    {project.link && project.link.length > 0 && (
-                      <InnerSection topPtSpacing={4}>
-                        <p className="pl-4">
-                          <b>Link:</b> <a href={project.link}>{project.link}</a>
-                        </p>
+                  {project.summaries
+                    .filter((summary) => summary.useInResume)
+                    .map((summary) => (
+                      <InnerSection
+                        key={summary.librarySummaryId}
+                        topPtSpacing={4}
+                      >
+                        <p className="pl-4">{summary.value}</p>
                       </InnerSection>
-                    )}
-                  </InnerSection>
-                </EditableInnerSection>
-              );
-            })}
+                    ))}
+
+                  {project.techStack && (
+                    <InnerSection topPtSpacing={4}>
+                      <p className="pl-4">
+                        <b>Tech Stack:</b> {project.techStack}
+                      </p>
+                    </InnerSection>
+                  )}
+
+                  {project.link && (
+                    <InnerSection topPtSpacing={4}>
+                      <p className="pl-4">
+                        <b>Link:</b> <a href={project.link}>{project.link}</a>
+                      </p>
+                    </InnerSection>
+                  )}
+                </InnerSection>
+              </EditableInnerSection>
+            ))}
           </Section>
         )}
       </div>

@@ -1,8 +1,9 @@
 export type ResumeBulletResponse = {
   id: number;
-  sourceBulletId: number;
+  libraryBulletId: number;
   value: string;
-  alternativeValue: string | null;
-  sortOrder: number | null;
+  aiAlternativeValue: string | null;
+  aiReasoning: string | null;
+  sortOrder: number;
   isSourceDeleted: boolean;
 };

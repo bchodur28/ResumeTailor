@@ -1,7 +1,5 @@
 using ResumeTailor.Application.Common.Models;
-using ResumeTailor.Application.Contracts.Bullets;
 using ResumeTailor.Application.Contracts.Resume;
-using ResumeTailor.Application.GeneratedResumes.Management.Models;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
 
 namespace ResumeTailor.Application.GeneratedResumes.Management.Interfaces;

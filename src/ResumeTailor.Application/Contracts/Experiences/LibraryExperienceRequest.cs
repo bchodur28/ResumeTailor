@@ -14,6 +14,6 @@ public sealed record LibraryExperienceRequest(
     string? TechStack,
     bool LetAiChooseBullets,
     int? MaxBulletsToChoose,
-    IReadOnlyCollection<LibrarySummaryRequest> Summeries,
+    IReadOnlyCollection<LibrarySummaryRequest> Summaries,
     IReadOnlyCollection<LibraryBulletRequest> Bullets
     );

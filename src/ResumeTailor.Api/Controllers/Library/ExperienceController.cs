@@ -12,13 +12,22 @@ namespace ResumeTailor.Api.Controllers.Library;
 [Route("api/experiences")]
 public class ExperienceController(ILibraryExperienceService experienceService) : ControllerBase
 {
-    [HttpGet("summaries")]
-    public async Task<ActionResult<IReadOnlyCollection<LibraryExperienceSummaryResponse>>> GetSummariesAsync(CancellationToken cancellationToken = default)
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyCollection<LibraryExperienceResponse>>> GetExperiencesAsync(CancellationToken cancellationToken = default)
     {
         var auth0UserId = GetAuth0UserId();
 
-        var summaries = await experienceService.GetExperienceSummariesAsync(auth0UserId, cancellationToken);
-        return Ok(summaries);
+        var experiences = await experienceService.GetExperiencesAsync(auth0UserId, cancellationToken);
+        return Ok(experiences);
+    }
+
+    [HttpGet("list-items")]
+    public async Task<ActionResult<IReadOnlyCollection<LibraryExperienceListItemResponse>>> GetExperienceListItemsAsync(CancellationToken cancellationToken = default)
+    {
+        var auth0UserId = GetAuth0UserId();
+
+        var listItems = await experienceService.GetLibraryExperiencesListItemsAsync(auth0UserId, cancellationToken);
+        return Ok(listItems);
     }
 
     [HttpGet("{id:int}")]

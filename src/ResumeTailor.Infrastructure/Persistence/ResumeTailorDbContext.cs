@@ -7,6 +7,7 @@ using ResumeTailor.Domain.Resumes.JobApplications;
 using ResumeTailor.Domain.Resumes.JobPositing;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
 using ResumeTailor.Domain.Resumes.ResumeAppearance;
+using ResumeTailor.Domain.Resumes.Content;
 
 namespace ResumeTailor.Infrastructure.Persistence;
 
@@ -24,6 +25,7 @@ public sealed class ResumeTailorDbContext(DbContextOptions<ResumeTailorDbContext
     public DbSet<ResumeJobPosting> ResumeJobPostings => Set<ResumeJobPosting>();
     public DbSet<ResumeApplicationTracking> ResumeApplicationTrackings => Set<ResumeApplicationTracking>();
     public DbSet<ResumeAppearance> ResumeAppearances => Set<ResumeAppearance>();
+    public DbSet<ResumeExperience> ResumeExperiences => Set<ResumeExperience>();
 
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Company> Companies => Set<Company>();

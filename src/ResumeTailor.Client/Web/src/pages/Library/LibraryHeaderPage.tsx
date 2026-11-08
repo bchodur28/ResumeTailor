@@ -1,50 +1,21 @@
-import Input from "../../components/forms/Input";
-import {
-  Controller,
-  get,
-  useFieldArray,
-  useForm,
-  useWatch,
-  type FieldPathByValue,
-  type RegisterOptions,
-} from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import Message from "../../components/ui/feedback/Message";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { useAuth0 } from "@auth0/auth0-react";
-import SearchableSelect from "../../components/forms/SearchableSelect";
-import { stateOptions } from "../../data/states";
 import type { AccountRequest } from "../../api/contracts/accounts/AccountRequest";
 import type { AccountEditForm } from "../../models/forms/AccountEditForm";
 import { updateAccountAsync } from "../../api/accountsApi";
-import { countryOptions } from "../../data/countries";
 import { useAccount } from "../../contexts/AccountContext";
-import { Trash3 } from "react-bootstrap-icons";
+import { Eyeglasses, Pen, PlusCircle, Trash3 } from "react-bootstrap-icons";
 import Card from "../../components/ui/Card";
-import type { Option } from "../../models/forms/Option";
 import Button from "../../components/ui/buttons/Button";
-
-type AccountTextField = FieldPathByValue<
-  AccountEditForm,
-  string | null | undefined
->;
-
-type AccountSelectField = "state" | "country";
-
-const createListTag = (label: string, value?: string | null) => {
-  let valueToDisplay = value ?? "Not specified";
-  return (
-    <li className="flex gap-2">
-      <p className="font-semibold text-gray-600">{label}:</p>
-      <p className="font-bold text-gray-700">{valueToDisplay}</p>
-    </li>
-  );
-};
+import CollapsibleSection from "./components/CollapsibleSection";
+import InputView from "./components/InputView";
 
 const LibraryHeaderPage = () => {
   const { getAccessTokenSilently } = useAuth0();
-  const queryClient = useQueryClient();
 
   const { account, refreshAccount } = useAccount();
 
@@ -52,14 +23,17 @@ const LibraryHeaderPage = () => {
     boolean | null
   >(null);
 
-  const [isEditingAccount, setIsEditingAccount] = useState<boolean>(false);
+  const [isEditingAccount, setIsEditingAccount] = useState(false);
+
+  const [isEditingTitles, setIsEditingTitles] = useState(false);
+  const [isEditingPersonalLinks, setIsEditingPersonalLinks] = useState(false);
 
   const {
     control: accountControl,
     register: registerAccount,
     handleSubmit: handleAccountSubmit,
     reset,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
   } = useForm<AccountEditForm>({
     mode: "onChange",
   });
@@ -69,16 +43,12 @@ const LibraryHeaderPage = () => {
       return;
     }
 
-    const userState = stateOptions.find((x) => x.label === account.state);
-    const userCountry = countryOptions.find((x) => x.label === account.country);
     const primaryTitle = account.titles.find((x) => x.isPrimary);
 
     reset({
       email: account.email,
       displayName: account.displayName,
-      city: account.city,
-      state: userState,
-      country: userCountry,
+      location: account.location,
       primaryTitle: primaryTitle
         ? { titleId: primaryTitle.id, value: primaryTitle.value }
         : { value: "" },
@@ -141,9 +111,7 @@ const LibraryHeaderPage = () => {
     const request: AccountRequest = {
       email: data.email,
       displayName: data.displayName,
-      city: data.city,
-      state: data.state?.label ?? "",
-      country: data.country?.label ?? "",
+      location: data.location,
       titles: [
         {
           id: data.primaryTitle.titleId,
@@ -169,55 +137,6 @@ const LibraryHeaderPage = () => {
     control: accountControl,
   });
 
-  function createInputOrView(
-    label: string,
-    field: AccountTextField,
-    options?: RegisterOptions<AccountEditForm, AccountTextField>,
-  ) {
-    const value = get(watchAccount, field);
-    if (!isEditingAccount) {
-      return createListTag(label, value?.toString());
-    }
-    return (
-      <Input
-        id={field}
-        label={label}
-        registration={registerAccount(field, options)}
-        error={get(errors, field)?.message}
-      />
-    );
-  }
-
-  function createControllerOrView(
-    label: string,
-    name: AccountSelectField,
-    options: Option[],
-    isRequired = false,
-  ) {
-    if (!isEditingAccount) {
-      return createListTag(label, watchAccount[name]?.label);
-    }
-    return (
-      <Controller
-        name={name}
-        control={accountControl}
-        rules={{ required: isRequired ? "This field is required." : false }}
-        render={({ field, fieldState }) => (
-          <SearchableSelect
-            id={field.name}
-            label={label}
-            options={options}
-            value={field.value}
-            onChange={field.onChange}
-            onBlur={field.onBlur}
-            isRequired={isRequired}
-            error={fieldState.error?.message}
-          />
-        )}
-      />
-    );
-  }
-
   if (!account) {
     return null;
   }
@@ -231,149 +150,224 @@ const LibraryHeaderPage = () => {
         additional titles for you, if selected on the generated page.
       </p>
       <Card className="w-xl max-[640px]:w-full">
-        <h4 className="font-semibold text-gray-900 text-lg underline">
+        {isDirty && (
+          <div className="mb-2">
+            <Message
+              type="note"
+              message="You have unsaved changes. Save to apply your updates."
+            />
+          </div>
+        )}
+        <h4 className="text-lg font-semibold text-gray-700 underline">
           Main Header Information
         </h4>
         <form
           className="flex flex-col gap-4"
           onSubmit={handleAccountSubmit(onSubmitAccount)}
         >
-          <div
-            className={`flex flex-col ${isEditingAccount ? "gap-4" : "gap-1"}`}
-          >
-            {createInputOrView("Email", "email", {
-              required: "This field is required.",
-              validate: (value) =>
-                value?.toString().includes("@") || "Invalid email address",
-            })}
-            {createInputOrView("Display Name", "displayName", {
-              required: "This field is required.",
-            })}
-            {createInputOrView("City", "city", {
-              required: "This field is required.",
-            })}
-            {createControllerOrView("State", "state", stateOptions, true)}
-            {createControllerOrView("Country", "country", countryOptions, true)}
-            {createInputOrView("Primary Title", "primaryTitle.value", {
-              required: "This field is required.",
-            })}
-            {/* Additional Titles Section */}
-            <div className="flex flex-col gap-2 mt-2">
-              <div className="flex justify-between items-center max-[640px]:flex-col max-[640px]:items-start">
-                <h4 className="font-semibold text-gray-900 text-lg underline">
-                  Additional Titles
-                </h4>
-                <p className="text-sm text-gray-500">
-                  You can add up to 4 additional titles.
-                </p>
-              </div>
-              {titleFields.map((title, index) => (
-                <div key={title.id} className="flex gap-2">
-                  {createInputOrView(
-                    `Title ${index + 1}`,
-                    `additionalTitles.${index}.value`,
-                    {
-                      required: "This field is required.",
-                    },
-                  )}
-                  {isEditingAccount && (
-                    <div className="flex items-end">
-                      <Button
-                        label="Remove"
-                        iconComponent={Trash3}
-                        styleType="danger"
-                        onClick={() => handleRemoveTitle(index)}
-                        labelSlideOut={true}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-              {titleFields.length < 4 && (
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={() => appendTitle({ value: "" })}
-                >
-                  Add Title
-                </button>
-              )}
+          <div className={"flex flex-col gap-4"}>
+            <div
+              className={`flex flex-col ${isEditingAccount ? "gap-4" : "gap-0.5"}`}
+            >
+              <InputView
+                id="email"
+                label="Email"
+                isInput={isEditingAccount}
+                valueToDisplay={watchAccount.email}
+                registration={registerAccount("email", {
+                  required: "This field is required.",
+                  validate: (value) =>
+                    value?.toString().includes("@") || "Invalid email address",
+                })}
+                error={errors.email?.message}
+              />
+              <InputView
+                id="displayName"
+                label="Display Name"
+                isInput={isEditingAccount}
+                valueToDisplay={watchAccount.displayName}
+                registration={registerAccount("displayName", {
+                  required: "This field is required.",
+                })}
+                error={errors.displayName?.message}
+              />
+              <InputView
+                id="location"
+                label="Location"
+                isInput={isEditingAccount}
+                valueToDisplay={watchAccount.location}
+                registration={registerAccount("location", {
+                  required: "This field is required.",
+                })}
+                error={errors.location?.message}
+              />
+              <InputView
+                id="primaryTitle"
+                label="Primary Title"
+                isInput={isEditingAccount}
+                valueToDisplay={watchAccount.primaryTitle?.value}
+                registration={registerAccount("primaryTitle", {
+                  required: "This field is required.",
+                })}
+                error={errors.primaryTitle?.message}
+              />
             </div>
-            {/* Personal Websites Section */}
-            <div className="flex flex-col gap-2 mt-2">
-              <div className="flex justify-between items-center max-[640px]:flex-col max-[640px]:items-start">
-                <h4 className="font-semibold text-gray-900 text-lg underline">
-                  Personal Websites
-                </h4>
-                <p className="text-sm text-gray-500 ">
-                  You can add up to 10 websites.
-                </p>
-              </div>
+            <Button
+              styleType="plain"
+              label={isEditingAccount ? "View Header Info" : "Edit Header Info"}
+              onClick={() => setIsEditingAccount(!isEditingAccount)}
+            />
+            {/* Additional Titles Section */}
+            <CollapsibleSection
+              title="Additional Titles"
+              optionalMessage={`(${titleFields.length} out of 4)`}
+              openByDefault={true}
+              actions={[
+                ...(titleFields.length <= 3
+                  ? [
+                      {
+                        label: "Add",
+                        iconComponent: PlusCircle,
+                        onClick: () => {
+                          if (!isEditingTitles) {
+                            setIsEditingTitles(true);
+                          }
+                          appendTitle({ value: "" });
+                        },
+                        expandOnClick: true,
+                      },
+                    ]
+                  : []),
+                {
+                  label: isEditingTitles ? "View" : "Edit",
+                  iconComponent: isEditingTitles ? Eyeglasses : Pen,
+                  onClick: () => setIsEditingTitles(!isEditingTitles),
+                  expandOnClick: true,
+                },
+              ]}
+            >
               <div className="flex flex-col gap-2">
-                {personalLinkFields.map((personalLink, index) => (
-                  <div
-                    key={personalLink.id}
-                    className="flex flex-col gap-4 border border-gray-300 p-4 rounded-md"
-                  >
-                    <div className="w-full flex flex-col gap-2 ">
-                      <div className="flex justify-between items-center">
-                        <h4 className="text-md font-semibold">
-                          Personal Website{" "}
-                          {personalLinkFields.length > 1 ? index + 1 : ""}
-                        </h4>
-                        {isEditingAccount && (
+                {titleFields.map((title, index) => (
+                  <div key={title.id} className="flex gap-2">
+                    <InputView
+                      id={`additionalTitles.${index}.value`}
+                      label={`Title ${index + 1}`}
+                      isInput={isEditingTitles}
+                      valueToDisplay={
+                        watchAccount.additionalTitles?.[index]?.value
+                      }
+                      registration={registerAccount(
+                        `additionalTitles.${index}.value`,
+                        {
+                          required: "This field is required.",
+                        },
+                      )}
+                      error={errors.additionalTitles?.[index]?.value?.message}
+                    />
+                    {isEditingTitles && (
+                      <div className="flex items-end">
+                        <Button
+                          label="Remove"
+                          iconComponent={Trash3}
+                          styleType="danger"
+                          onClick={() => handleRemoveTitle(index)}
+                          labelSlideOut={true}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CollapsibleSection>
+            {/* Personal Websites Section */}
+            <CollapsibleSection
+              title="Links"
+              optionalMessage={`(${personalLinkFields.length} out of 4)`}
+              openByDefault={true}
+              actions={[
+                ...(personalLinkFields.length <= 3
+                  ? [
+                      {
+                        label: "Add",
+                        iconComponent: PlusCircle,
+                        onClick: () => {
+                          if (!isEditingPersonalLinks) {
+                            setIsEditingPersonalLinks(true);
+                          }
+                          appendPersonalLink({ displayName: "", url: "" });
+                        },
+                        expandOnClick: true,
+                      },
+                    ]
+                  : []),
+                {
+                  label: isEditingPersonalLinks ? "View" : "Edit",
+                  iconComponent: isEditingPersonalLinks ? Eyeglasses : Pen,
+                  onClick: () =>
+                    setIsEditingPersonalLinks(!isEditingPersonalLinks),
+                  expandOnClick: true,
+                },
+              ]}
+            >
+              <div className="flex flex-col gap-2 mt-2">
+                {personalLinkFields.map((link, index) => (
+                  <div key={link.id} className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 border border-gray-300 p-4 rounded-lg">
+                      <InputView
+                        id={`personalLinks.${index}.displayName`}
+                        label="Name"
+                        isInput={isEditingPersonalLinks}
+                        valueToDisplay={
+                          watchAccount.personalLinks?.[index]?.displayName
+                        }
+                        registration={registerAccount(
+                          `personalLinks.${index}.displayName`,
+                          {
+                            required: "Website cannot be blank.",
+                          },
+                        )}
+                        error={
+                          errors.personalLinks?.[index]?.displayName?.message
+                        }
+                      />
+                      <InputView
+                        id={`personalLinks.${index}.url`}
+                        label="URL"
+                        isInput={isEditingPersonalLinks}
+                        valueToDisplay={
+                          watchAccount.personalLinks?.[index]?.url
+                        }
+                        registration={registerAccount(
+                          `personalLinks.${index}.url`,
+                          {
+                            required: "Website URL cannot be blank.",
+                          },
+                        )}
+                        error={errors.personalLinks?.[index]?.url?.message}
+                      />
+                      {isEditingPersonalLinks && (
+                        <div className="flex justify-end">
                           <Button
                             label="Remove"
                             iconComponent={Trash3}
-                            styleType="danger"
+                            styleType="edit"
                             onClick={() => handleRemovePersonalLink(index)}
                             labelSlideOut={true}
                           />
-                        )}
-                      </div>
-
-                      {createInputOrView(
-                        `Website ${index + 1}`,
-                        `personalLinks.${index}.displayName`,
-                        {
-                          required: "Website cannot be blank.",
-                        },
-                      )}
-                      {createInputOrView(
-                        `Website ${index + 1} URL`,
-                        `personalLinks.${index}.url`,
-                        {
-                          required: "Website URL cannot be blank.",
-                        },
+                        </div>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-              {personalLinkFields.length < 10 && isEditingAccount && (
-                <Button
-                  label="Add Website Link"
-                  styleType="plain"
-                  onClick={() =>
-                    appendPersonalLink({ displayName: "", url: "" })
-                  }
-                />
-              )}
-            </div>
+            </CollapsibleSection>
           </div>
-          <Button
-            styleType="plain"
-            label={isEditingAccount ? "View Header Info" : "Edit Header Info"}
-            onClick={() => setIsEditingAccount(!isEditingAccount)}
-          />
-          {isEditingAccount && (
+          {isDirty && (
             <Button
               type="submit"
               styleType="confirm"
               label={
-                updateAccountMutation.isPending
-                  ? "Saving..."
-                  : "Save Account Profile"
+                updateAccountMutation.isPending ? "Saving..." : "Save Changes"
               }
             />
           )}

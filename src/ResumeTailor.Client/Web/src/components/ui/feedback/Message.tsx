@@ -1,9 +1,9 @@
 import React from "react";
 
 interface MessageProps {
-  type: "success" | "error" | "warning";
+  type: "success" | "error" | "warning" | "note";
   message: string;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 const Message: React.FC<MessageProps> = ({ type, message, onClose }) => {
@@ -15,6 +15,8 @@ const Message: React.FC<MessageProps> = ({ type, message, onClose }) => {
         return "bg-red-100 border-red-200 text-red-600";
       case "warning":
         return "bg-yellow-100 border-yellow-200 text-yellow-700";
+      case "note":
+        return "bg-blue-100 border-blue-200 text-blue-600";
       default:
         return "";
     }
@@ -39,6 +41,8 @@ const Message: React.FC<MessageProps> = ({ type, message, onClose }) => {
         return "Error: ";
       case "warning":
         return "Warning: ";
+      case "note":
+        return "Note: ";
       default:
         return "";
     }
@@ -51,12 +55,14 @@ const Message: React.FC<MessageProps> = ({ type, message, onClose }) => {
         <p>
           <b>{getStarterMessage()}</b> {message}
         </p>
-        <button
-          className={`font-bold ${getButtonColorClasses()}`}
-          onClick={onClose}
-        >
-          x
-        </button>
+        {onClose && (
+          <button
+            className={`font-bold ${getButtonColorClasses()}`}
+            onClick={onClose}
+          >
+            x
+          </button>
+        )}
       </div>
     </div>
   );

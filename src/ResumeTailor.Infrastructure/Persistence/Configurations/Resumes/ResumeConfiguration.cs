@@ -23,19 +23,19 @@ internal sealed class ResumeConfiguration : IEntityTypeConfiguration<Resume>
 
         //Foreign key relationships
 
-        builder.HasMany(resume => resume.CompanySelections)
-            .WithOne()
-            .HasForeignKey(company => company.ResumeId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(resume => resume.Account)
+            .WithMany()
+            .HasForeignKey(resume => resume.AccountId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(resume => resume.EducationSelections)
             .WithOne()
             .HasForeignKey(education => education.ResumeId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(resume => resume.ProjectSelections)
+        builder.HasMany(resume => resume.Experiences)
             .WithOne()
-            .HasForeignKey(project => project.ResumeId)
+            .HasForeignKey(ex => ex.ResumeId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(resume => resume.AiMetaData)
@@ -65,13 +65,7 @@ internal sealed class ResumeConfiguration : IEntityTypeConfiguration<Resume>
 
 
         // Configure navigation properties to use field access mode
-        builder.Navigation(resume => resume.CompanySelections)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         builder.Navigation(resume => resume.EducationSelections)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.Navigation(resume => resume.ProjectSelections)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

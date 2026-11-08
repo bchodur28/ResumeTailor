@@ -7,6 +7,7 @@ public sealed class LibraryEducation : Entity
 {
     public int AccountId { get; private set; }
 
+    public EducationType Type { get; private set; }
     public string InstitutionName { get; private set; } = string.Empty;
     public string Qualification { get; private set; } = string.Empty;
     public string? FieldOfStudy { get; private set; }
@@ -19,9 +20,10 @@ public sealed class LibraryEducation : Entity
 
     public bool UseForResume { get; private set; }
 
-    public LibraryEducation(int accountId, string institutionName, string qualification, string fieldOfStudy, decimal? gpa, string? location, DateOnly started, DateOnly? ended, bool useForResume)
+    public LibraryEducation(int accountId, EducationType type, string institutionName, string qualification, string? fieldOfStudy, decimal? gpa, string? location, DateOnly started, DateOnly? ended, bool useForResume)
     {
         AccountId = accountId;
+        Type = type;
         InstitutionName = institutionName;
         Qualification = qualification;
         FieldOfStudy = fieldOfStudy;

@@ -30,8 +30,13 @@ const ButtonContainer = ({
   const toggle = (id: string) => {
     setOpenId((prevOpenId) => (prevOpenId === id ? null : id));
   };
+
+  const close = () => {
+    setOpenId(null);
+  };
+
   return (
-    <DropdownContext.Provider value={{ openId, toggle }}>
+    <DropdownContext.Provider value={{ openId, toggle, close }}>
       <div
         className={`btn-container ${hasStyle ? "btn-container-style" : ""} ${getAlignmentClass(align)} ${isRelative ? "btn-container-relative" : "btn-container-absolute"}`}
       >

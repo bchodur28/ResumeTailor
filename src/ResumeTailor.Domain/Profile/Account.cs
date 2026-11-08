@@ -9,9 +9,7 @@ public sealed class Account : Entity
     public string Email { get; private set; } = string.Empty;
     public string DisplayName { get; private set; } = string.Empty;
     public string PhoneNumber { get; private set; } = string.Empty;
-    public string City { get; private set; } = string.Empty;
-    public string State { get; private set; } = string.Empty;
-    public string Country { get; private set; } = string.Empty;
+    public string Location { get; private set; } = string.Empty;
 
     private readonly List<PersonalLink> _personalLinks = [];
     public IReadOnlyCollection<PersonalLink> PersonalLinks => _personalLinks.AsReadOnly();
@@ -22,23 +20,19 @@ public sealed class Account : Entity
     private readonly List<Skill> _skills = [];
     public IReadOnlyCollection<Skill> Skills => _skills.AsReadOnly();
 
-    public Account(string auth0UserId, string email, string displayName, string city, string state, string country)
+    public Account(string auth0UserId, string email, string displayName, string location)
     {
         Auth0UserId = auth0UserId;
         Email = email;
         DisplayName = displayName;
-        City = city;
-        State = state;
-        Country = country;
+        Location = location;
     }
 
-    public void Update(string email, string displayName, string city, string state, string country)
+    public void Update(string email, string displayName, string location)
     {
         Email = email;
         DisplayName = displayName;
-        City = city;
-        State = state;
-        Country = country;
+        Location = location;
         MarkUpdated();
     }
 

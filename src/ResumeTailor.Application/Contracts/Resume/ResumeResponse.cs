@@ -1,6 +1,6 @@
 using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Application.Contracts.Education;
-using ResumeTailor.Application.Contracts.Projects;
+using ResumeTailor.Application.Contracts.Experiences;
 using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Domain.Resumes;
 
@@ -19,8 +19,7 @@ public sealed record ResumeResponse(
     string Location,
     IReadOnlyCollection<PersonalLinkResponse> PersonalLinks,
     IReadOnlyCollection<SkillResponse> Skills,
-    IReadOnlyCollection<ResumeCompanyResponse> Companies,
-    IReadOnlyCollection<EducationResponse> Education,
-    IReadOnlyCollection<ProjectResponse> Projects,
+    IReadOnlyCollection<ResumeEducationResponse> Education,
+    IReadOnlyCollection<ResumeExperienceResponse> Experiences,
     ResumeAppearanceResponse Appearance
     );

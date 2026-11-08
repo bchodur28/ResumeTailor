@@ -1,10 +1,15 @@
-import { PencilSquare, Trash3 } from "react-bootstrap-icons";
+import { Pen, PencilSquare, Trash3 } from "react-bootstrap-icons";
 import type { EducationRequest } from "../../api/contracts/education/EducationRequest";
+import {
+  EducationType,
+  getEducationTypeLabel,
+} from "../../models/education/EducationType";
 import Checkbox from "../../components/forms/Checkbox";
 import Input from "../../components/forms/Input";
 import Card from "../../components/ui/Card";
-import { useEducation } from "../../hooks/useEducation";
+import { useLibraryEducation } from "../../hooks/useLibraryEducation";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import type { EducationTypeValue } from "../../models/education/EducationType";
 import Message from "../../components/ui/feedback/Message";
 import type { EducationForm } from "../../models/forms/EducationForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,30 +21,18 @@ import {
 } from "../../api/educationApi";
 import { useAuth0 } from "@auth0/auth0-react";
 import Button from "../../components/ui/buttons/Button";
-
-type EducationTextField =
-  | "institutionName"
-  | "qualification"
-  | "fieldOfStudy"
-  | "started"
-  | "ended"
-  | "useForResume";
-
-const createListTag = (label: string, value?: string | null) => {
-  let valueToDisplay = value ?? "Not specified";
-  return (
-    <li className="flex gap-2">
-      <p className="font-semibold text-gray-500">{label}:</p>
-      <p className="font-semibold text-gray-700">{valueToDisplay}</p>
-    </li>
-  );
-};
+import InputView from "./components/InputView";
+import CheckboxView from "./components/CheckboxView";
+import DropdownButton from "../../components/ui/buttons/DropdownButton";
+import ActionList from "../../components/ui/lists/ActionList";
+import { getEducationFieldConfig } from "./EducationConfiguration";
+import DropdownContainer from "../../components/ui/dropdowns/DropdownContainer";
 
 const LibraryEducation = () => {
   const { getAccessTokenSilently } = useAuth0();
   const queryClient = useQueryClient();
 
-  const { data: education, isLoading, isError } = useEducation();
+  const { data: education, isLoading, isError } = useLibraryEducation();
 
   const [isSavedSuccessfully, setIsSavedSuccessfully] = useState<
     boolean | null
@@ -54,7 +47,7 @@ const LibraryEducation = () => {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty, touchedFields, isSubmitted },
   } = useForm<EducationForm>({
     mode: "onChange",
     defaultValues: {
@@ -79,9 +72,12 @@ const LibraryEducation = () => {
     reset({
       education: education.map((item) => ({
         id: item.id,
+        type: item.type,
         institutionName: item.institutionName,
         qualification: item.qualification,
         fieldOfStudy: item.fieldOfStudy,
+        gpa: item.gpa,
+        location: item.location,
         started: item.started,
         ended: item.ended,
         useForResume: item.useForResume,
@@ -93,6 +89,13 @@ const LibraryEducation = () => {
     control,
     name: "education",
   });
+
+  console.log("isSubmitted:", isSubmitted);
+  console.log("Errors:", errors);
+
+  console.log("API Education:", education);
+  console.log("Watched Education:", watchEducation);
+  console.log("Education Fields:", educationFields);
 
   const saveEducationMutation = useMutation({
     mutationFn: async (data: EducationForm) => {
@@ -146,9 +149,12 @@ const LibraryEducation = () => {
     },
   });
 
-  const handleAddEducation = () => {
+  const handleAddEducation = (educationType: EducationTypeValue) => {
+    const newIndex = educationFields.length;
+
     appendEducaiton({
       id: null,
+      type: educationType,
       institutionName: "",
       qualification: "",
       fieldOfStudy: "",
@@ -157,14 +163,10 @@ const LibraryEducation = () => {
       ended: "",
       useForResume: false,
     });
-    var newIndex = educationFields.length;
+
     setEditingEducationIndexes((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(newIndex)) {
-        newSet.delete(newIndex);
-      } else {
-        newSet.add(newIndex);
-      }
+      newSet.add(newIndex);
       return newSet;
     });
   };
@@ -197,49 +199,6 @@ const LibraryEducation = () => {
     return <div>Failed to load education.</div>;
   }
 
-  function createInputOrView(
-    label: string,
-    field: EducationTextField,
-    index: number,
-    isRequired = false,
-  ) {
-    if (editingEducationIndexes.has(index)) {
-      return (
-        <Input
-          id={`education.${index}.${field}`}
-          label={`${label}${isRequired ? "*" : ""}`}
-          registration={register(`education.${index}.${field}`, {
-            required: isRequired ? "This field is required." : false,
-          })}
-          error={errors.education?.[index]?.[field]?.message}
-        />
-      );
-    }
-
-    return createListTag(label, watchEducation[index]?.[field]?.toString());
-  }
-
-  function createCheckboxOrView(
-    label: string,
-    field: EducationTextField,
-    index: number,
-    isRequired = false,
-  ) {
-    if (editingEducationIndexes.has(index)) {
-      return (
-        <Checkbox
-          id={`education.${index}.${field}`}
-          label={label}
-          registration={register(`education.${index}.${field}`, {
-            required: isRequired ? "This field is required." : false,
-          })}
-        />
-      );
-    }
-
-    return createListTag(label, watchEducation[index]?.[field]?.toString());
-  }
-
   return (
     <div className="flex flex-col gap-4 items-center w-xl max-[640px]:w-full">
       <h1 className="text-2xl font-bold">Education Library</h1>
@@ -248,10 +207,16 @@ const LibraryEducation = () => {
         entries, including degrees, certifications, and other relevant
         educational experiences.
       </p>
-      <Card className="w-xl max-[640px]:w-full">
+      <Card className="w-xl max-[640px]:w-full flex flex-col gap-4">
+        {isDirty && (
+          <Message
+            type="note"
+            message="You have unsaved changes. Save to apply your updates."
+          />
+        )}
         <div>
           <form
-            className="flex flex-col gap-2"
+            className="flex flex-col gap-4"
             onSubmit={handleSubmit(onSubmitEducation)}
           >
             {isSavedSuccessfully && (
@@ -268,55 +233,120 @@ const LibraryEducation = () => {
                 onClose={() => setIsSavedSuccessfully(null)}
               />
             )}
-            {educationFields.map((field, index) => (
-              <div
-                key={field.id}
-                className={`flex flex-col border border-gray-300 p-4 rounded-md ${editingEducationIndexes.has(index) ? "gap-4" : "gap-1"}`}
-              >
-                <div className="flex justify-between items-center">
-                  <h4 className="text-lg font-semibold">
-                    Education {educationFields.length > 1 ? index + 1 : ""}
-                  </h4>
-                  <div className="flex gap-2">
-                    <Button
-                      label="Remove"
-                      styleType="danger"
-                      iconComponent={Trash3}
-                      labelSlideOut={true}
-                      onClick={() => handleRemoveEducation(index)}
-                    />
-                    <Button
-                      label="Edit"
-                      styleType="plain"
-                      iconComponent={PencilSquare}
-                      labelSlideOut={true}
-                      onClick={() => toggleEducationEditMode(index)}
-                    />
+            {educationFields.map((field, index) => {
+              const currentEducation = watchEducation?.[index];
+              const config = getEducationFieldConfig(currentEducation?.type);
+              const isEditing = editingEducationIndexes.has(index);
+              return (
+                <div
+                  key={field.id}
+                  className={`flex flex-col border border-gray-300 p-4 rounded-md ${editingEducationIndexes.has(index) ? "gap-4" : "gap-0.5"}`}
+                >
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-lg font-semibold underline">
+                      <h4 className="text-lg font-semibold text-gray-700 underline">
+                        {currentEducation?.type
+                          ? getEducationTypeLabel(currentEducation.type)
+                          : "Education"}{" "}
+                      </h4>
+                    </h4>
+                    <div className="flex gap-2">
+                      <Button
+                        label="Remove"
+                        styleType="danger"
+                        iconComponent={Trash3}
+                        labelSlideOut={true}
+                        onClick={() => handleRemoveEducation(index)}
+                      />
+                      <Button
+                        label="Edit"
+                        styleType="plain"
+                        iconComponent={Pen}
+                        labelSlideOut={true}
+                        onClick={() => toggleEducationEditMode(index)}
+                      />
+                    </div>
                   </div>
+
+                  <InputView
+                    id={`education.${index}.institutionName`}
+                    label={config.institutionLabel}
+                    isInput={isEditing}
+                    valueToDisplay={currentEducation?.institutionName}
+                    registration={register(
+                      `education.${index}.institutionName`,
+                      {
+                        required: "This field is required.",
+                      },
+                    )}
+                    error={
+                      touchedFields.education?.[index]?.institutionName ||
+                      isSubmitted
+                        ? errors.education?.[index]?.institutionName?.message
+                        : undefined
+                    }
+                    isValid={!errors.education?.[index]?.institutionName}
+                  />
+
+                  <InputView
+                    id={`education.${index}.qualification`}
+                    label={config.qualificationLabel}
+                    isInput={isEditing}
+                    valueToDisplay={currentEducation?.qualification}
+                    registration={register(`education.${index}.qualification`, {
+                      required: "This field is required.",
+                    })}
+                    error={
+                      touchedFields.education?.[index]?.qualification ||
+                      isSubmitted
+                        ? errors.education?.[index]?.qualification?.message
+                        : undefined
+                    }
+                    isValid={!errors.education?.[index]?.qualification}
+                  />
+
+                  {config.showFieldOfStudy && (
+                    <InputView
+                      id={`education.${index}.fieldOfStudy`}
+                      label="Field of Study"
+                      isInput={isEditing}
+                      valueToDisplay={currentEducation?.fieldOfStudy ?? ""}
+                      registration={register(`education.${index}.fieldOfStudy`)}
+                      error={errors.education?.[index]?.fieldOfStudy?.message}
+                    />
+                  )}
+
+                  {config.showStarted && (
+                    <InputView
+                      id={`education.${index}.started`}
+                      label={config.startedLabel}
+                      isInput={isEditing}
+                      type="date"
+                      valueToDisplay={currentEducation?.started}
+                      registration={register(`education.${index}.started`)}
+                    />
+                  )}
+
+                  <InputView
+                    id={`education.${index}.ended`}
+                    label={config.endedLabel}
+                    isInput={isEditing}
+                    type="date"
+                    valueToDisplay={currentEducation?.ended ?? ""}
+                    registration={register(`education.${index}.ended`)}
+                  />
+                  <CheckboxView
+                    id="useForResume"
+                    label="Use For Resume"
+                    isInput={editingEducationIndexes.has(index)}
+                    valueToDisplay={
+                      currentEducation?.useForResume ? "Yes" : "No"
+                    }
+                    registration={register(`education.${index}.useForResume`)}
+                  />
                 </div>
-                {createInputOrView(
-                  "School Name",
-                  "institutionName",
-                  index,
-                  true,
-                )}
-                {createInputOrView(
-                  "Qualification",
-                  "qualification",
-                  index,
-                  true,
-                )}
-                {createInputOrView("Field of Study", "fieldOfStudy", index)}
-                {createInputOrView("Started", "started", index, true)}
-                {createInputOrView("Ended", "ended", index)}
-                {createCheckboxOrView(
-                  "Use For Resume",
-                  "useForResume",
-                  index,
-                  true,
-                )}
-              </div>
-            ))}
+              );
+            })}
             {educationFields.length === 0 && (
               <div className="flex justify-center rounded-lg bg-gray-200 border border-gray-300 p-4 shadow-md">
                 <p className="text-gray-700 font-semibold">
@@ -325,16 +355,15 @@ const LibraryEducation = () => {
               </div>
             )}
             <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={handleAddEducation}
-              >
-                Add Education
-              </button>
-              <button type="submit" className="confirm-btn">
-                Save Education
-              </button>
+              <DropdownButton label="Add" styleType="plain" closeOnClick={true}>
+                <ActionList
+                  actions={Object.values(EducationType).map((value) => ({
+                    actionName: getEducationTypeLabel(value),
+                    actionFn: () => handleAddEducation(value),
+                  }))}
+                />
+              </DropdownButton>
+              {isDirty && <Button label="Save Changes" type="submit" />}
             </div>
           </form>
         </div>

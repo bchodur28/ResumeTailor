@@ -32,7 +32,7 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
         var account = await accountRepository.GetAccountForUpdatingAsync(auth0UserId, cancellationToken)
             ?? throw new NotFoundException($"Account was not found when updating.");
 
-        account.Update(request.Email, request.DisplayName, request.City, request.State, request.Country);
+        account.Update(request.Email, request.DisplayName, request.Location);
 
         UpdateTitles(account, request.Titles);
         UpdatePersonalLinks(account, request.PersonalLinks);
@@ -106,20 +106,18 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
     private static AccountResponse MapAccountDomainToResponse(Account account)
     {
         return new AccountResponse(
-            account.Id,
-            account.Auth0UserId,
-            account.Email,
-            account.DisplayName,
-            account.City,
-            account.State,
-            account.Country,
-            account.PersonalLinks
+            Id: account.Id,
+            Auth0UserId: account.Auth0UserId,
+            Email: account.Email,
+            DisplayName: account.DisplayName,
+            Location: account.Location,
+            PersonalLinks: account.PersonalLinks
                 .Select(pl => new PersonalLinkResponse(pl.Id, pl.DisplayName, pl.Url))
                 .ToList(),
-            account.Titles
+            Titles: account.Titles
                 .Select(t => new TitleResponse(t.Id, t.Value, t.IsPrimary))
                 .ToList(),
-            account.Skills
+            Skills: account.Skills
                 .Select(s => new SkillResponse(s.Id, s.Value))
                 .ToList()
         );
@@ -128,12 +126,10 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
     private static Account MapAccountRequestToDomain(AccountRequest request, string auth0UserId)
     {
         var account = new Account(
-            auth0UserId,
-            request.Email,
-            request.DisplayName,
-            request.City,
-            request.State,
-            request.Country
+            auth0UserId: auth0UserId,
+            email: request.Email,
+            displayName: request.DisplayName,
+            location: request.Location
         );
 
         foreach (var personalLinkRequest in request.PersonalLinks)

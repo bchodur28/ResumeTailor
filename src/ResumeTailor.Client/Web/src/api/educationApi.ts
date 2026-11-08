@@ -1,11 +1,11 @@
 import type { EducationRequest } from "./contracts/education/EducationRequest.ts";
-import type { EducationResponse } from "./contracts/education/EducationResponse.ts";
+import type { LibraryEducationResponse } from "./contracts/education/LibraryEducationResponse.ts";
 
 const educationUrl = "/api/education/me";
 
 export const getEducation = async (
   token: string,
-): Promise<EducationResponse[]> => {
+): Promise<LibraryEducationResponse[]> => {
   const response = await fetch(educationUrl, {
     method: "GET",
     headers: {

@@ -1,6 +1,7 @@
 using ResumeTailor.Domain.Common;
 using ResumeTailor.Domain.GeneratedResumes.AI;
 using ResumeTailor.Domain.GeneratedResumes.Content;
+using ResumeTailor.Domain.Profile;
 using ResumeTailor.Domain.Resumes;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
 using ResumeTailor.Domain.Resumes.Content;
@@ -12,6 +13,7 @@ namespace ResumeTailor.Domain.GeneratedResumes;
 public class Resume : Entity
 {
     public int AccountId { get; private set; }
+    public Account Account { get; private set; }
 
     public string Name { get; private set; } = null!;
 
@@ -19,14 +21,8 @@ public class Resume : Entity
 
     public AiScoreStaleness AiScoreStaleness { get; private set; } = AiScoreStaleness.None;
 
-    private readonly List<ResumeCompanySelection> _companySelections = [];
-    public IReadOnlyCollection<ResumeCompanySelection> CompanySelections => _companySelections.AsReadOnly();
-
     private readonly List<ResumeEducationSelection> _educationSelections = [];
     public IReadOnlyCollection<ResumeEducationSelection> EducationSelections => _educationSelections.AsReadOnly();
-
-    private readonly List<ResumeProjectSelection> _projectSelections = [];
-    public IReadOnlyCollection<ResumeProjectSelection> ProjectSelections => _projectSelections.AsReadOnly();
 
     private readonly List<ResumeExperience> _experiences = [];
     public IReadOnlyCollection<ResumeExperience> Experiences => _experiences.AsReadOnly();
@@ -79,26 +75,14 @@ public class Resume : Entity
 
     public ResumeExperience AddExperience(int libraryExperienceId, int? librarySummaryId, int sortOrder)
     {
-        var experience = new ResumeExperience(libraryExperienceId, librarySummaryId, sortOrder);
+        var experience = new ResumeExperience(libraryExperienceId, sortOrder);
         _experiences.Add(experience);
         return experience;
     }
 
-    public void RemoveExperience(ResumeCompanySelection companySelection)
+    public void RemoveExperience(ResumeExperience experience)
     {
-        _companySelections.Remove(companySelection);
-    }
-
-    public ResumeCompanySelection AddCompanySelection(int companyId, int sortOrder)
-    {
-        var companySelection = new ResumeCompanySelection(companyId, sortOrder);
-        _companySelections.Add(companySelection);
-        return companySelection;
-    }
-
-    public void RemoveCompanySelection(ResumeCompanySelection companySelection)
-    {
-        _companySelections.Remove(companySelection);
+        _experiences.Remove(experience);
     }
 
     public void AddEducationSelection(int educationId, int sortOrder)
@@ -109,16 +93,6 @@ public class Resume : Entity
     public void RemoveEducationSelection(ResumeEducationSelection educationSelection)
     {
         _educationSelections.Remove(educationSelection);
-    }
-
-    public void AddProjectSelection(int projectId, int sortOrder)
-    {
-        _projectSelections.Add(new ResumeProjectSelection(projectId, sortOrder));
-    }
-
-    public void RemoveProjectSelection(ResumeProjectSelection projectSelection)
-    {    
-        _projectSelections.Remove(projectSelection);
     }
 
     public void SetAiAnalysis(ResumeAiAnalysis aiSummary)

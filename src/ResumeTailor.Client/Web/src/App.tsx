@@ -4,6 +4,7 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
+import LibraryExperienceEditPage from "./pages/Library/LibraryExperienceEditPage";
 import AccountSetup from "./pages/AccountSetup";
 import RootLayout from "./layouts/RootLayout";
 import Generate from "./pages/Generate";
@@ -18,13 +19,16 @@ import ResumeDetailsPage from "./pages/ResumeDetails/ResumeDetailsPage";
 import LibraryExperiencePage from "./pages/Library/LibraryExperiencePage";
 import LibraryEducationPage from "./pages/Library/LibraryEducationPage";
 import LibraryHeaderPage from "./pages/Library/LibraryHeaderPage";
+import AccountSetupRoute from "./components/routes/AccountSetupRoute";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/login" element={<Login />} />
       <Route element={<ProtectedRoute />}>
-        <Route path="/account/setup" element={<AccountSetup />} />
+        <Route element={<AccountSetupRoute />}>
+          <Route path="/account/setup" element={<AccountSetup />} />
+        </Route>
 
         <Route element={<AccountRequiredRoute />}>
           <Route path="/" element={<RootLayout />}>
@@ -33,9 +37,14 @@ const router = createBrowserRouter(
             <Route path="manage" element={<Manage />} />
             <Route path="resumes/:id" element={<ResumeDetailsPage />} />
             <Route path="profile" element={<Profile />} />
+
             <Route path="library" element={<LibraryLayout />}>
               <Route index element={<LibraryHeaderPage />} />
               <Route path="experience" element={<LibraryExperiencePage />} />
+              <Route
+                path="experience/:experienceId/edit"
+                element={<LibraryExperienceEditPage />}
+              />
               <Route path="education" element={<LibraryEducationPage />} />
             </Route>
           </Route>

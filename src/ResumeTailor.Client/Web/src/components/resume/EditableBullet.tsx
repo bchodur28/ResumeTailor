@@ -7,13 +7,8 @@ import {
   ArrowLeftRight,
   ExclamationTriangle,
 } from "react-bootstrap-icons";
-
-import type { ResumeBulletViewModel } from "../../models/forms/ResumeViewModel";
-import type { BulletResponse } from "../../api/contracts/bullets/BulletResponse";
-
+import type { ResolvedBullet } from "../../models/Experience/ResolvedBullets";
 import styles from "./Resume.module.css";
-import EditToolBar from "./EditToolBar";
-import EditToolBarButton from "./EditToolBarButton";
 import { useResumeEdit } from "../../contexts/ResumeEditContext";
 import ButtonContainer from "../ui/buttons/ButtonContainer";
 import Button from "../ui/buttons/Button";
@@ -21,22 +16,18 @@ import DropdownButton from "../ui/buttons/DropdownButton";
 import SearchDropdown from "../../pages/ResumeDetails/components/SearchDropdown";
 
 type EditableBulletProps = {
-  item: ResumeBulletViewModel;
-  additionalBullets: BulletResponse[];
+  item: ResolvedBullet;
+  additionalBullets: ResolvedBullet[];
   companyIndex: number;
   bulletIndex: number;
   isLastBullet: boolean;
   isFirstBullet: boolean;
 
-  onBulletChange: (
-    companyIndex: number,
-    bulletIndex: number,
-    bulletId: number,
-    value: string,
-  ) => void;
+  onBulletReplace: (newLibraryBulletId: number) => void;
 
   onBulletMoveUp: () => void;
   onBulletMoveDown: () => void;
+  onBulletRemove: () => void;
 };
 
 const EditableBullet = ({
@@ -46,13 +37,14 @@ const EditableBullet = ({
   bulletIndex,
   isLastBullet,
   isFirstBullet,
-  onBulletChange,
+  onBulletReplace,
   onBulletMoveUp,
   onBulletMoveDown,
+  onBulletRemove,
 }: EditableBulletProps) => {
   const { activeEditorId, toggleEditor, closeEditor } = useResumeEdit();
 
-  const bulletId = item.id ?? item.sourceBulletId ?? item.id ?? bulletIndex;
+  const bulletId = item.resumeBulletId ?? item.libraryBulletId ?? bulletIndex;
 
   const editorId = `bullet:${companyIndex}:${bulletId}`;
 
@@ -60,15 +52,15 @@ const EditableBullet = ({
 
   const isLocked = activeEditorId !== null && activeEditorId !== editorId;
 
-  const hasAlternative = item.alternativeValue !== null;
+  const hasAlternative = item.aiAlternativeValue !== null;
 
   const handleBulletSwapWithAlternative = (alternativeValue: string) => {
-    onBulletChange(
-      companyIndex,
-      bulletIndex,
-      item.sourceBulletId,
-      alternativeValue,
-    );
+    // onBulletReplace(
+    //   companyIndex,
+    //   bulletIndex,
+    //   item.libraryBulletId,
+    //   alternativeValue,
+    // );
   };
 
   return (
@@ -117,12 +109,7 @@ const EditableBullet = ({
             labelSlideOut={true}
             iconComponent={() => <Trash3 size={20} className="danger-color" />}
             onClick={() => {
-              onBulletChange(
-                companyIndex,
-                bulletIndex,
-                item.sourceBulletId,
-                "",
-              );
+              onBulletRemove();
               closeEditor();
             }}
           />
@@ -137,14 +124,7 @@ const EditableBullet = ({
             <SearchDropdown
               filteredActions={additionalBullets.map((bullet) => ({
                 label: bullet.value,
-                onClick: () => {
-                  onBulletChange(
-                    companyIndex,
-                    bulletIndex,
-                    bullet.id,
-                    bullet.value,
-                  );
-                },
+                onClick: () => onBulletReplace(bullet.libraryBulletId),
               }))}
             ></SearchDropdown>
           </DropdownButton>
@@ -153,9 +133,7 @@ const EditableBullet = ({
             <Button
               label="Use Alternative"
               iconComponent={() => <ArrowRepeat size={20} />}
-              onClick={() =>
-                handleBulletSwapWithAlternative(item.alternativeValue!)
-              }
+              onClick={() => {}}
               styleType="filter"
               labelSlideOut={true}
             />

@@ -18,6 +18,24 @@ public sealed class LibraryExperienceService(
         return await experienceRepository.GetSummeriesByAccountIdAsync(accountId, cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<LibraryExperienceResponse>> GetExperiencesAsync(string Auth0UserId, CancellationToken cancellationToken = default)
+    {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when creating an experience");
+
+        var experiences = await experienceRepository.GetAllByAccountIdAsync(accountId, cancellationToken);
+
+        return experiences.Select(LibraryExperienceMapper.MapEntityToResponse).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<LibraryExperienceListItemResponse>> GetLibraryExperiencesListItemsAsync(string Auth0UserId, CancellationToken cancellationToken = default)
+    {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when fetching an experience list item");
+
+        return await experienceRepository.GetListItemsAsync(accountId, cancellationToken);
+    }
+
     public async Task<LibraryExperienceResponse> GetExperienceAsync(string Auth0UserId, int experienceId, CancellationToken cancellationToken = default)
     {
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
@@ -39,7 +57,7 @@ public sealed class LibraryExperienceService(
 
         var experience = LibraryExperienceMapper.MapRequestToEntity(accountId, request);
 
-        AddInitialSummaries(experience, request.Summeries);
+        AddInitialSummaries(experience, request.Summaries);
         AddInitialBullets(experience, request.Bullets);
         
         experienceRepository.Add(experience);
@@ -71,7 +89,7 @@ public sealed class LibraryExperienceService(
             letAiChooseBullets: request.LetAiChooseBullets,
             maxBulletsToChoose: request.MaxBulletsToChoose);
 
-        UpdateSummaries(experience, request.Summeries);
+        UpdateSummaries(experience, request.Summaries);
         UpdateBullets(experience, request.Bullets);
 
         await experienceRepository.SaveAync(cancellationToken);

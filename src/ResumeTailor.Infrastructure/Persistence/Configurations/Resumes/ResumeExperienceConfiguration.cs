@@ -16,13 +16,23 @@ internal sealed class ResumeExperienceConfiguration : IEntityTypeConfiguration<R
         builder.Property(e => e.LibraryExperienceId)
             .IsRequired();
 
-        builder.Property(e => e.ResumeSummaryId)
-            .IsRequired(false);
 
         builder.HasMany(e => e.Bullets)
             .WithOne()
             .HasForeignKey(b => b.ResumeExperienceId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(e => e.ResumeSummary)
+            .WithOne()
+            .HasForeignKey<ResumeSummary>(s => s.ResumeExperienceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(e => e.LibraryExperience)
+            .WithMany()
+            .HasForeignKey(e => e.LibraryExperienceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        
 
         builder.Navigation(e => e.Bullets)
             .UsePropertyAccessMode(PropertyAccessMode.Field);

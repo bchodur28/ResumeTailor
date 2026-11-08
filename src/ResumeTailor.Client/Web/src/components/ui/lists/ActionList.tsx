@@ -11,6 +11,7 @@ export type ActionListProps = {
       bgColorClass: string;
     };
   }[];
+  onAction?: () => void;
 };
 
 const createClassNames = (overrideStyles?: {
@@ -29,20 +30,31 @@ const createClassNames = (overrideStyles?: {
       ? overrideStyles.bgColorClass
       : "bg-white hover:bg-gray-100";
 
-  const className = `p-2 ${fontColor} ${bgColor} text-sm ${bold}`;
+  const className = `p-3 ${fontColor} ${bgColor} text-sm ${bold}`;
 
   return className;
 };
 
-const ActionList = ({ actions }: ActionListProps) => {
+const ActionList = ({ actions, onAction }: ActionListProps) => {
   return (
-    <ul className="flex flex-col justify-end">
-      {actions.map(({ actionName, actionFn, actionIcon: Icon }, index) => (
-        <button className={createClassNames()} key={index} onClick={actionFn}>
-          {Icon && <Icon size={16} />}
-          {actionName}
-        </button>
-      ))}
+    <ul>
+      {actions.map(
+        ({ actionName, actionFn, actionIcon: Icon, overrideStyles }, index) => (
+          <li className="flex flex-col" key={index}>
+            <button
+              type="button"
+              className={createClassNames(overrideStyles)}
+              onClick={() => {
+                actionFn();
+                onAction?.();
+              }}
+            >
+              {Icon && <Icon size={16} />}
+              {actionName}
+            </button>
+          </li>
+        ),
+      )}
     </ul>
   );
 };

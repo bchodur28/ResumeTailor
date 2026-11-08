@@ -16,11 +16,11 @@
   cursor: pointer;
 }
 
-.btn-container{
+/* .btn-container{
   display: flex;
   flex-direction: column;
   gap: .4rem;
-}
+} */
 
 .nav{
   display: flex;

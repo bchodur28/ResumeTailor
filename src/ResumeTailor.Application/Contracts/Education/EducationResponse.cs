@@ -1,8 +1,11 @@
+using ResumeTailor.Domain.Profile;
+
 namespace ResumeTailor.Application.Contracts.Education;
 
 public sealed record EducationResponse(
     int Id,
     int? SelectionId,
+    EducationType Type,
     string InstitutionName,
     string Qualification,
     string? FieldOfStudy,

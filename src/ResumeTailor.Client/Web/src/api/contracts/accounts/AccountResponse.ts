@@ -5,9 +5,7 @@ export type AccountResponse = {
   id: number;
   email: string;
   displayName: string;
-  city: string;
-  state: string;
-  country: string;
+  location: string;
   titles: TitleResponse[];
   personalLinks: PersonalLinkResponse[];
 };
