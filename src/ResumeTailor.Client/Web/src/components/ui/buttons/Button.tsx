@@ -63,21 +63,20 @@ const Button = ({
       aria-label={label}
     >
       <div className="flex flex-col items-center">
-        <div className="btn-content-container">
+        <div className="btn__content">
           {Icon && <div className="btn__icon">{<Icon size={20} />}</div>}
           <p
             className={`
-                        ${labelSlideOut ? "btn-label-slide-out" : "btn-label"}
-                        ${Icon && (hideLabel ?? true) && !labelSlideOut ? "btn-content-hidden" : ""}
-                        ${hideLabelOnMobile ? "btn__label--mobile-hidden" : ""}
-                      `}
+              ${labelSlideOut ? "btn__label--slide-out" : "btn__label"} 
+              ${Icon && (hideLabel ?? true) && !labelSlideOut ? "btn__label--hidden" : ""}
+              ${hideLabelOnMobile ? "btn__label--mobile-hidden" : ""}`}
           >
             {label}
           </p>
         </div>
 
         {optionalWarning && (
-          <p className="btn__optional-warning">{optionalWarning}</p>
+          <p className="btn__optional--warning">{optionalWarning}</p>
         )}
       </div>
     </button>
