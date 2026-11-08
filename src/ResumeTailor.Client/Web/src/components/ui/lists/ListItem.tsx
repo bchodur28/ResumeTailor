@@ -1,26 +1,13 @@
 import type { ReactNode } from "react";
-import ActionDropdown from "../dropdowns/ActionDropdown";
 
 type Item = {
   content: string;
   tags?: string[];
   icon?: ReactNode;
-  actions?: {
-    actionName: string;
-    actionFn: () => void;
-    dropDownAction?: boolean;
-    btnClassReplace?: string;
-  }[];
   borderColor?: string;
 };
 
-const ListItem = ({ content, tags, icon, actions, borderColor }: Item) => {
-  const primaryActions =
-    actions?.filter((action) => !action.dropDownAction) ?? [];
-
-  const dropdownActions =
-    actions?.filter((action) => action.dropDownAction) ?? [];
-
+const ListItem = ({ content, tags, icon, borderColor }: Item) => {
   return (
     <li
       className={`
@@ -52,27 +39,6 @@ const ListItem = ({ content, tags, icon, actions, borderColor }: Item) => {
                 </p>
               </div>
             ))}
-          </div>
-
-          <div className="flex shrink-0 gap-2 self-end">
-            {primaryActions.map((action, index) => (
-              <button
-                key={index}
-                className={action.btnClassReplace ?? "btn-secondary"}
-                onClick={action.actionFn}
-              >
-                {action.actionName}
-              </button>
-            ))}
-
-            {dropdownActions.length > 0 && (
-              <ActionDropdown
-                actions={dropdownActions.map((action) => ({
-                  actionName: action.actionName,
-                  actionFn: action.actionFn,
-                }))}
-              />
-            )}
           </div>
         </div>
       </div>

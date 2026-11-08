@@ -36,6 +36,7 @@ import type { LibraryExperienceResponse } from "../../api/contracts/library/Libr
 import Resume from "../../components/resume/Resume";
 import { ResumeEditProvider } from "../../contexts/ResumeEditContext";
 import type { SkillResponse } from "../../api/contracts/accounts/SkillResponse";
+import Dropdown from "./components/Dropdown";
 
 const mapResumeToRequest = (resume: ResumeResponse): UpdateResumeRequest => ({
   name: resume.resumeName ?? "",
@@ -817,8 +818,8 @@ const ResumeDetailsPage = () => {
                 styleType="filter"
                 labelSlideOut={true}
               >
-                <SearchDropdown
-                  filteredActions={availableProjectsButExcludingCurrent.map(
+                <Dropdown
+                  actions={availableProjectsButExcludingCurrent.map(
                     (project) => ({
                       label: project.title,
                       onClick: () =>
@@ -834,8 +835,8 @@ const ResumeDetailsPage = () => {
               styleType="filter"
               labelSlideOut={true}
             >
-              <SearchDropdown
-                filteredActions={[16, 17, 18, 19, 20].map((size) => ({
+              <Dropdown
+                actions={[16, 17, 18, 19, 20].map((size) => ({
                   label: `${size}pt`,
                   onClick: () => handleTitleFontSizeChange(size),
                 }))}
@@ -847,8 +848,8 @@ const ResumeDetailsPage = () => {
               styleType="filter"
               labelSlideOut={true}
             >
-              <SearchDropdown
-                filteredActions={[14, 15, 16, 17, 18, 19, 20].map((size) => ({
+              <Dropdown
+                actions={[14, 15, 16, 17, 18, 19, 20].map((size) => ({
                   label: `${size}pt`,
                   onClick: () => handleSectionHeaderFontSizeChange(size),
                 }))}
@@ -860,8 +861,8 @@ const ResumeDetailsPage = () => {
               styleType="filter"
               labelSlideOut={true}
             >
-              <SearchDropdown
-                filteredActions={[10, 11, 12].map((size) => ({
+              <Dropdown
+                actions={[10, 11, 12].map((size) => ({
                   label: `${size}pt`,
                   onClick: () => handleMainBodyFontSizeChange(size),
                 }))}
