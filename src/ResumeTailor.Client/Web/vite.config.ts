@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5173,
-    allowedHosts: ["prev-style-sealed-beauty.trycloudflare.com"],
+    allowedHosts: ["switch-webcast-maria-elect.trycloudflare.com"],
     proxy: {
       "/api": {
         target: "https://localhost:7139",

@@ -243,6 +243,7 @@ const LibraryHeaderPage = () => {
                   iconComponent: isEditingTitles ? Eyeglasses : Pen,
                   onClick: () => setIsEditingTitles(!isEditingTitles),
                   expandOnClick: true,
+                  hideLabelOnMobile: true,
                 },
               ]}
             >
@@ -306,6 +307,7 @@ const LibraryHeaderPage = () => {
                   onClick: () =>
                     setIsEditingPersonalLinks(!isEditingPersonalLinks),
                   expandOnClick: true,
+                  hideLabelOnMobile: true,
                 },
               ]}
             >

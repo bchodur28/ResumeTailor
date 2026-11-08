@@ -11,6 +11,7 @@ type CollapsibleSectionProps = {
     iconComponent?: Icon;
     onClick: () => void;
     expandOnClick?: boolean;
+    hideLabelOnMobile?: boolean;
   }[];
   children: React.ReactNode;
 };
@@ -48,6 +49,7 @@ const CollapsibleSection = ({
               iconComponent={action.iconComponent}
               styleType="edit"
               labelSlideOut={true}
+              hideLabelOnMobile={action.hideLabelOnMobile}
             />
           ))}
 
@@ -57,6 +59,7 @@ const CollapsibleSection = ({
             iconComponent={isCollapsed ? ChevronDown : ChevronUp}
             styleType="edit"
             labelSlideOut={true}
+            hideLabelOnMobile={true}
           />
         </div>
       </div>

@@ -10,6 +10,9 @@ export type ButtonProps = {
   isActive?: boolean;
   labelSlideOut?: boolean;
   optionalWarning?: string;
+  hideLabelOnMobile?: boolean;
+  btnClassName?: string;
+  fullWidth?: boolean;
 };
 
 const getStyleClass = (styleType: string | undefined) => {
@@ -21,11 +24,11 @@ const getStyleClass = (styleType: string | undefined) => {
     case "danger":
       return { normal: "btn--danger", active: "" };
     case "filter":
-      return { normal: "btn--filter", active: "btn--filter--active" };
+      return { normal: "btn--filter", active: "btn--active" };
     case "edit":
-      return { normal: "btn--edit", active: "btn--edit--active" };
+      return { normal: "btn--edit", active: "btn--active" };
     default:
-      return { normal: "btn--main", active: "btn--main--active" };
+      return { normal: "btn--main", active: "btn--active" };
   }
 };
 
@@ -38,7 +41,10 @@ const Button = ({
   hideLabel,
   isActive = false,
   labelSlideOut = false,
+  hideLabelOnMobile = false,
   optionalWarning,
+  btnClassName,
+  fullWidth,
 }: ButtonProps) => {
   return (
     <button
@@ -47,16 +53,26 @@ const Button = ({
         onClick?.();
       }}
       type={type ?? "button"}
-      className={`btn-base ${getStyleClass(styleType).normal} ${isActive ? `${getStyleClass(styleType).active}` : ""}`}
+      className={`
+        btn
+        ${fullWidth ? "w-full" : "w-fit"}
+        ${btnClassName ?? ""}
+        ${getStyleClass(styleType).normal}
+        ${isActive ? getStyleClass(styleType).active : ""}
+      `}
       aria-label={label}
     >
       <div className="flex flex-col items-center">
         <div className="btn-content-container">
-          {Icon && <div className="btn-icon">{<Icon size={20} />}</div>}
+          {Icon && <div className="btn__icon">{<Icon size={20} />}</div>}
           <p
-            className={`${labelSlideOut ? "btn-label-slide-out" : "btn-label"} ${Icon && (hideLabel ?? true) ? "btn-content-hidden" : ""}`}
+            className={`
+                        ${labelSlideOut ? "btn-label-slide-out" : "btn-label"}
+                        ${Icon && (hideLabel ?? true) && !labelSlideOut ? "btn-content-hidden" : ""}
+                        ${hideLabelOnMobile ? "btn__label--mobile-hidden" : ""}
+                      `}
           >
-            {!hideLabel && label}
+            {label}
           </p>
         </div>
 

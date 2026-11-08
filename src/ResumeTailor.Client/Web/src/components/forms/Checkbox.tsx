@@ -6,6 +6,7 @@ type InputProps = {
   checked?: boolean;
   onChange?: (checked: boolean) => void;
   registration?: UseFormRegisterReturn;
+  labelOnLeft?: boolean;
 };
 
 const Checkbox = ({
@@ -14,12 +15,15 @@ const Checkbox = ({
   checked,
   registration,
   onChange,
+  labelOnLeft = false,
 }: InputProps) => {
   return (
     <div className="flex items-center gap-2">
-      <label className="ml-1 text-gray-500 text-sm font-medium" htmlFor={id}>
-        {label}
-      </label>
+      {labelOnLeft && (
+        <label className="mr-1 text-gray-500 text-sm font-medium" htmlFor={id}>
+          {label}
+        </label>
+      )}
       <input
         className="h-4 w-4 cursor-pointer translate-y-0.5"
         type="checkbox"
@@ -31,6 +35,11 @@ const Checkbox = ({
           onChange?.(e.target.checked);
         }}
       />
+      {labelOnLeft == false && (
+        <label className="mr-1 text-gray-500 text-sm font-medium" htmlFor={id}>
+          {label}
+        </label>
+      )}
     </div>
   );
 };

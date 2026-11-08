@@ -26,7 +26,6 @@ import CheckboxView from "./components/CheckboxView";
 import DropdownButton from "../../components/ui/buttons/DropdownButton";
 import ActionList from "../../components/ui/lists/ActionList";
 import { getEducationFieldConfig } from "./EducationConfiguration";
-import DropdownContainer from "../../components/ui/dropdowns/DropdownContainer";
 
 const LibraryEducation = () => {
   const { getAccessTokenSilently } = useAuth0();
@@ -208,12 +207,6 @@ const LibraryEducation = () => {
         educational experiences.
       </p>
       <Card className="w-xl max-[640px]:w-full flex flex-col gap-4">
-        {isDirty && (
-          <Message
-            type="note"
-            message="You have unsaved changes. Save to apply your updates."
-          />
-        )}
         <div>
           <form
             className="flex flex-col gap-4"
@@ -264,6 +257,7 @@ const LibraryEducation = () => {
                         iconComponent={Pen}
                         labelSlideOut={true}
                         onClick={() => toggleEducationEditMode(index)}
+                        hideLabelOnMobile={true}
                       />
                     </div>
                   </div>
@@ -354,16 +348,42 @@ const LibraryEducation = () => {
                 </p>
               </div>
             )}
-            <div className="flex justify-end gap-2">
-              <DropdownButton label="Add" styleType="plain" closeOnClick={true}>
-                <ActionList
-                  actions={Object.values(EducationType).map((value) => ({
-                    actionName: getEducationTypeLabel(value),
-                    actionFn: () => handleAddEducation(value),
-                  }))}
+            <div className="flex flex-col gap-4">
+              {isDirty && (
+                <Message
+                  type="note"
+                  message="You have unsaved changes. Save to apply your updates."
                 />
-              </DropdownButton>
-              {isDirty && <Button label="Save Changes" type="submit" />}
+              )}
+              <div className="flex gap-2">
+                <div className="flex-1 min-w-0">
+                  <DropdownButton
+                    label="Add"
+                    styleType="plain"
+                    closeOnClick={true}
+                    btnClassName="w-full"
+                    positionRelativeTo="container"
+                    fullWidth={true}
+                  >
+                    <ActionList
+                      actions={Object.values(EducationType).map((value) => ({
+                        actionName: getEducationTypeLabel(value),
+                        actionFn: () => handleAddEducation(value),
+                      }))}
+                    />
+                  </DropdownButton>
+                </div>
+
+                {isDirty && (
+                  <div className="flex-1 min-w-0">
+                    <Button
+                      label="Save Changes"
+                      type="submit"
+                      btnClassName="w-full"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </form>
         </div>

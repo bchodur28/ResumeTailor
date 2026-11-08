@@ -20,7 +20,12 @@ const CheckboxView = ({
   return (
     <>
       {isInput && (
-        <Checkbox id={id} label={label} registration={registration} />
+        <Checkbox
+          id={id}
+          label={label}
+          registration={registration}
+          labelOnLeft={true}
+        />
       )}
       {!isInput && (
         <li className="flex gap-2">

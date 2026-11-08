@@ -19,6 +19,8 @@ const DropdownButton = ({
   labelSlideOut,
   positionRelativeTo = "button",
   closeOnClick = false,
+  btnClassName,
+  fullWidth,
 }: DropdownButtonProps) => {
   const id = useId();
   const context = useDropdownContext();
@@ -44,11 +46,15 @@ const DropdownButton = ({
   };
   return (
     <div
-      className={`${
-        positionRelativeTo === "container"
-          ? "dropdown-btn-container-parent-width"
-          : "dropdown-btn-container"
-      }`}
+      className={`
+    relative
+    ${
+      positionRelativeTo === "container"
+        ? "dropdown-btn-container-parent-width"
+        : "dropdown-btn-container"
+    }
+    ${fullWidth ? "dropdown-btn-container--full" : ""}
+  `}
     >
       <Button
         label={label}
@@ -58,6 +64,7 @@ const DropdownButton = ({
         hideLabel={hideLabel}
         labelSlideOut={labelSlideOut}
         isActive={isOpen}
+        btnClassName={btnClassName}
       />
       {isOpen && (
         <DropdownContainer

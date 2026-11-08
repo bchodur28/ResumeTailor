@@ -244,13 +244,17 @@ export const getExperiences = async (
 
 export const getLibraryExperienceListItems = async (
   token: string,
+  archived: boolean = false,
 ): Promise<LibraryExperienceListItemResponse[]> => {
-  const response = await fetch("/api/experiences/list-items", {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const response = await fetch(
+    `/api/experiences/list-items?archived=${archived}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch experience summaries");
@@ -273,4 +277,54 @@ export const getLibraryExperience = async (
     throw new Error("Failed to fetch experience");
   }
   return await response.json();
+};
+
+export const deleteLibraryExperience = async (
+  id: number,
+  token: string,
+): Promise<void> => {
+  const response = await fetch(`/api/experiences/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete experience");
+  }
+};
+
+export const archiveLibraryExperience = async (
+  id: number,
+  token: string,
+): Promise<void> => {
+  const response = await fetch(`/api/experiences/${id}/archive`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const problem = await response.json();
+    throw new Error(problem.detail ?? "Failed to archive experience");
+  }
+};
+
+export const restoreLibraryExperience = async (
+  id: number,
+  token: string,
+): Promise<void> => {
+  const response = await fetch(`/api/experiences/${id}/restore`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const problem = await response.json();
+    throw new Error(problem.detail ?? "Failed to restore experience");
+  }
 };
