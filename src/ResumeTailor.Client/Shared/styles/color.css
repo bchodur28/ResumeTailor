@@ -1,8 +1,9 @@
 :root {
-    --primary-color-very-light: hsl(218, 62%, 95%);
-    --primary-color-light: hsl(218, 62%, 49%);
-    --primary-color: hsl(218, 62%, 39%);
-    --primary-color-dark: hsl(218, 62%, 29%);
+    --primary-color-50: hsl(218, 62%, 95%);
+    --primary-color-100: hsl(218, 62%, 85%);
+    --primary-color-200: hsl(218, 62%, 59%);
+    --primary-color-300: hsl(218, 62%, 39%);
+    --primary-color-400: hsl(218, 62%, 29%);
     --gray-100: oklch(96.7% 0.003 264.542);
     --gray-200: oklch(92.8% 0.006 264.531);
     --gray-300: oklch(87.2% 0.01 258.338);
@@ -17,11 +18,16 @@
     --rejected-color: hsl(0, 52%, 52%);
 
 }
+
+.primary-border{
+  border: 1px solid var(--primary-color-100);
+}
+
 .primary-color{
-  color: var(--primary-color);
+  color: var(--primary-color-300);
 }
 .primary-color-dark{
-  color: var(--primary-color-dark);
+  color: var(--primary-color-400);
 }
 
 .danger-color{

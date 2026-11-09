@@ -24,6 +24,9 @@ const RootLayout = () => {
   const [isManageProjectsOpen, setIsManageProjectsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const getNavClass = ({ isActive }: { isActive: boolean }) =>
+    `nav-btn ${isActive ? "nav-btn--active" : ""}`;
+
   const handleEditProfile = () => {
     setIsProfileOpen(false);
     setIsEditProfileOpen(true);
@@ -52,19 +55,19 @@ const RootLayout = () => {
 
           {/* Desktop navigation */}
           <nav className="hidden lg:flex relative gap-4">
-            <NavLink className="nav-btn" to="/generate">
+            <NavLink className={getNavClass} to="/generate">
               <Openai size={24} />
               Generate
             </NavLink>
-            <NavLink className="nav-btn" to="/">
+            <NavLink className={getNavClass} to="/">
               <CardList size={24} />
               Tracker
             </NavLink>
-            <NavLink className="nav-btn" to="/manage">
+            <NavLink className={getNavClass} to="/manage">
               <Pen size={24} />
               Bullets
             </NavLink>
-            <NavLink className="nav-btn" to="/library">
+            <NavLink className={getNavClass} to="/library">
               <Book size={24} />
               Library
             </NavLink>

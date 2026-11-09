@@ -233,15 +233,13 @@ const LibraryEducation = () => {
               return (
                 <div
                   key={field.id}
-                  className={`flex flex-col border border-gray-300 p-4 rounded-md ${editingEducationIndexes.has(index) ? "gap-4" : "gap-0.5"}`}
+                  className={`flex flex-col border primary-border p-4 rounded-md ${editingEducationIndexes.has(index) ? "gap-4" : "gap-0.5"}`}
                 >
                   <div className="flex justify-between items-center">
-                    <h4 className="text-lg font-semibold underline">
-                      <h4 className="text-lg font-semibold text-gray-700 underline">
-                        {currentEducation?.type
-                          ? getEducationTypeLabel(currentEducation.type)
-                          : "Education"}{" "}
-                      </h4>
+                    <h4 className="text-xl font-medium primary-color-dark">
+                      {currentEducation?.type
+                        ? getEducationTypeLabel(currentEducation.type)
+                        : "Education"}{" "}
                     </h4>
                     <div className="flex gap-2">
                       <Button

@@ -18,7 +18,7 @@ export type ButtonProps = {
 const getStyleClass = (styleType: string | undefined) => {
   switch (styleType) {
     case "plain":
-      return { normal: "btn--secondary", active: "" };
+      return { normal: "btn--plain", active: "" };
     case "confirm":
       return { normal: "btn--confirm", active: "" };
     case "danger":

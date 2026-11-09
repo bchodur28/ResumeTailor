@@ -28,8 +28,8 @@ const CheckboxView = ({
         />
       )}
       {!isInput && (
-        <li className="flex gap-2">
-          <p className="text-sm font-medium text-gray-500">{label}:</p>
+        <li className="flex gap-2 items-baseline">
+          <p className="text-sm font-medium text-gray-600">{label}:</p>
           <p className="text-base font-medium text-gray-700">
             {valueToDisplay ?? ""}
           </p>

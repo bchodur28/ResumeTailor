@@ -3,18 +3,20 @@ import { NavLink } from "react-router-dom";
 import { Book, CardHeading, CardList } from "react-bootstrap-icons";
 
 const LibraryLayout = () => {
+  const getNavClass = ({ isActive }: { isActive: boolean }) =>
+    `nav-btn ${isActive ? "nav-btn--active" : ""}`;
   return (
     <div className="w-full flex flex-col items-center gap-4">
       <div className="flex gap-2">
-        <NavLink className="nav-btn" to="/library">
+        <NavLink className={getNavClass} to="/library" end>
           <CardHeading size={24} />
           <p className="max-[640px]:text-sm font-semibold">Header</p>
         </NavLink>
-        <NavLink className="nav-btn" to="/library/education">
+        <NavLink className={getNavClass} to="/library/education">
           <Book size={24} />
           <p className="max-[640px]:text-sm font-semibold">Education</p>
         </NavLink>
-        <NavLink className="nav-btn" to="/library/experience">
+        <NavLink className={getNavClass} to="/library/experience">
           <CardList size={24} />
           <p className="max-[640px]:text-sm font-semibold">Experience</p>
         </NavLink>

@@ -49,6 +49,7 @@ import CollapsibleSection from "./components/CollapsibleSection";
 import ControllerView from "./components/ControllerView";
 import InputView from "./components/InputView";
 import CheckboxView from "./components/CheckboxView";
+import TextAreaView from "./components/TextAreaView";
 
 const mapExperienceResponseToRequest = (
   experience: LibraryExperienceResponse,
@@ -333,6 +334,7 @@ const LibraryExperienceEditPage = () => {
                     iconComponent: isEditing ? Eyeglasses : Pen,
                     onClick: () => setIsEditing(!isEditing),
                     expandOnClick: true,
+                    hideLabelOnMobile: true,
                   },
                 ]}
               >
@@ -441,14 +443,19 @@ const LibraryExperienceEditPage = () => {
 
                   {watch("type") === ExperienceType.PersonalProject && (
                     <>
-                      <TextArea
+                      <TextAreaView
                         id="tech-stack"
                         label="Tech Stack"
+                        isInput={isEditing}
+                        valueToDisplay={watch("techStack")}
                         registration={register("techStack")}
+                        rows={4}
                       />
-                      <Input
+                      <InputView
                         id="link"
                         label="Link"
+                        isInput={isEditing}
+                        valueToDisplay={watch("link")}
                         registration={register("link")}
                       />
                     </>
@@ -512,54 +519,6 @@ const LibraryExperienceEditPage = () => {
                 />
               )}
               {summaryFields.length > 0 && allowSummaryByDefault && (
-                // <div className="flex flex-col border border-gray-300 p-4 gap-4 rounded-lg">
-                //   <div className="flex justify-between items-center">
-                //     <h2 className="font-semibold text-lg text-gray-600">
-                //       Summaries{" "}
-                //       <span className="text-sm text-gray-500 ml-1">
-                //         ({summaryFields.length} of 3)
-                //       </span>
-                //     </h2>
-                //     <div className="flex gap-2">
-                //       {summaryFields.length < 3 && (
-                //         <Button
-                //           label="Add"
-                //           onClick={() => {
-                //             appendSummary(createEmptySummary(experience.id));
-                //             setCollapseSummaries(false);
-                //           }}
-                //           iconComponent={PlusCircle}
-                //           styleType="edit"
-                //           labelSlideOut={true}
-                //         />
-                //       )}
-
-                //       {summaryFields.length > 0 && (
-                //         <Button
-                //           label={collapseSummaries ? "Show" : "Hide"}
-                //           onClick={() =>
-                //             setCollapseSummaries(!collapseSummaries)
-                //           }
-                //           iconComponent={
-                //             collapseSummaries ? ChevronDown : ChevronUp
-                //           }
-                //           styleType="edit"
-                //           labelSlideOut={true}
-                //         />
-                //       )}
-                //     </div>
-                //   </div>
-                //   {!collapseSummaries &&
-                //     summaryFields.map((summary, index) => {
-                //       return (
-                //         <SummaryEditor
-                //           key={summary.id}
-                //           index={index}
-                //           onDelete={flagSummaryForDeletion}
-                //         />
-                //       );
-                //     })}
-                // </div>
                 <CollapsibleSection
                   title="Summaries"
                   optionalMessage={`(${summaryFields.length} out of 3)`}
@@ -622,17 +581,20 @@ const LibraryExperienceEditPage = () => {
                   </div>
                 </CollapsibleSection>
               )}
-              {bulletFields.length === 0 && (
-                <Button
-                  label="Add Bullets"
-                  onClick={() => {
-                    appendBullet(createEmptyBullet(experience.id));
-                    setCollapseBullets(false);
-                  }}
-                  styleType="plain"
-                />
-              )}
-              <Button label="Save Changes" type="submit" />
+              <div className="flex gap-2">
+                {bulletFields.length === 0 && (
+                  <Button
+                    label="Add Bullets"
+                    onClick={() => {
+                      appendBullet(createEmptyBullet(experience.id));
+                      setCollapseBullets(false);
+                    }}
+                    styleType="plain"
+                    fullWidth={true}
+                  />
+                )}
+                <Button label="Save Changes" type="submit" fullWidth={true} />
+              </div>
             </form>
           </FormProvider>
         )}

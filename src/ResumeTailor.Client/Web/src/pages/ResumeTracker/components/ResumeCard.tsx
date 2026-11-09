@@ -63,7 +63,7 @@ const formatDate = (date: string | Date) => {
 const getStatusColor = (status: ApplicationStatusValue | undefined) => {
   console.log("Current status:", status);
   if (!status) {
-    return ["var(--primary-color)", "white"];
+    return ["var(--primary-color-300)", "white"];
   }
   switch (status) {
     case ApplicationStatus.Applied:
@@ -77,7 +77,7 @@ const getStatusColor = (status: ApplicationStatusValue | undefined) => {
     case ApplicationStatus.Rejected:
       return ["var(--rejected-color)", "white"];
     default:
-      return ["var(--primary-color)", "white"];
+      return ["var(--primary-color-300)", "white"];
   }
 };
 

@@ -26,14 +26,14 @@ const CollapsibleSection = ({
   const [isCollapsed, setIsCollapsed] = React.useState(!openByDefault);
 
   return (
-    <div className="flex flex-col border border-gray-300 rounded-lg">
+    <div className="flex flex-col primary-border rounded-lg">
       <div
         onClick={() => setIsCollapsed((prev) => !prev)}
-        className="flex justify-between items-center px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors duration-300"
+        className="flex justify-between items-center px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors duration-300"
       >
-        <h2 className="text-lg font-semibold text-gray-700 underline">
+        <h2 className="text-lg font-semibold primary-color-dark">
           {title}
-          <span className="text-sm text-gray-500 ml-1">{optionalMessage}</span>
+          <span className="text-sm text-gray-600 ml-1">{optionalMessage}</span>
         </h2>
         <div className="flex gap-2">
           {actions?.map((action, index) => (

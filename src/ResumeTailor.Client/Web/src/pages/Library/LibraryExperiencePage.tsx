@@ -175,37 +175,37 @@ const LibraryExperiencePage = () => {
             <ul className="w-full flex flex-col gap-2">
               {experiences.map((experience) => (
                 <li
-                  className="border border-gray-300 p-2 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors duration-300"
+                  className="primary-border p-2 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm transition-colors duration-300"
                   key={experience.id}
                   onClick={() =>
                     navigate(`/library/experience/${experience.id}/edit`)
                   }
                 >
                   <div className="flex justify-between">
-                    <h4 className="text-base font-semibold text-gray-700 underline">
+                    <h4 className="text-base font-bold primary-color-dark">
                       {experience.organization
                         ? experience.organization
                         : experience.title}
                     </h4>
-                    <p className="text-gray-600 text-sm font-semibold">
+                    <p className="primary-color text-sm font-semibold">
                       {getExperienceTypeLabel(experience.type)}
                     </p>
                   </div>
                   <div className="flex justify-between">
                     <div>
-                      <p className="text-gray-500 text-sm font-medium">
+                      <p className="text-gray-600 text-sm font-medium">
                         Bullet Count:{" "}
                         <span className="text-base font-medium text-gray-700">
                           {experience.bulletCount}
                         </span>
                       </p>
-                      <p className="text-gray-500 text-sm font-medium">
+                      <p className="text-gray-600 text-sm font-medium">
                         Summary Count:{" "}
                         <span className="text-base font-medium text-gray-700">
                           {experience.summaryCount}
                         </span>
                       </p>
-                      <p className="text-gray-500 text-sm font-medium">
+                      <p className="text-gray-600 text-sm font-medium">
                         Resume Count:{" "}
                         <span className="text-base font-medium text-gray-700">
                           {experience.resumeCount}
@@ -246,7 +246,7 @@ const LibraryExperiencePage = () => {
           )}
           <div className="flex flex-1 justify-between gap-2">
             <Button
-              label={showArchived ? "Show Non-Archived" : "Show Archived"}
+              label={showArchived ? "Show Active" : "Show Archived"}
               onClick={() => setShowArchived((prev) => !prev)}
               labelSlideOut={false}
               styleType="plain"

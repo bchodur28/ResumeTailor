@@ -158,7 +158,7 @@ const LibraryHeaderPage = () => {
             />
           </div>
         )}
-        <h4 className="text-lg font-semibold text-gray-700 underline">
+        <h4 className="text-lg font-semibold primary-color-dark mb-4">
           Main Header Information
         </h4>
         <form
@@ -216,6 +216,7 @@ const LibraryHeaderPage = () => {
               styleType="plain"
               label={isEditingAccount ? "View Header Info" : "Edit Header Info"}
               onClick={() => setIsEditingAccount(!isEditingAccount)}
+              fullWidth={true}
             />
             {/* Additional Titles Section */}
             <CollapsibleSection
@@ -314,7 +315,7 @@ const LibraryHeaderPage = () => {
               <div className="flex flex-col gap-2 mt-2">
                 {personalLinkFields.map((link, index) => (
                   <div key={link.id} className="flex flex-col gap-2">
-                    <div className="flex flex-col gap-2 border border-gray-300 p-4 rounded-lg">
+                    <div className="flex flex-col gap-2 primary-border p-4 rounded-lg">
                       <InputView
                         id={`personalLinks.${index}.displayName`}
                         label="Name"

@@ -3,20 +3,23 @@
   align-items: center;
   gap: 0.6rem;
   padding: 6px 10px;
-  /* background-color: var(--primary-color); */
-  color: var(--primary-color);
+  background-color: var(--color-white);
+  color: var(--primary-color-300);
+  border: solid 1px var(--primary-color-100);
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
-  border: solid 1px white;
+  transition: background-color 0.3s, border 0.3s;
   height: 100%;
-  border: solid 1px hsl(256, 55%, 80%);
+}
+
+.nav-btn--active{
+  border: solid 1px var(--primary-color-400);
+  background-color: var(--primary-color-300);
+  color: white;
 }
 
 .nav-btn:hover{
-  /* background-color: var(--primary-color-dark); */
-  border: solid 1px var(--primary-color-light);
-  background-color: hsl(0, 0%, 95%);
+  border: solid 1px var(--primary-color-200);
 }
 
 .btn-container {
@@ -57,7 +60,7 @@
 
 .btn-container-style {
   background-color: var(--color-gray-50);
-  border: 1px solid var(--primary-color-light);
+  border: 1px solid var(--primary-color-100);
   border-radius: calc(infinity * 1px);
   
   box-shadow: var(--small-shadow-light);
@@ -151,8 +154,8 @@
   padding: 10px 12px;
   cursor: pointer;
 
-  background-color: var(--primary-color);
-  border: 1px solid var(--primary-color-light);
+  background-color: var(--primary-color-300);
+  border: 1px solid var(--primary-color-100);
   color: white;
   font-weight: 500;
 
@@ -163,12 +166,12 @@
 }
 
 .btn--main:hover{
-  background-color: var(--primary-color-dark);
+  background-color: var(--primary-color-400);
 }
 
 .btn--main.btn--active{
-  background-color: var(--primary-color-dark);
-  border: 1px solid var(--primary-color-light);
+  background-color: var(--primary-color-400);
+  border: 1px solid var(--primary-color-100);
   box-shadow: var(--small-shadow-light);
 }
 
@@ -190,7 +193,7 @@
   padding: 8px 10px;
   cursor: pointer;
 
-  color: var(--color-gray-600);
+  color: var(--primary-color-30);
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
 
@@ -201,28 +204,28 @@
 
 .btn--edit.btn--active,
 .btn--edit:hover{
-  border: 1px solid var(--color-gray-500);
-  color: var(--color-gray-700);
+  border: 1px solid var(--primary-color-100);
+  color: var(--primary-color-300);
 
-  box-shadow: var(--small-shadow-light);
+  box-shadow: var(--small-shadow-light-300);
 }
 
 .btn--filter.btn--active,
 .btn--filter:hover{
-  border: 1px solid var(--primary-color-light);
+  border: 1px solid var(--primary-color-100);
   color: var(--color-gray-700);
 
   box-shadow: var(--small-shadow-light);
 }
 
 .btn--filter.btn--active {
-  background-color: var(--primary-color-very-light);
+  background-color: var(--primary-color-50);
 }
 
 .btn--active {
-  border: 1px solid var(--primary-color-light);
+  border: 1px solid var(--primary-color-100);
   border-radius: calc(infinity * 1px);
-  background-color: var(--primary-color-very-light);
+  background-color: var(--primary-color-50);
   box-shadow: var(--small-shadow-light);
 }
 
@@ -231,11 +234,11 @@
   cursor: not-allowed;
 }
 
-.btn--secondary {
+.btn--plain {
   padding: 8px 10px;
-  background-color: var(white);
-  color: var(--color-gray-700);
-  border: 1px solid var(--color-gray-300);
+  background-color: var(--color-gray-50);
+  color: var(--primary-color-300);
+  border: 1px solid var(--primary-color-100);
   border-radius: 8px;
   cursor: pointer;
   transition:
@@ -248,16 +251,14 @@
   font-weight: 600;
 }
 
-.btn--secondary .btn__optional--warning { 
+.btn--plain .btn__optional--warning { 
   font-weight: 500;
   font-size: 12px;
-  color: var(--color-gray-500);
+  color: var(--color-gray-600);
 }
 
-.btn--secondary:hover {
-  background-color: var(--color-gray-100);
-  border-color: var(--color-gray-500);
-  
+.btn--plain:hover {
+  border-color: var(--primary-color-200);
 }
 
 .btn--danger {
@@ -345,8 +346,6 @@
 .action-dropdown__primary,
 .action-dropdown__toggle {
   border: 0;
-  /* background-color: var(--primary-color);
-  color: white; */
   cursor: pointer;
   transition: background-color 0.3s;
 
