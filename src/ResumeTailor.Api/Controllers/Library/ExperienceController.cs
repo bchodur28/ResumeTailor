@@ -10,14 +10,14 @@ namespace ResumeTailor.Api.Controllers.Library;
 [Authorize]
 [ApiController]
 [Route("api/experiences")]
-public class ExperienceController(ILibraryExperienceService experienceService) : ControllerBase
+public class ExperienceController(ILibraryExperienceService service) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyCollection<LibraryExperienceResponse>>> GetExperiencesAsync(CancellationToken cancellationToken = default)
     {
         var auth0UserId = GetAuth0UserId();
 
-        var experiences = await experienceService.GetExperiencesAsync(auth0UserId, cancellationToken);
+        var experiences = await service.GetExperiencesAsync(auth0UserId, cancellationToken);
         return Ok(experiences);
     }
 
@@ -26,7 +26,7 @@ public class ExperienceController(ILibraryExperienceService experienceService) :
     {
         var auth0UserId = GetAuth0UserId();
 
-        var listItems = await experienceService.GetLibraryExperiencesListItemsAsync(auth0UserId, archived, cancellationToken);
+        var listItems = await service.GetExperienceListItemsAsync(auth0UserId, archived, cancellationToken);
         return Ok(listItems);
     }
 
@@ -35,7 +35,7 @@ public class ExperienceController(ILibraryExperienceService experienceService) :
     {
         var auth0UserId = GetAuth0UserId();
 
-        var experience = await experienceService.GetExperienceAsync(auth0UserId, id, cancellationToken);
+        var experience = await service.GetExperienceAsync(auth0UserId, id, cancellationToken);
         return Ok(experience);
     }
 
@@ -44,7 +44,7 @@ public class ExperienceController(ILibraryExperienceService experienceService) :
     {
         var auth0UserId = GetAuth0UserId();
 
-        var experienceId = await experienceService.CreateExperienceAsync(auth0UserId, request, cancellationToken);
+        var experienceId = await service.CreateExperienceAsync(auth0UserId, request, cancellationToken);
         return Ok(experienceId);
     }
 
@@ -53,7 +53,7 @@ public class ExperienceController(ILibraryExperienceService experienceService) :
     {
         var auth0UserId = GetAuth0UserId();
 
-        await experienceService.UpdateExperienceAsync(auth0UserId, id, request, cancellationToken);
+        await service.UpdateExperienceAsync(auth0UserId, id, request, cancellationToken);
         return NoContent();
     }
 
@@ -62,7 +62,7 @@ public class ExperienceController(ILibraryExperienceService experienceService) :
     {
         var auth0UserId = GetAuth0UserId();
 
-        await experienceService.DeleteExperienceAsync(auth0UserId, id, cancellationToken);
+        await service.DeleteExperienceAsync(auth0UserId, id, cancellationToken);
         return NoContent();
     }
 
@@ -71,7 +71,7 @@ public class ExperienceController(ILibraryExperienceService experienceService) :
     {
         var auth0UserId = GetAuth0UserId();
 
-        await experienceService.ArchiveExperienceAsync(auth0UserId, id, cancellationToken);
+        await service.ArchiveExperienceAsync(auth0UserId, id, cancellationToken);
         return NoContent();
     }
 
@@ -80,7 +80,7 @@ public class ExperienceController(ILibraryExperienceService experienceService) :
     {
         var auth0UserId = GetAuth0UserId();
 
-        await experienceService.RestoreExperienceAsync(auth0UserId, id, cancellationToken);
+        await service.RestoreExperienceAsync(auth0UserId, id, cancellationToken);
         return NoContent();
     }
 

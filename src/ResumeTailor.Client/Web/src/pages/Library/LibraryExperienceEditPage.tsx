@@ -180,6 +180,7 @@ const LibraryExperienceEditPage = () => {
     watch,
     handleSubmit,
     reset,
+    resetField,
     formState: { errors, isValid, isDirty, dirtyFields },
   } = methods;
 
@@ -209,6 +210,22 @@ const LibraryExperienceEditPage = () => {
       }
     }
   }, [experience, reset]);
+
+  const handleCancelExperienceDetails = () => {
+    resetField("type");
+    resetField("title");
+    resetField("organization");
+    resetField("location");
+    resetField("started");
+    resetField("ended");
+    resetField("link");
+    resetField("techStack");
+    resetField("letAiChooseBullets");
+    resetField("maxBulletsToChoose");
+
+    setHideEndDate(experience?.ended == null);
+    setIsEditing(false);
+  };
 
   const experienceTypeOptions = experience
     ? [experience.type, ...getValidSwitchTypes(experience.type)].map(
@@ -330,9 +347,15 @@ const LibraryExperienceEditPage = () => {
                 openByDefault={true}
                 actions={[
                   {
-                    label: isEditing ? "View" : "Edit",
-                    iconComponent: isEditing ? Eyeglasses : Pen,
-                    onClick: () => setIsEditing(!isEditing),
+                    label: isEditing ? "Cancel" : "Edit",
+                    iconComponent: isEditing ? ArrowCounterclockwise : Pen,
+                    onClick: () => {
+                      if (isEditing) {
+                        handleCancelExperienceDetails();
+                      } else {
+                        setIsEditing(true);
+                      }
+                    },
                     expandOnClick: true,
                     hideLabelOnMobile: true,
                   },
@@ -590,10 +613,10 @@ const LibraryExperienceEditPage = () => {
                       setCollapseBullets(false);
                     }}
                     styleType="plain"
-                    fullWidth={true}
+                    grow
                   />
                 )}
-                <Button label="Save Changes" type="submit" fullWidth={true} />
+                {isDirty && <Button label="Save Changes" type="submit" grow />}
               </div>
             </form>
           </FormProvider>

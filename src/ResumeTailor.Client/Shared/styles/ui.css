@@ -60,7 +60,7 @@
 
 .btn-container-style {
   background-color: var(--color-gray-50);
-  border: 1px solid var(--primary-color-100);
+  border: 1px solid var(--primary-color-200);
   border-radius: calc(infinity * 1px);
   
   box-shadow: var(--small-shadow-light);
@@ -145,8 +145,12 @@
   width: fit-content;
 }
 
-.dropdown-btn-container--full {
-  display: block;
+.dropdown-btn-container--grow {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+.dropdown-btn-container--grow > .btn {
   width: 100%;
 }
 
@@ -189,11 +193,23 @@
   transition: background-color 0.3s, border-color 0.3s;
 }
 
+.btn--filter.btn--active,
+.btn--filter:hover{
+  border: 1px solid var(--primary-color-200);
+  color: var(--primary-color-400);
+
+  box-shadow: var(--small-shadow-light);
+}
+
+.btn--filter.btn--active {
+  background-color: var(--primary-color-50);
+}
+
 .btn--edit{
   padding: 8px 10px;
   cursor: pointer;
 
-  color: var(--primary-color-30);
+  color: var(--primary-color-300);
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
 
@@ -204,23 +220,13 @@
 
 .btn--edit.btn--active,
 .btn--edit:hover{
-  border: 1px solid var(--primary-color-100);
+  border: 1px solid var(--primary-color-200);
   color: var(--primary-color-300);
 
   box-shadow: var(--small-shadow-light-300);
 }
 
-.btn--filter.btn--active,
-.btn--filter:hover{
-  border: 1px solid var(--primary-color-100);
-  color: var(--color-gray-700);
 
-  box-shadow: var(--small-shadow-light);
-}
-
-.btn--filter.btn--active {
-  background-color: var(--primary-color-50);
-}
 
 .btn--active {
   border: 1px solid var(--primary-color-100);

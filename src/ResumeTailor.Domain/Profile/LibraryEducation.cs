@@ -15,12 +15,14 @@ public sealed class LibraryEducation : Entity
 
     public string? Location { get; private set; }
 
-    public DateOnly Started { get; private set; }
+    public DateOnly? Started { get; private set; }
     public DateOnly? Ended { get; private set; }
 
     public bool UseForResume { get; private set; }
 
-    public LibraryEducation(int accountId, EducationType type, string institutionName, string qualification, string? fieldOfStudy, decimal? gpa, string? location, DateOnly started, DateOnly? ended, bool useForResume)
+    public DateTime? ArchiveDate { get; private set; }
+
+    public LibraryEducation(int accountId, EducationType type, string institutionName, string qualification, string? fieldOfStudy, decimal? gpa, string? location, DateOnly? started, DateOnly? ended, bool useForResume)
     {
         AccountId = accountId;
         Type = type;
@@ -34,7 +36,7 @@ public sealed class LibraryEducation : Entity
         UseForResume = useForResume;
     }
 
-    public void Update(string institutionName, string qualification, string? fieldOfStudy, decimal? gpa, string? location, DateOnly started, DateOnly? ended, bool useForResume)
+    public void Update(string institutionName, string qualification, string? fieldOfStudy, decimal? gpa, string? location, DateOnly? started, DateOnly? ended, bool useForResume)
     {
         InstitutionName = institutionName;
         Qualification = qualification;
@@ -45,5 +47,15 @@ public sealed class LibraryEducation : Entity
         Ended = ended;
         UseForResume = useForResume;
         MarkUpdated();
+    }
+
+    public void Archive()
+    {
+        ArchiveDate ??= DateTime.UtcNow;
+    }
+
+    public void Restore()
+    {
+        ArchiveDate = null;
     }
 }

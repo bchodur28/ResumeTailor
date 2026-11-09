@@ -1,5 +1,3 @@
-
-
 namespace ResumeTailor.Domain.Common.Exceptions;
 
 public class ExperienceInUseException : Exception

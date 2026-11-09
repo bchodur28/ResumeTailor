@@ -12,7 +12,7 @@ export type ButtonProps = {
   optionalWarning?: string;
   hideLabelOnMobile?: boolean;
   btnClassName?: string;
-  fullWidth?: boolean;
+  grow?: boolean;
 };
 
 const getStyleClass = (styleType: string | undefined) => {
@@ -43,8 +43,7 @@ const Button = ({
   labelSlideOut = false,
   hideLabelOnMobile = false,
   optionalWarning,
-  btnClassName,
-  fullWidth,
+  grow,
 }: ButtonProps) => {
   return (
     <button
@@ -55,8 +54,7 @@ const Button = ({
       type={type ?? "button"}
       className={`
         btn
-        ${fullWidth ? "w-full" : "w-fit"}
-        ${btnClassName ?? ""}
+        ${grow ? "flex-1 min-w-0" : "w-fit"}
         ${getStyleClass(styleType).normal}
         ${isActive ? getStyleClass(styleType).active : ""}
       `}

@@ -250,13 +250,13 @@ const LibraryExperiencePage = () => {
               onClick={() => setShowArchived((prev) => !prev)}
               labelSlideOut={false}
               styleType="plain"
-              btnClassName="flex-1"
+              grow
             />
             <Button
               label="Create Experience"
               onClick={() => {}}
               labelSlideOut={false}
-              btnClassName="flex-1"
+              grow
             />
           </div>
         </div>

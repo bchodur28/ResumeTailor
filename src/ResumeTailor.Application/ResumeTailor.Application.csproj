@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Library\Models\" />
     <Folder Include="Resumes\Common\Interfaces\" />
   </ItemGroup>
 

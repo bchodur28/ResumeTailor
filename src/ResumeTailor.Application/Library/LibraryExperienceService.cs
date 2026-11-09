@@ -29,7 +29,7 @@ public sealed class LibraryExperienceService(
         return experiences.Select(LibraryExperienceMapper.MapEntityToResponse).ToList();
     }
 
-    public async Task<IReadOnlyCollection<LibraryExperienceListItemResponse>> GetLibraryExperiencesListItemsAsync(string Auth0UserId, bool archived, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<LibraryExperienceListItemResponse>> GetExperienceListItemsAsync(string Auth0UserId, bool archived, CancellationToken cancellationToken = default)
     {
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when fetching an experience list item");

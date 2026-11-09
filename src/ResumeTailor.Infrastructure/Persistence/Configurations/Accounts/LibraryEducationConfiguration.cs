@@ -24,7 +24,6 @@ internal class LibraryEducationConfiguration : IEntityTypeConfiguration<LibraryE
             .HasMaxLength(200);
 
         builder.Property(education => education.Started)
-            .IsRequired()
             .HasColumnType("date");
 
         builder.Property(education => education.Ended)

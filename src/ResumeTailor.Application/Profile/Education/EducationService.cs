@@ -3,6 +3,7 @@ using ResumeTailor.Application.Common.Exceptions;
 using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Education.Interfaces;
+using ResumeTailor.Domain.Common.Exceptions;
 using EducationEntity = ResumeTailor.Domain.Profile.LibraryEducation;
 
 
@@ -10,95 +11,105 @@ namespace ResumeTailor.Application.Profile.Education;
 
 public class EducationService(IAccountRepository accountRepository, IEducationRepository educationRepository) : IEducationService
 {
-    public async Task<IReadOnlyCollection<EducationResponse>> GetEducationAsync(string Auth0UserId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<LibraryEducationResponse>> GetListAsync(string Auth0UserId, bool archived, CancellationToken cancellationToken = default)
     {
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
             ?? throw new NotFoundException($"Account was not found when fetching education.");
 
-        var educations = await educationRepository.GetEducationByAccountIdAsync(accountId, cancellationToken);
-
-        return educations.Select(MapToReponse).ToList();
+        return await educationRepository.GetListByAccountIdAsync(accountId, archived, cancellationToken);
     }
 
-    public async Task CreateEducationAsync(string Auth0UserId, IReadOnlyCollection<EducationRequest> requests, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(string Auth0UserId, EducationRequest request, CancellationToken cancellationToken = default)
     {
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
             ?? throw new NotFoundException($"Account was not found when creating education.");
 
-        var education = requests
-            .Select(r => MapToDomain(r, accountId))
-            .ToList();
+        var education = MapToDomain(request, accountId);
 
-        educationRepository.AddRange(education);
+        educationRepository.Add(education);
         await educationRepository.SaveAsync(cancellationToken);
     }
 
-    public async Task UpdateEducatonAsync(string Auth0UserId, IReadOnlyCollection<EducationRequest> requests, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(string Auth0UserId, int id, EducationRequest request, CancellationToken cancellationToken = default)
     {
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
             ?? throw new NotFoundException($"Account was not found when updating education.");
 
-        var existingEducations = await educationRepository.GetEducationForUpdatingByAccountIdAsync(accountId, cancellationToken);
-        var educationById = existingEducations.ToDictionary(e => e.Id);
+        var education = await educationRepository.GetForUpdatingByIdAsync(accountId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Education with Id {id} was not found during updating.");
 
-        foreach (var request in requests)
-        {
-            if(!educationById.TryGetValue(request.Id!.Value, out var education))
-            {
-                throw new NotFoundException($"Education with Id {request.Id} was not found when updating.");
-            }
+        CheckAuthorizationForEducation(education.AccountId, accountId);
 
-            education.Update(
-                institutionName: request.InstitutionName,
-                qualification: request.Qualification,
-                fieldOfStudy: request.FieldOfStudy,
-                gpa: request.Gpa,
-                location: request.Location,
-                started: request.Started,
-                ended: request.Ended,
-                useForResume: request.UseForResume);
-        }
+        education.Update(
+            institutionName: request.InstitutionName,
+            qualification: request.Qualification,
+            fieldOfStudy: request.FieldOfStudy,
+            gpa: request.Gpa,
+            location: request.Location,
+            started: request.Started,
+            ended: request.Ended,
+            useForResume: request.UseForResume);
+        
 
         await educationRepository.SaveAsync(cancellationToken);
     }
 
-    public async Task DeleteEducationAsync(string Auth0UserId, IReadOnlyCollection<int> educationIds, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(string Auth0UserId, int id, CancellationToken cancellationToken = default)
     {
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
             ?? throw new NotFoundException($"Account was not found when deleting education.");
 
-        var existingEducations = await educationRepository.GetEducationForUpdatingByAccountIdAsync(accountId, cancellationToken);
-        var educationById = existingEducations.ToDictionary(e => e.Id);
-        var educationsToDelete = new List<EducationEntity>();
+        var education = await educationRepository.GetForUpdatingByIdAsync(id)
+            ?? throw new DirectoryNotFoundException($"Education with Id {id} was not found during deletion.");
 
-        foreach(var educationId in educationIds)
+        CheckAuthorizationForEducation(education.AccountId, accountId);
+
+        var isUsed = await educationRepository.IsUsedInResumeAsync(id, cancellationToken);
+        if (isUsed)
         {
-            if (!educationById.TryGetValue(educationId, out var education))
-            {
-                throw new NotFoundException($"Education with Id {educationId} was not found when deleting.");
-            }
-            educationsToDelete.Add(education);
+            throw new EducationInUseException();
         }
 
-        educationRepository.RemoveRange(educationsToDelete);
+        educationRepository.Remove(education);
 
         await educationRepository.SaveAsync(cancellationToken);
     }
 
-    private static EducationResponse MapToReponse(EducationEntity education) => new EducationResponse
-    (
-        Id: education.Id,
-        SelectionId: null,
-        Type: education.Type,
-        InstitutionName: education.InstitutionName,
-        Qualification: education.Qualification,
-        FieldOfStudy: education.FieldOfStudy,
-        Gpa: education.Gpa,
-        Location: education.Location,
-        Started: education.Started,
-        Ended: education.Ended,
-        UseForResume: education.UseForResume
-    );
+    public async Task ArchiveAsync(string Auth0UserId, int id, CancellationToken cancellationToken = default)
+    {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when deleting an experience");
+
+        var experience = await educationRepository.GetForUpdatingByIdAsync(id, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Education with Id {id} was not found during archiving.");
+
+        CheckAuthorizationForEducation(experience.AccountId, accountId);
+
+        experience.Archive();
+        await educationRepository.SaveAsync(cancellationToken);
+    }
+
+    public async Task RestoreAsync(string Auth0UserId, int id, CancellationToken cancellationToken = default)
+    {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when deleting an experience");
+
+        var experience = await educationRepository.GetForUpdatingByIdAsync(id, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Education with Id {id} was not found during restoring.");
+
+        CheckAuthorizationForEducation(experience.AccountId, accountId);
+
+        experience.Restore();
+        await educationRepository.SaveAsync(cancellationToken);
+    }
+
+    private static void CheckAuthorizationForEducation(int educationAccountId, int authAccountId)
+    {
+        if (educationAccountId != authAccountId)
+        {
+            throw new UnauthorizedAccessException("Experience does not belong to this account.");
+        }
+    }
 
     private static EducationEntity MapToDomain(EducationRequest request, int accountId) => new EducationEntity
     (

@@ -1,9 +1,6 @@
 using ResumeTailor.Application.Common.Models;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
-using ResumeTailor.Application.Library.Interfaces;
 using ResumeTailor.Application.Profile.Education.Interfaces;
-using ResumeTailor.Application.Profile.Experience.Interfaces;
-using ResumeTailor.Application.Resumes.Common.Models;
 using ResumeTailor.Application.Resumes.Generation.Interfaces;
 using ResumeTailor.Application.Resumes.Generation.Models;
 using ResumeTailor.Domain.GeneratedResumes;
@@ -18,7 +15,7 @@ public sealed class ResumeCreator(IEducationRepository educationRepository, IRes
 
     public async Task<int> CreateResumeAsync(int accountId, AiResult<AiResumeDataOutput> aiResumeData, IReadOnlyCollection<ResolvedResumeExperience> resolvedExperiences, CancellationToken cancellationToken = default)
     {
-        var educationIds = await educationRepository.GetEducationIdsForCreationAsync(accountId, cancellationToken);
+        var educationIds = await educationRepository.GetIdsForCreationAsync(accountId, cancellationToken);
         var resume = BuildResume(accountId, aiResumeData, resolvedExperiences, educationIds, cancellationToken);
 
         await resumeRepository.CreateResumeAsync(resume, cancellationToken);

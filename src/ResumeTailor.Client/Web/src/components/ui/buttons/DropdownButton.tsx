@@ -19,8 +19,7 @@ const DropdownButton = ({
   labelSlideOut,
   positionRelativeTo = "button",
   closeOnClick = false,
-  btnClassName,
-  fullWidth,
+  grow,
 }: DropdownButtonProps) => {
   const id = useId();
   const context = useDropdownContext();
@@ -53,7 +52,7 @@ const DropdownButton = ({
         ? "dropdown-btn-container-parent-width"
         : "dropdown-btn-container"
     }
-    ${fullWidth ? "dropdown-btn-container--full" : ""}
+    ${grow ? "dropdown-btn-container--grow" : ""}
   `}
     >
       <Button
@@ -64,7 +63,7 @@ const DropdownButton = ({
         hideLabel={hideLabel}
         labelSlideOut={labelSlideOut}
         isActive={isOpen}
-        btnClassName={btnClassName}
+        grow={grow}
       />
       {isOpen && (
         <DropdownContainer

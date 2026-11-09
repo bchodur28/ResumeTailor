@@ -206,7 +206,7 @@ internal class LibraryExperienceRepository(ResumeTailorDbContext dbContext) : IL
     public async Task<bool> IsUsedInResumeAsync(int experienceId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Resumes.AnyAsync(r => r.Experiences.Any(
-            r => r.LibraryExperienceId == experienceId), cancellationToken);
+            e => e.LibraryExperienceId == experienceId), cancellationToken);
     }
 
     public void Add(LibraryExperience experiences)

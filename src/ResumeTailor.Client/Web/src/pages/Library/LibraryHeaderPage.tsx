@@ -216,7 +216,7 @@ const LibraryHeaderPage = () => {
               styleType="plain"
               label={isEditingAccount ? "View Header Info" : "Edit Header Info"}
               onClick={() => setIsEditingAccount(!isEditingAccount)}
-              fullWidth={true}
+              grow
             />
             {/* Additional Titles Section */}
             <CollapsibleSection

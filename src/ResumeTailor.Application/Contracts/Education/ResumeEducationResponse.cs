@@ -11,7 +11,7 @@ public sealed record ResumeEducationResponse(
     string? FieldOfStudy,
     decimal? Gpa,
     string? Location,
-    DateOnly Started,
+    DateOnly? Started,
     DateOnly? Ended,
     int SortOrder
     );

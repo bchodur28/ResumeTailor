@@ -30,6 +30,26 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                     Detail = ex.Message
                 }, cancellationToken);
                 return true;
+            case EducationInUseException ex:
+                httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+                await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Education is in use",
+                    Detail = ex.Message
+                }, cancellationToken);
+                return true;
+            case UnauthorizedAccessException ex:
+                httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Unauthorized",
+                    Detail = ex.Message
+                }, cancellationToken);
+
+                return true;
             default:
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
 

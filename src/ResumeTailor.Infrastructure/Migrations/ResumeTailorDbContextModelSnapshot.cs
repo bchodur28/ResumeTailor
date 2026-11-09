@@ -564,6 +564,9 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("ArchiveDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
@@ -591,7 +594,7 @@ namespace ResumeTailor.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("Started")
+                    b.Property<DateOnly?>("Started")
                         .HasColumnType("date");
 
                     b.Property<int>("Type")

@@ -216,6 +216,7 @@ const Resume = ({
             );
           })}
         </Section>
+        {/* Education Section */}
         {selectedEducation.length > 0 && (
           <Section title="EDUCATION" topPtSpacing={8}>
             {selectedEducation.map((education, index) => (
@@ -265,6 +266,7 @@ const Resume = ({
             ))}
           </Section>
         )}
+        {/* Projects Section */}
         {selectedProjects.length > 0 && (
           <Section title="PROJECTS" topPtSpacing={8}>
             {selectedProjects.map((project, index) => (

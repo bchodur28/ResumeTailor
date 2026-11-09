@@ -2,16 +2,16 @@ using ResumeTailor.Domain.Profile;
 
 namespace ResumeTailor.Application.Contracts.Education;
 
-public sealed record EducationResponse(
+public sealed record LibraryEducationResponse(
     int Id,
-    int? SelectionId,
     EducationType Type,
     string InstitutionName,
     string Qualification,
     string? FieldOfStudy,
     decimal? Gpa,
     string? Location,
-    DateOnly Started,
+    DateOnly? Started,
     DateOnly? Ended,
-    bool UseForResume
+    bool UseForResume,
+    int ResumeCount
     );

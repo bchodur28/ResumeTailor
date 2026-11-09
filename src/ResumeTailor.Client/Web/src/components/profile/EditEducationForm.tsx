@@ -109,7 +109,7 @@ const EditEducationForm = () => {
     },
     onSuccess: () => {
       setIsSavedSuccessfully(true);
-      queryClient.invalidateQueries({ queryKey: ["education"] });
+      queryClient.invalidateQueries({ queryKey: ["library-education"] });
     },
     onError: (error: String) => {
       setIsSavedSuccessfully(false);

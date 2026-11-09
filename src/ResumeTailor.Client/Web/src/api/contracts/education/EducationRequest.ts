@@ -6,8 +6,10 @@ export type EducationRequest = {
   institutionName: string;
   qualification: string;
   fieldOfStudy: string | null;
+  location: string | null;
   gpa: number | null;
-  started: string;
+  started: string | null;
   ended: string | null;
   useForResume: boolean;
+  resumeCount: number;
 };

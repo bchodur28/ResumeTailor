@@ -2,65 +2,65 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Profile.Education.Interfaces;
-using System.Security.Claims;
+
 
 namespace ResumeTailor.Api.Controllers.Profile
 {
-    [Authorize]
-    [ApiController]
+    
     [Route("api/education")]
-    public class EducationController(IEducationService service) : ControllerBase
+    public class EducationController(IEducationService educationService) : AuthenticatedControllerBase
     {
-        [HttpGet("me")]
-        public async Task<ActionResult<IReadOnlyCollection<EducationResponse>>> GetCurrentEducationAsync(CancellationToken cancellationToken = default)
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyCollection<LibraryEducationResponse>>> GetEducationListAsync([FromQuery] bool archived, CancellationToken cancellationToken = default)
         {
-            var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (auth0UserId == null)
-            {
-                return Unauthorized();
-            }
+            var auth0UserId = GetAuth0UserId();
 
-            var response = await service.GetEducationAsync(auth0UserId, cancellationToken);
-
+            var response = await educationService.GetListAsync(auth0UserId, archived, cancellationToken);
             return Ok(response);
         }
 
-        [HttpPost("me")]
-        public async Task<ActionResult> CreateEducationAsync([FromBody] IReadOnlyCollection<EducationRequest> requests, CancellationToken cancellationToken = default)
+        [HttpPost]
+        public async Task<ActionResult> CreateEducationAsync(EducationRequest request, CancellationToken cancellationToken = default)
         {
-            var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (auth0UserId == null)
-            {
-                return Unauthorized();
-            }
+            var auth0UserId = GetAuth0UserId();
 
-            await service.CreateEducationAsync(auth0UserId, requests, cancellationToken);
+            await educationService.CreateAsync(auth0UserId, request, cancellationToken);
             return StatusCode(StatusCodes.Status201Created);
         }
 
-        [HttpPut("me")]
-        public async Task<ActionResult> UpdateEducationAsync([FromBody] IReadOnlyCollection<EducationRequest> requests, CancellationToken cancellationToken = default)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> UpdateEducationAsync(int id, EducationRequest request, CancellationToken cancellationToken = default)
         {
-            var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (auth0UserId == null)
-            {
-                return Unauthorized();
-            }
+            var auth0UserId = GetAuth0UserId();
 
-            await service.UpdateEducatonAsync(auth0UserId, requests, cancellationToken);
+            await educationService.UpdateAsync(auth0UserId, id, request, cancellationToken);
             return NoContent();
         }
 
-        [HttpDelete("me")]
-        public async Task<ActionResult> DeleteEducationAsync([FromBody] IReadOnlyCollection<int> educationIds, CancellationToken cancellationToken = default)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteEducationAsync(int id, CancellationToken cancellationToken = default)
         {
-            var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (auth0UserId == null)
-            {
-                return Unauthorized();
-            }
+            var auth0UserId = GetAuth0UserId();
 
-            await service.DeleteEducationAsync(auth0UserId, educationIds, cancellationToken);
+            await educationService.DeleteAsync(auth0UserId, id, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}/archive")]
+        public async Task<IActionResult> ArchiveExperienceAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var auth0UserId = GetAuth0UserId();
+
+            await educationService.ArchiveAsync(auth0UserId, id, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}/restore")]
+        public async Task<IActionResult> RestoreExperienceAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var auth0UserId = GetAuth0UserId();
+
+            await educationService.RestoreAsync(auth0UserId, id, cancellationToken);
             return NoContent();
         }
     }

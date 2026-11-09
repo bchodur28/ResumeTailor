@@ -1,12 +1,13 @@
 import type { EducationRequest } from "./contracts/education/EducationRequest.ts";
 import type { LibraryEducationResponse } from "./contracts/education/LibraryEducationResponse.ts";
 
-const educationUrl = "/api/education/me";
+const educationUrl = "/api/education";
 
 export const getEducation = async (
   token: string,
+  archived: boolean,
 ): Promise<LibraryEducationResponse[]> => {
-  const response = await fetch(educationUrl, {
+  const response = await fetch(`${educationUrl}?archived=${archived}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -20,7 +21,7 @@ export const getEducation = async (
 };
 
 export const createEducation = async (
-  request: EducationRequest[],
+  request: EducationRequest,
   token: string,
 ): Promise<void> => {
   const response = await fetch(educationUrl, {
@@ -38,10 +39,11 @@ export const createEducation = async (
 };
 
 export const updateEducation = async (
-  request: EducationRequest[],
+  id: number,
+  request: EducationRequest,
   token: string,
 ): Promise<void> => {
-  const response = await fetch(educationUrl, {
+  const response = await fetch(`${educationUrl}/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -56,19 +58,52 @@ export const updateEducation = async (
 };
 
 export const deleteEducation = async (
-  ids: number[],
+  id: number,
   token: string,
 ): Promise<void> => {
-  const response = await fetch(educationUrl, {
+  const response = await fetch(`${educationUrl}/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(ids),
   });
 
   if (!response.ok) {
     throw new Error("Failed to delete education");
+  }
+};
+
+export const archiveLibraryEducation = async (
+  id: number,
+  token: string,
+): Promise<void> => {
+  const response = await fetch(`${educationUrl}/${id}/archive`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const problem = await response.json();
+    throw new Error(problem.detail ?? "Failed to archive education");
+  }
+};
+
+export const restoreLibraryEducation = async (
+  id: number,
+  token: string,
+): Promise<void> => {
+  const response = await fetch(`${educationUrl}/${id}/restore`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const problem = await response.json();
+    throw new Error(problem.detail ?? "Failed to restore education");
   }
 };
