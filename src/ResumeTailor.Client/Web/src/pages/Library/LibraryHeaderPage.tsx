@@ -13,6 +13,9 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/buttons/Button";
 import CollapsibleSection from "./components/CollapsibleSection";
 import InputView from "./components/InputView";
+import Dropdown from "../ResumeDetails/components/Dropdown";
+import ControllerView from "./components/ControllerView";
+import { dateFormatOptions } from "../../models/common/DateFormat";
 
 const LibraryHeaderPage = () => {
   const { getAccessTokenSilently } = useAuth0();
@@ -49,6 +52,7 @@ const LibraryHeaderPage = () => {
       email: account.email,
       displayName: account.displayName,
       location: account.location,
+      dateFormat: account.dateFormat,
       primaryTitle: primaryTitle
         ? { titleId: primaryTitle.id, value: primaryTitle.value }
         : { value: "" },
@@ -60,6 +64,7 @@ const LibraryHeaderPage = () => {
         displayName: x.displayName,
         url: x.url,
       })),
+      summary: account.summary,
     });
   }, [account, reset]);
 
@@ -112,6 +117,7 @@ const LibraryHeaderPage = () => {
       email: data.email,
       displayName: data.displayName,
       location: data.location,
+      dateFormat: data.dateFormat,
       titles: [
         {
           id: data.primaryTitle.titleId,
@@ -129,6 +135,7 @@ const LibraryHeaderPage = () => {
         displayName: x.displayName,
         url: x.url,
       })),
+      summary: data.summary,
     };
     updateAccountMutation.mutate(request);
   };
@@ -201,15 +208,23 @@ const LibraryHeaderPage = () => {
                 })}
                 error={errors.location?.message}
               />
+              <ControllerView
+                name="dateFormat"
+                label="Date Format"
+                options={dateFormatOptions}
+                control={accountControl}
+                isInput={isEditingAccount}
+                isRequired={true}
+              />
               <InputView
                 id="primaryTitle"
                 label="Primary Title"
                 isInput={isEditingAccount}
                 valueToDisplay={watchAccount.primaryTitle?.value}
-                registration={registerAccount("primaryTitle", {
+                registration={registerAccount("primaryTitle.value", {
                   required: "This field is required.",
                 })}
-                error={errors.primaryTitle?.message}
+                error={errors.primaryTitle?.value?.message}
               />
             </div>
             <Button

@@ -78,11 +78,19 @@ const Resume = ({
   );
 
   const selectedEducation = resume.education
-    .filter((edu) => edu.useInResume)
+    .filter((edu) => edu.useInResume && edu.type === "degree")
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
   const availableEducation = resume.education
-    .filter((edu) => !edu.useInResume)
+    .filter((edu) => !edu.useInResume && edu.type === "degree")
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const selectedCertifications = resume.education
+    .filter((edu) => edu.useInResume && edu.type === "certification")
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const availableCertifications = resume.education
+    .filter((edu) => !edu.useInResume && edu.type === "certification")
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
   const selectedProjects = resume.experiences
@@ -91,9 +99,9 @@ const Resume = ({
     )
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
-  const availableProjects = resume.experiences.filter(
-    (exp) => !exp.useInResume && exp.type === "personalProject",
-  );
+  const availableProjects = resume.experiences
+    .filter((exp) => !exp.useInResume && exp.type === "personalProject")
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 
   const [city, state] = (resume.location ?? "").split(",");
 
@@ -216,7 +224,6 @@ const Resume = ({
             );
           })}
         </Section>
-        {/* Education Section */}
         {selectedEducation.length > 0 && (
           <Section title="EDUCATION" topPtSpacing={8}>
             {selectedEducation.map((education, index) => (
@@ -257,10 +264,61 @@ const Resume = ({
                       ? education.ended
                       : education.started + " - Present"
                   }
+                  isBold
                 />
                 <TwoColumn
                   left={education.qualification}
                   right={education.fieldOfStudy ?? ""}
+                />
+              </EditableInnerSection>
+            ))}
+          </Section>
+        )}
+        {selectedCertifications.length > 0 && (
+          <Section title="CERTIFICATIONS" topPtSpacing={8}>
+            {selectedCertifications.map((certification, index) => (
+              <EditableInnerSection
+                editorId={`certification:${certification.resumeEducationId}`}
+                key={index}
+                topPtSpacing={index === 0 ? 4 : 8}
+                actions={[
+                  {
+                    onClick: () => onRemoveEducation(index),
+                    label: "Remove",
+                    icon: () => <Trash3 size={20} className="danger-color" />,
+                  },
+                  ...(availableCertifications.length === 0
+                    ? []
+                    : [
+                        {
+                          label: "Replace",
+                          icon: () => <ArrowLeftRight size={20} />,
+                          additionalActions: availableCertifications.map(
+                            (certification) => ({
+                              label: certification.institutionName,
+                              onClick: () =>
+                                onUpdateEducation(
+                                  index,
+                                  certification.libraryEducationId,
+                                ),
+                            }),
+                          ),
+                        },
+                      ]),
+                ]}
+              >
+                <TwoColumn
+                  left={certification.qualification}
+                  right={
+                    certification.ended
+                      ? certification.ended
+                      : certification.started + " - Present"
+                  }
+                  isBold
+                />
+                <TwoColumn
+                  left={certification.institutionName}
+                  right={certification.fieldOfStudy ?? ""}
                 />
               </EditableInnerSection>
             ))}

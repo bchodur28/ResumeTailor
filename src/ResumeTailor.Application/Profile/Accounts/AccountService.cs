@@ -32,7 +32,7 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
         var account = await accountRepository.GetAccountForUpdatingAsync(auth0UserId, cancellationToken)
             ?? throw new NotFoundException($"Account was not found when updating.");
 
-        account.Update(request.Email, request.DisplayName, request.Location);
+        account.Update(request.Email, request.DisplayName, request.Location, request.DateFormat, request.Summary);
 
         UpdateTitles(account, request.Titles);
         UpdatePersonalLinks(account, request.PersonalLinks);
@@ -111,6 +111,7 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
             Email: account.Email,
             DisplayName: account.DisplayName,
             Location: account.Location,
+            DateFormat: account.DateFormat,
             PersonalLinks: account.PersonalLinks
                 .Select(pl => new PersonalLinkResponse(pl.Id, pl.DisplayName, pl.Url))
                 .ToList(),
@@ -119,7 +120,8 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
                 .ToList(),
             Skills: account.Skills
                 .Select(s => new SkillResponse(s.Id, s.Value))
-                .ToList()
+                .ToList(),
+            Summary: account.Summary
         );
     }
 
@@ -129,7 +131,9 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
             auth0UserId: auth0UserId,
             email: request.Email,
             displayName: request.DisplayName,
-            location: request.Location
+            location: request.Location,
+            dateFormat: request.DateFormat,
+            summary:request.Summary
         );
 
         foreach (var personalLinkRequest in request.PersonalLinks)

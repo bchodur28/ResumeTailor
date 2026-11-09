@@ -15,6 +15,7 @@ import {
   TypeH2,
   TypeH1,
   Paragraph,
+  PatchCheck,
 } from "react-bootstrap-icons";
 import { useCompanyBullets } from "../../hooks/useCompanyBullet";
 import { getResumePdf } from "../../api/resumeApi";
@@ -744,21 +745,20 @@ const ResumeDetailsPage = () => {
   console.log("RESOLVED RESUME:", resolvedResume);
 
   const availableEducationButExcludingCurrent = resolvedResume.education.filter(
-    (education) => !education.useInResume,
+    (education) => !education.useInResume && education.type === "degree",
   );
+
+  const availableCertificationsButExcludingCurrent =
+    resolvedResume.education.filter(
+      (education) =>
+        !education.useInResume && education.type === "certification",
+    );
 
   const availableProjectsButExcludingCurrent =
     resolvedResume.experiences.filter(
       (experience) =>
         !experience.useInResume && experience.type === "personalProject",
     );
-
-  console.log("AVAILABLE PROJECTS:", availableProjectsButExcludingCurrent);
-
-  // const orderedSkills = orderSkills(
-  //   previewResume.skills,
-  //   previewResume.companies,
-  // );
 
   return (
     <div className="flex w-full min-w-0 items-start gap-6 max-[1600px]:flex-col">
@@ -806,6 +806,24 @@ const ResumeDetailsPage = () => {
                       label: education.institutionName,
                       onClick: () =>
                         handleAppendEducation(education.libraryEducationId),
+                    }),
+                  )}
+                />
+              </DropdownButton>
+            )}
+            {availableCertificationsButExcludingCurrent.length > 0 && (
+              <DropdownButton
+                label="Add Certification"
+                iconComponent={() => <PatchCheck size={20} />}
+                styleType="filter"
+                labelSlideOut={true}
+              >
+                <Dropdown
+                  actions={availableCertificationsButExcludingCurrent.map(
+                    (certification) => ({
+                      label: certification.institutionName,
+                      onClick: () =>
+                        handleAppendEducation(certification.libraryEducationId),
                     }),
                   )}
                 />

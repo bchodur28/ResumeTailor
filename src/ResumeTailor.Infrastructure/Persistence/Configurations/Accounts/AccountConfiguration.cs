@@ -32,6 +32,10 @@ namespace ResumeTailor.Infrastructure.Persistence.Configurations.Accounts
                 .HasMaxLength(100)
                 .IsRequired();
 
+            builder.Property(a => a.DateFormat)
+                .HasConversion<string>()
+                .HasMaxLength(30);
+
             //Foreign key relationships
             builder.HasMany(x => x.PersonalLinks)
                 .WithOne()

@@ -60,7 +60,7 @@ const ControllerView = <T extends FieldValues>({
           )}
         />
       ) : (
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-baseline">
           <p className="text-sm font-medium text-gray-500">{label}:</p>
           <p className="text-base font-medium text-gray-700">
             {selectedOption?.label ?? ""}

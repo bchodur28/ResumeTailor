@@ -1,3 +1,4 @@
+using Microsoft.VisualBasic;
 using ResumeTailor.Domain.Common;
 
 namespace ResumeTailor.Domain.Profile;
@@ -11,6 +12,10 @@ public sealed class Account : Entity
     public string PhoneNumber { get; private set; } = string.Empty;
     public string Location { get; private set; } = string.Empty;
 
+    public string? Summary { get; private set; } = string.Empty;
+
+    public ResumeDateFormat DateFormat { get; set; } = ResumeDateFormat.MMM_YYYY;
+
     private readonly List<PersonalLink> _personalLinks = [];
     public IReadOnlyCollection<PersonalLink> PersonalLinks => _personalLinks.AsReadOnly();
 
@@ -20,19 +25,23 @@ public sealed class Account : Entity
     private readonly List<Skill> _skills = [];
     public IReadOnlyCollection<Skill> Skills => _skills.AsReadOnly();
 
-    public Account(string auth0UserId, string email, string displayName, string location)
+    public Account(string auth0UserId, string email, string displayName, string location, ResumeDateFormat dateFormat, string? summary)
     {
         Auth0UserId = auth0UserId;
         Email = email;
         DisplayName = displayName;
         Location = location;
+        DateFormat = dateFormat;
+        Summary = summary;
     }
 
-    public void Update(string email, string displayName, string location)
+    public void Update(string email, string displayName, string location, ResumeDateFormat dateFormat, string? summary)
     {
         Email = email;
         DisplayName = displayName;
         Location = location;
+        DateFormat = dateFormat;
+        Summary = summary;
         MarkUpdated();
     }
 

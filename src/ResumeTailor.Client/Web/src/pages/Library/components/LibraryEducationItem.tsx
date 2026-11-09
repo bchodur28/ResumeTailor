@@ -374,6 +374,7 @@ const LibraryEducationItem = ({
                 styleType="danger"
                 iconComponent={Trash3}
                 onClick={handleRemove}
+                labelSlideOut
               />
             )}
           </>

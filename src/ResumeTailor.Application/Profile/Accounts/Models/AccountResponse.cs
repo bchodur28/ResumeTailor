@@ -1,4 +1,5 @@
 using ResumeTailor.Application.Contracts.Accounts;
+using ResumeTailor.Domain.Common;
 
 namespace ResumeTailor.Application.Profile.Accounts.Models;
 
@@ -8,8 +9,11 @@ public sealed record AccountResponse(
     string Email,
     string DisplayName,
     string Location,
+    ResumeDateFormat DateFormat,
     IReadOnlyCollection<PersonalLinkResponse> PersonalLinks,
     IReadOnlyCollection<TitleResponse> Titles,
-    IReadOnlyCollection<SkillResponse> Skills
+    IReadOnlyCollection<SkillResponse> Skills,
+    
+    string? Summary
     );
 
