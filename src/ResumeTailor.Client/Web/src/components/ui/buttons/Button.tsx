@@ -11,6 +11,7 @@ export type ButtonProps = {
   labelSlideOut?: boolean;
   optionalWarning?: string;
   hideLabelOnMobile?: boolean;
+  disabled?: boolean;
   btnClassName?: string;
   grow?: boolean;
 };
@@ -42,6 +43,7 @@ const Button = ({
   isActive = false,
   labelSlideOut = false,
   hideLabelOnMobile = false,
+  disabled = false,
   optionalWarning,
   grow,
 }: ButtonProps) => {
@@ -57,8 +59,10 @@ const Button = ({
         ${grow ? "flex-1 min-w-0" : "w-fit"}
         ${getStyleClass(styleType).normal}
         ${isActive ? getStyleClass(styleType).active : ""}
+        ${disabled ? "btn--disabled" : ""}
       `}
       aria-label={label}
+      disabled={disabled}
     >
       <div className="flex flex-col items-center">
         <div className="btn__content">

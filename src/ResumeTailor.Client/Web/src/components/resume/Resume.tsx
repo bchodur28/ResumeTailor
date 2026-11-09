@@ -6,6 +6,7 @@ import {
   JustifyRight,
   Plus,
 } from "react-bootstrap-icons";
+import { useDateFormat } from "../../hooks/useDateFormat";
 import BulletList from "./BulletList";
 import EditableInnerSection from "./EditableInnerSection";
 import InnerSection from "./InnerSection";
@@ -61,6 +62,8 @@ const Resume = ({
     center: "center",
     right: "flex-end",
   }[resume.appearance.topHeaderAlignment];
+
+  const { formatDate } = useDateFormat();
 
   const selectedExperiences = resume.experiences
     .filter((exp) => exp.useInResume && exp.type === "employment")
@@ -163,12 +166,20 @@ const Resume = ({
             </ul>
           </div>
         </EditableInnerSection>
+
+        {resume.summary && (
+          <Section title="SUMMARY" topPtSpacing={8}>
+            <InnerSection topPtSpacing={4} additionalClassName="flex gap-2">
+              <p>{resume.summary}</p>
+            </InnerSection>
+          </Section>
+        )}
         <Section title="SKILLS" topPtSpacing={8}>
           <InnerSection topPtSpacing={4} additionalClassName="flex gap-2">
             <p>{resume.skills.map((skill) => skill.value).join(", ")}</p>
           </InnerSection>
         </Section>
-        <Section title="COMPANIES" topPtSpacing={8}>
+        <Section title="PROFESSIONAL EXPERIENCE" topPtSpacing={8}>
           {selectedExperiences.map((experience, companyIndex) => {
             const selectedBullets = experience.bullets
               .filter((bullet) => bullet.useInResume)
@@ -200,7 +211,11 @@ const Resume = ({
                 <TwoColumn
                   left={experience.organization ?? ""}
                   right={
-                    experience.started + " - " + (experience.ended ?? "Present")
+                    formatDate(experience.started) +
+                    " - " +
+                    (experience.ended
+                      ? formatDate(experience.ended)
+                      : "Present")
                   }
                   isBold={true}
                 />
@@ -261,8 +276,8 @@ const Resume = ({
                   left={education.institutionName}
                   right={
                     education.ended
-                      ? education.ended
-                      : education.started + " - Present"
+                      ? formatDate(education.ended)
+                      : formatDate(education.started) + " - Present"
                   }
                   isBold
                 />
@@ -311,8 +326,8 @@ const Resume = ({
                   left={certification.qualification}
                   right={
                     certification.ended
-                      ? certification.ended
-                      : certification.started + " - Present"
+                      ? formatDate(certification.ended)
+                      : formatDate(certification.started) + " - Present"
                   }
                   isBold
                 />
@@ -345,7 +360,7 @@ const Resume = ({
                 <InnerSection topPtSpacing={0}>
                   <TwoColumn
                     left={project.title}
-                    right={`${project.started} - ${project.ended ?? "Present"}`}
+                    right={`${formatDate(project.started)} - ${project.ended ? formatDate(project.ended) : "Present"}`}
                     isBold={true}
                   />
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useDateFormat } from "../../../hooks/useDateFormat";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
@@ -58,6 +59,8 @@ const LibraryEducationItem = ({
 }: Props) => {
   const { getAccessTokenSilently } = useAuth0();
   const queryClient = useQueryClient();
+
+  const { formatDate } = useDateFormat();
 
   const isNew = !education;
   const canDelete = education != null && education.resumeCount === 0;
@@ -299,6 +302,7 @@ const LibraryEducationItem = ({
             type="date"
             valueToDisplay={currentEducation.started}
             registration={register("started")}
+            dateFormatterFn={formatDate}
           />
         )}
 
@@ -309,6 +313,7 @@ const LibraryEducationItem = ({
           type="date"
           valueToDisplay={currentEducation.ended ?? ""}
           registration={register("ended")}
+          dateFormatterFn={formatDate}
         />
 
         <CheckboxView

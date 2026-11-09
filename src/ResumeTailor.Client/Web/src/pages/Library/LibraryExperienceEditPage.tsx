@@ -1,4 +1,4 @@
-import { useFormContext, useFormState, useWatch } from "react-hook-form";
+import type { UseFormRegisterReturn } from "react-hook-form";
 import BulletEditor from "./components/BulletEditor";
 import { useEffect, useState } from "react";
 import Card from "../../components/ui/Card";
@@ -50,6 +50,7 @@ import ControllerView from "./components/ControllerView";
 import InputView from "./components/InputView";
 import CheckboxView from "./components/CheckboxView";
 import TextAreaView from "./components/TextAreaView";
+import { useDateFormat } from "../../hooks/useDateFormat";
 
 const mapExperienceResponseToRequest = (
   experience: LibraryExperienceResponse,
@@ -158,10 +159,10 @@ const LibraryExperienceEditPage = () => {
   const { experienceId } = useParams();
   const id = Number(experienceId);
 
+  const { formatDate } = useDateFormat();
+
   const { data: experience, isLoading, error } = useLibraryExperience(id);
 
-  const [collapseBullets, setCollapseBullets] = useState(true);
-  const [collapseSummaries, setCollapseSummaries] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
 
   const [allowSummaryByDefault, setAllowSummaryByDefault] = useState(false);
@@ -430,6 +431,7 @@ const LibraryExperienceEditPage = () => {
                     })}
                     error={errors.started?.message}
                     isValid={!errors.started}
+                    dateFormatterFn={formatDate}
                   />
                   <div className="flex items-end gap-2 justify-stretch">
                     {!hideEndDate && (
@@ -449,6 +451,7 @@ const LibraryExperienceEditPage = () => {
                         )}
                         error={errors.ended?.message}
                         isValid={!errors.ended}
+                        dateFormatterFn={formatDate}
                       />
                     )}
                     {isEditing && (
@@ -555,7 +558,6 @@ const LibraryExperienceEditPage = () => {
                             iconComponent: PlusCircle,
                             onClick: () => {
                               appendSummary(createEmptySummary(experience.id));
-                              setCollapseSummaries(summaryFields.length === 1);
                             },
                             expandOnClick: true,
                           },
@@ -585,7 +587,6 @@ const LibraryExperienceEditPage = () => {
                       iconComponent: PlusCircle,
                       onClick: () => {
                         appendBullet(createEmptyBullet(experience.id));
-                        setCollapseBullets(false);
                       },
                       expandOnClick: true,
                     },
@@ -610,7 +611,6 @@ const LibraryExperienceEditPage = () => {
                     label="Add Bullets"
                     onClick={() => {
                       appendBullet(createEmptyBullet(experience.id));
-                      setCollapseBullets(false);
                     }}
                     styleType="plain"
                     grow

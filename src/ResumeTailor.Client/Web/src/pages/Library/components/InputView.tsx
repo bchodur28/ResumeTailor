@@ -1,5 +1,6 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
 import Input from "../../../components/forms/Input";
+import { formatDate } from "../../../models/common/DateFormat";
 
 type InputViewProps = {
   id: string;
@@ -10,6 +11,7 @@ type InputViewProps = {
   registration?: UseFormRegisterReturn;
   error?: string;
   isValid?: boolean;
+  dateFormatterFn?: (date: string | null | undefined) => string;
 };
 
 const InputView = ({
@@ -21,6 +23,7 @@ const InputView = ({
   registration,
   error,
   isValid,
+  dateFormatterFn,
 }: InputViewProps) => {
   return (
     <>
@@ -38,7 +41,9 @@ const InputView = ({
         <li className="flex gap-2 items-baseline">
           <p className="text-sm font-medium text-gray-600">{label}:</p>
           <p className="text-base font-medium text-gray-700">
-            {valueToDisplay ?? ""}
+            {type === "date" && dateFormatterFn
+              ? dateFormatterFn(valueToDisplay)
+              : (valueToDisplay ?? "")}
           </p>
         </li>
       )}

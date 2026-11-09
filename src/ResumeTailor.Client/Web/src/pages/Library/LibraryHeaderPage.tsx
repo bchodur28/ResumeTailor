@@ -16,6 +16,7 @@ import InputView from "./components/InputView";
 import Dropdown from "../ResumeDetails/components/Dropdown";
 import ControllerView from "./components/ControllerView";
 import { dateFormatOptions } from "../../models/common/DateFormat";
+import TextAreaView from "./components/TextAreaView";
 
 const LibraryHeaderPage = () => {
   const { getAccessTokenSilently } = useAuth0();
@@ -226,6 +227,14 @@ const LibraryHeaderPage = () => {
                 })}
                 error={errors.primaryTitle?.value?.message}
               />
+              <TextAreaView
+                id="summary"
+                label="Summary"
+                isInput={isEditingAccount}
+                valueToDisplay={watchAccount.summary}
+                registration={registerAccount("summary")}
+                error={errors.summary?.message}
+              />
             </div>
             <Button
               styleType="plain"
@@ -383,10 +392,10 @@ const LibraryHeaderPage = () => {
           {isDirty && (
             <Button
               type="submit"
-              styleType="confirm"
               label={
                 updateAccountMutation.isPending ? "Saving..." : "Save Changes"
               }
+              grow
             />
           )}
           {isAccountUpdateSuccess === true && (

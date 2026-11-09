@@ -38,6 +38,7 @@ import Resume from "../../components/resume/Resume";
 import { ResumeEditProvider } from "../../contexts/ResumeEditContext";
 import type { SkillResponse } from "../../api/contracts/accounts/SkillResponse";
 import Dropdown from "./components/Dropdown";
+import Button from "../../components/ui/buttons/Button";
 
 const mapResumeToRequest = (resume: ResumeResponse): UpdateResumeRequest => ({
   name: resume.resumeName ?? "",
@@ -907,37 +908,29 @@ const ResumeDetailsPage = () => {
           </div>
         </ScaledResumePreview>
 
-        <div className="flex justify-end w-full gap-4 max-[1600px]:justify-center">
-          <div className="flex gap-4">
-            <button
-              type="button"
-              className="remove-btn"
-              onClick={() => handleDiscardChanges()}
-            >
-              Discard Changes
-            </button>
-            <button type="button" className="remove-btn" onClick={handleRevert}>
-              Revert Last Save
-            </button>
+        <div className="flex justify-center mx-auto w-full gap-4 max-[1600px]:justify-center">
+          <Button
+            label="Discard Changes"
+            onClick={() => handleDiscardChanges()}
+            styleType="plain"
+          />
+          <Button
+            label="Revert Last Save"
+            onClick={handleRevert}
+            styleType="plain"
+          />
 
-            <button
-              type="button"
-              className="confirm-btn"
-              onClick={handleDownloadPdf}
-              disabled={updateResumeMutation.isPending}
-            >
-              Download PDF
-            </button>
+          <Button
+            label="Download PDF"
+            onClick={handleDownloadPdf}
+            disabled={updateResumeMutation.isPending}
+          />
 
-            <button
-              type="button"
-              className="confirm-btn"
-              onClick={handleSubmit(onSubmit)}
-              disabled={updateResumeMutation.isPending}
-            >
-              {updateResumeMutation.isPending ? "Saving..." : "Save Resume"}
-            </button>
-          </div>
+          <Button
+            label={updateResumeMutation.isPending ? "Saving..." : "Save Resume"}
+            onClick={handleSubmit(onSubmit)}
+            disabled={updateResumeMutation.isPending}
+          />
         </div>
       </div>
 

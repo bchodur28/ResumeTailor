@@ -15,6 +15,7 @@ export type ResumeResponse = {
   email: string;
   phoneNumber: string;
   location: string;
+  summary?: string;
   personalLinks: PersonalLinkResponse[];
   skills: SkillResponse[];
   education: ResumeEducationResponse[];

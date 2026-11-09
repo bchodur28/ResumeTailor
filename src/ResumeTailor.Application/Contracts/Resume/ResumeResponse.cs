@@ -17,6 +17,7 @@ public sealed record ResumeResponse(
     string Email,
     string PhoneNumber,
     string Location,
+    string? Summary,
     IReadOnlyCollection<PersonalLinkResponse> PersonalLinks,
     IReadOnlyCollection<SkillResponse> Skills,
     IReadOnlyCollection<ResumeEducationResponse> Education,
