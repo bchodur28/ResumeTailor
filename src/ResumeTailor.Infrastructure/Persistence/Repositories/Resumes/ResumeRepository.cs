@@ -196,7 +196,9 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
                                     SortOrder: b.SortOrder,
                                     IsSourceDeleted: b.LibraryBullet.DeletedDate != null
                                 ))
-                                .ToList()
+                                .ToList(),
+                            TechStack: e.LibraryExperience.TechStack,
+                            Link: e.LibraryExperience.Link
                         ))
                         .ToList(),
 
@@ -207,7 +209,8 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
                         MainBodyFontSize: r.Appearance.MainBodyFontSize,
                         FontFamily: r.Appearance.FontFamily,
                         FontColor: r.Appearance.FontColor,
-                        TopHeaderAlignment: r.Appearance.TopHeaderAlignment
+                        TopHeaderAlignment: r.Appearance.TopHeaderAlignment,
+                        HideCertificationIssuer: r.Appearance.HideCertificationIssuer
                         )
                 ),
                 AiAnalysis: r.AiAnalysis == null
@@ -263,6 +266,8 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
             .AsSplitQuery()
             .Include(x => x.Experiences)
                 .ThenInclude(x => x.Bullets)
+            .Include(x => x.Experiences)
+                .ThenInclude(x => x.ResumeSummary)
             .Include(x => x.EducationSelections)
             .Include(x => x.Appearance)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);

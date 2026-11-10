@@ -36,6 +36,9 @@ internal class ResumeAppearanceConfiguration : IEntityTypeConfiguration<ResumeAp
             .IsRequired()
             .HasConversion<string>()
             .HasMaxLength(20);
+
+        builder.Property(x => x.HideCertificationIssuer)
+            .IsRequired();
     }
 }
 

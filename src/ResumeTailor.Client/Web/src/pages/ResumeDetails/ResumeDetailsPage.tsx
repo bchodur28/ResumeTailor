@@ -226,6 +226,7 @@ const ResumeDetailsPage = () => {
           fontFamily: "calibri, sans-serif",
           fontColor: "#000000",
           topHeaderAlignment: "left",
+          hideCertificationIssuer: false,
         },
       },
     });
@@ -501,6 +502,10 @@ const ResumeDetailsPage = () => {
     alignment: "left" | "center" | "right",
   ) => {
     setValue("appearance.topHeaderAlignment", alignment, { shouldDirty: true });
+  };
+
+  const handleHideCertificationIssuerChange = (hide: boolean) => {
+    setValue("appearance.hideCertificationIssuer", hide, { shouldDirty: true });
   };
 
   // restore the version before the most recent save
@@ -903,6 +908,12 @@ const ResumeDetailsPage = () => {
                 onUpdateEducation={handleUpdateEducation}
                 onRemoveExperience={handleRemoveExperience}
                 onTopHeaderAlignmentChange={handleTopHeaderAlignmentChange}
+                onHideCertificationIssuerChange={
+                  handleHideCertificationIssuerChange
+                }
+                hideCertificationIssuer={
+                  formValues.appearance?.hideCertificationIssuer ?? false
+                }
               />
             </ResumeEditProvider>
           </div>

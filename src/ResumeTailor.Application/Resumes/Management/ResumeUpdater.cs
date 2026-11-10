@@ -15,7 +15,7 @@ public sealed class ResumeUpdater : IResumeUpdater
         UpdateAppearance(request, resume);
 
         UpdateEducationSelections(resume, request.Education);
-        UpdateExperience(resume, request.Experience);
+        UpdateExperience(resume, request.Experiences);
     }
 
     private static void UpdateAppearance(UpdateResumeRequest request, Resume existingResume)
@@ -26,7 +26,8 @@ public sealed class ResumeUpdater : IResumeUpdater
                     mainBodyFontSize: request.Appearance.MainBodyFontSize,
                     fontFamily: request.Appearance.FontFamily,
                     fontColor: request.Appearance.FontColor,
-                    topHeaderAlignment: request.Appearance.TopHeaderAlignment);
+                    topHeaderAlignment: request.Appearance.TopHeaderAlignment,
+                    hideCertificationIssuer: request.Appearance.HideCertificationIssuer);
     }
 
 
@@ -66,9 +67,8 @@ public sealed class ResumeUpdater : IResumeUpdater
                 if (existingExperience.ResumeSummary?.LibrarySummaryId != experienceRequest.LibrarySummaryId)
                 {
                     resume.MarkAiScoreStale(AiScoreStaleness.High);
+                    existingExperience.UpdateSummary(experienceRequest.LibrarySummaryId);
                 }
-
-                existingExperience.UpdateSummary(experienceRequest.LibrarySummaryId);
 
                 // Experience ordering
                 if (existingExperience.SortOrder != experienceRequest.SortOrder)

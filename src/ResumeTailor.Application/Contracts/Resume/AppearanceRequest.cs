@@ -9,4 +9,5 @@ public sealed record AppearanceRequest(
     int MainBodyFontSize,
     string FontFamily,
     string FontColor,
-    AlignmentType TopHeaderAlignment);
+    AlignmentType TopHeaderAlignment,
+    bool HideCertificationIssuer);

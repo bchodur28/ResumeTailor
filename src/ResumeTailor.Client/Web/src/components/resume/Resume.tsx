@@ -5,6 +5,8 @@ import {
   Justify,
   JustifyRight,
   Plus,
+  EyeSlash,
+  Eye,
 } from "react-bootstrap-icons";
 import { useDateFormat } from "../../hooks/useDateFormat";
 import BulletList from "./BulletList";
@@ -43,6 +45,8 @@ type ResumeProps = {
   onRemoveExperience: (libraryExperienceId: number) => void;
 
   onTopHeaderAlignmentChange: (alignment: "left" | "center" | "right") => void;
+  onHideCertificationIssuerChange: (hide: boolean) => void;
+  hideCertificationIssuer: boolean;
 };
 
 const Resume = ({
@@ -56,6 +60,8 @@ const Resume = ({
   onUpdateEducation,
   onRemoveExperience,
   onTopHeaderAlignmentChange,
+  onHideCertificationIssuerChange,
+  hideCertificationIssuer,
 }: ResumeProps) => {
   const headerAlignment = {
     left: "flex-start",
@@ -302,6 +308,19 @@ const Resume = ({
                     label: "Remove",
                     icon: () => <Trash3 size={20} className="danger-color" />,
                   },
+                  {
+                    onClick: () =>
+                      onHideCertificationIssuerChange(!hideCertificationIssuer),
+                    label: hideCertificationIssuer
+                      ? "Show Certification Issuer"
+                      : "Hide Certification Issuer",
+                    icon: () =>
+                      hideCertificationIssuer ? (
+                        <Eye size={20} />
+                      ) : (
+                        <EyeSlash size={20} />
+                      ),
+                  },
                   ...(availableCertifications.length === 0
                     ? []
                     : [
@@ -331,10 +350,12 @@ const Resume = ({
                   }
                   isBold
                 />
-                <TwoColumn
-                  left={certification.institutionName}
-                  right={certification.fieldOfStudy ?? ""}
-                />
+                {!hideCertificationIssuer && (
+                  <TwoColumn
+                    left={certification.institutionName}
+                    right={certification.fieldOfStudy ?? ""}
+                  />
+                )}
               </EditableInnerSection>
             ))}
           </Section>

@@ -5,5 +5,5 @@ namespace ResumeTailor.Application.Contracts.Resume;
 public sealed record UpdateResumeRequest(
     string Name,
     IReadOnlyCollection<ResumeEducationRequest> Education,
-    IReadOnlyCollection<ResumeExperienceRequest> Experience,
+    IReadOnlyCollection<ResumeExperienceRequest> Experiences,
     AppearanceRequest Appearance);

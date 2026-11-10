@@ -111,7 +111,11 @@ export const updateResume = async (
   });
 
   if (!response.ok) {
-    throw new Error("Failed to update resume");
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("Update resume failed:", response.status, error);
+      throw new Error(`Failed to update resume: ${error}`);
+    }
   }
 
   return response.json();

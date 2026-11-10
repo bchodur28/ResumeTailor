@@ -16,10 +16,11 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
     private const float SectionContentSpacing = 4;
 
     private const float CompanySpacing = 8;
+    private const float BulletTopSpacing = 8;
     private const float BulletSpacing = 4;
 
     private const float BulletIndent = 14;
-    private const float ProjectIndent = 14;
+    private const float ProjectIndent = 12;
 
     public byte[] Generate(ResumeResponse resume)
     {
@@ -36,22 +37,35 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                 page.DefaultTextStyle(style => style
                     .FontFamily(GetFontFamily(appearance.FontFamily))
                     .FontSize(appearance.MainBodyFontSize)
+                    .LineHeight(1.0f)
                     .FontColor(Color.FromHex("#000")));
 
                 page.Content()
                     .Column(column =>
                     {
                         ComposeHeader(column, resume);
-
+                        ComposeSummary(column, resume);
                         ComposeSkills(column, resume);
-
                         ComposeCompanies(column, resume);
 
-                        if (resume.Education.Count > 0)
+                        if (resume.Education.Any(edu => edu.Type == EducationType.Degree))
+                        {
                             ComposeEducation(column, resume);
+                        }
 
-                        //if (resume.Experiences.Count > 0)
-                        //    ComposeProjects(column, resume);
+                        if (resume.Education.Any(
+                            edu => edu.Type is EducationType.Certificate or EducationType.Certification))
+                        {
+                            ComposeCertifcations(column, resume);
+                        }
+
+                        if (resume.Experiences.Any(
+                            edu => edu.Type is ExperienceType.PersonalProject or ExperienceType.OpenSourceProject or ExperienceType.AcademicProject))
+                        {
+                            ComposeProjects(column, resume);
+                        }
+
+                    
                     });
             });
         })
@@ -131,6 +145,18 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
             });
     }
 
+    private static void ComposeSummary(ColumnDescriptor column, ResumeResponse resume)
+    {
+        if (string.IsNullOrWhiteSpace(resume.Summary))
+            return;
+
+        SectionHeader(column, "SUMMARY", resume.Appearance);
+
+        column.Item()
+            .PaddingTop(SectionContentSpacing)
+            .Text(resume.Summary);
+    }
+
     private static void ComposeSkills(ColumnDescriptor column, ResumeResponse resume)
     {
         SectionHeader(column, "SKILLS", resume.Appearance);
@@ -144,10 +170,10 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
 
     private static void ComposeCompanies(ColumnDescriptor column, ResumeResponse resume)
     {
-        SectionHeader(column, "EXPERIENCE", resume.Appearance);
+        SectionHeader(column, "PROFESSIONAL EXPERIENCE", resume.Appearance);
 
         var index = 0;
-        foreach (var company in resume.Experiences)
+        foreach (var company in resume.Experiences.Where(exp => exp.Type is ExperienceType.Employment or ExperienceType.Contract or ExperienceType.Freelance))
         {
             column.Item()
                 .PaddingTop(index == 0 ? SectionContentSpacing : CompanySpacing)
@@ -155,8 +181,8 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                 .Column(companyColumn =>
                 {
                     var date = company.Ended is DateOnly ended
-                        ? $"{company.Started:MMM-yyyy} - {company.Ended:MMM-yyyy}"
-                        : $"{company.Started:MMM-yyyy} - Present";
+                        ? $"{company.Started:MMM yyyy} - {company.Ended:MMM yyyy}"
+                        : $"{company.Started:MMM yyyy} - Present";
 
                     TwoColumn(companyColumn, company.Organization, date, bold: true, isHeading: true);
                     TwoColumn(companyColumn, company.Title, company.Location ?? "Remote");
@@ -165,7 +191,7 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                     {
                         companyColumn
                             .Item()
-                            .PaddingTop(SectionContentSpacing)
+                            .PaddingTop(BulletTopSpacing)
                             .Column(bullets =>
                             {
                                 bullets.Spacing(BulletSpacing);
@@ -197,7 +223,7 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
         SectionHeader(column, "EDUCATION", resume.Appearance);
 
         var index = 0;
-        foreach(var education in resume.Education)
+        foreach(var education in resume.Education.Where(edu => edu.Type == EducationType.Degree))
         {
             column
                 .Item()
@@ -205,8 +231,8 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                 .Column(educationColumn =>
                 {
                     var date = education.Ended is DateOnly ended
-                        ? ended.ToString("MMM-yyyy")
-                        : $"{education.Started:MMM-yyyy-dd} - Present";
+                        ? ended.ToString("MMM yyyy")
+                        : $"{education.Started:MMM yyyy} - Present";
 
                     TwoColumn(educationColumn, education.InstitutionName, date, true, isHeading: true);
 
@@ -216,68 +242,98 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
         }
     }
 
-    //private static void ComposeProjects(ColumnDescriptor column, ResumeResponse resume)
-    //{
-    //    SectionHeader(column, "PROJECTS", resume.Appearance);
+    private static void ComposeCertifcations(ColumnDescriptor column, ResumeResponse resume)
+    {
+        SectionHeader(column, "CERTIFICATIONS", resume.Appearance);
 
-    //    var index = 0;
-    //    foreach (var project in resume.Experiences)
-    //    {
-    //        column
-    //            .Item()
-    //            .PaddingTop(index == 0 ? SectionContentSpacing : CompanySpacing)
-    //            .Column(projectColumn =>
-    //            {
-    //                var date = project.Ended is DateOnly ended
-    //                    ? ended.ToString("MMM-yyyy")
-    //                    : $"{project.Started:MMM-yyyy} - Present";
+        var index = 0;
+        foreach (var education in resume.Education.Where(edu => edu.Type == EducationType.Certificate || edu.Type == EducationType.Certification))
+        {
+            column
+                .Item()
+                .PaddingTop(index == 0 ? SectionContentSpacing : CompanySpacing)
+                .Column(educationColumn =>
+                {
+                    var date = education.Ended is DateOnly ended
+                        ? ended.ToString("MMM yyyy")
+                        : $"{education.Started:MMM yyyy} - Present";
 
-    //                TwoColumn(projectColumn, project.Organization, date, bold: true, isHeading: true);
+                    TwoColumn(educationColumn, education.Qualification, date, true, isHeading: true);
 
-    //                if (!string.IsNullOrWhiteSpace(project.PrimarySummary?.Value))
-    //                {
-    //                    projectColumn
-    //                        .Item()
-    //                        .PaddingTop(SectionContentSpacing)
-    //                        .PaddingLeft(ProjectIndent)
-    //                        .Text(project.PrimarySummary.Value);
-    //                }
+                    if (!resume.Appearance.HideCertificationIssuer)
+                    {
+                        OneColumn(educationColumn, education.InstitutionName);
+                    }
 
-    //                if (!string.IsNullOrWhiteSpace(project))
-    //                {
-    //                    projectColumn
-    //                        .Item()
-    //                        .PaddingTop(SectionContentSpacing)
-    //                        .PaddingLeft(ProjectIndent)
-    //                        .Text(text =>
-    //                        {
-    //                            text.Span("Tech Stack: ").Bold();
-    //                            text.Span(project.TechStack);
-    //                        });
-    //                }
+                });
+            index++;
+        }
+    }
 
-    //                if (!string.IsNullOrWhiteSpace(project.Link))
-    //                {
-    //                    projectColumn
-    //                        .Item()
-    //                        .PaddingTop(SectionContentSpacing)
-    //                        .PaddingLeft(ProjectIndent)
-    //                        .Row(row =>
-    //                        {
-    //                            row.AutoItem()
-    //                                .Text("Link: ")
-    //                                .Bold();
+    private static void ComposeProjects(ColumnDescriptor column, ResumeResponse resume)
+    {
+        SectionHeader(column, "PROJECTS", resume.Appearance);
 
-    //                            row.RelativeItem()
-    //                                .Hyperlink(project.Link)
-    //                                .Text(project.Link);
-    //                        });
-    //                }
-    //            });
+        var index = 0;
+        foreach (var project in resume.Experiences.Where(exp => exp.Type is ExperienceType.PersonalProject
+                                                                            or ExperienceType.OpenSourceProject
+                                                                            or ExperienceType.AcademicProject))
+        {
+            column
+                .Item()
+                .PaddingTop(index == 0 ? SectionContentSpacing : CompanySpacing)
+                .Column(projectColumn =>
+                {
+                    var date = project.Ended is DateOnly ended
+                        ? ended.ToString("MMM yyyy")
+                        : $"{project.Started:MMM yyyy} - Present";
 
-    //        index++;
-    //    }
-    //}
+                    TwoColumn(projectColumn, project.Title, date, bold: true, isHeading: true);
+
+                    if (!string.IsNullOrWhiteSpace(project.PrimarySummary?.Value))
+                    {
+                        projectColumn
+                            .Item()
+                            .PaddingTop(SectionContentSpacing)
+                            .PaddingLeft(ProjectIndent)
+                            .Text(project.PrimarySummary.Value);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(project.TechStack))
+                    {
+                        projectColumn
+                            .Item()
+                            .PaddingTop(SectionContentSpacing)
+                            .PaddingLeft(ProjectIndent)
+                            .Text(text =>
+                            {
+                                text.Span("Tech Stack: ").Bold();
+                                text.Span(project.TechStack);
+                            });
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(project.Link))
+                    {
+                        projectColumn
+                            .Item()
+                            .PaddingTop(SectionContentSpacing)
+                            .PaddingLeft(ProjectIndent)
+                            .Row(row =>
+                            {
+                                row.AutoItem()
+                                    .Text("Link: ")
+                                    .Bold();
+
+                                row.RelativeItem()
+                                    .Hyperlink(project.Link)
+                                    .Text(project.Link);
+                            });
+                    }
+                });
+
+            index++;
+        }
+    }
 
     private static void SectionHeader(ColumnDescriptor column, string title, ResumeAppearanceResponse appearance)
     {
@@ -317,6 +373,22 @@ public sealed class QuestPdfResumeGenerator : IResumePdfGenerator
                     rightText.Bold();
                 }
             });
+    }
+
+    private static void OneColumn(ColumnDescriptor column, string? text,bool bold = false, bool isHeading = false, bool alignRight = false)
+    {
+        var container = column.Item();
+
+        if (isHeading)
+            container = container.SemanticHeading3();
+
+        var textDescriptor = container.Text(text ?? string.Empty);
+
+        if (bold)
+            textDescriptor.Bold();
+
+        if (alignRight)
+            textDescriptor.AlignRight();
     }
 
     private static IContainer Align(IContainer container, AlignmentType alignment)

@@ -49,11 +49,11 @@ internal sealed class ResumeManagementService(
         var accountId = existingResume.AccountId;
 
         // 1. Validate the request's internal consistency.
-        ValidateExperienceSelections(request.Experience);
-        ValidateExistingSelections(existingResume, request.Experience);
+        ValidateExperienceSelections(request.Experiences);
+        ValidateExistingSelections(existingResume, request.Experiences);
 
         // 2. Validate Library ownership and relationships.
-        var selections = request.Experience
+        var selections = request.Experiences
             .Select(e => new ExperienceSelectionValidation(
                 e.LibraryExperienceId,
                 e.LibrarySummaryId,

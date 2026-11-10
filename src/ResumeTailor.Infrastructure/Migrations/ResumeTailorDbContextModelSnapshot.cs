@@ -1079,6 +1079,9 @@ namespace ResumeTailor.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("HideCertificationIssuer")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("MainBodyFontSize")
                         .HasColumnType("INTEGER");
 

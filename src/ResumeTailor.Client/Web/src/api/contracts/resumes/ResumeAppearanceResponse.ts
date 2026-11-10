@@ -6,4 +6,5 @@ export interface ResumeAppearanceResponse {
   fontFamily: string;
   fontColor: string;
   topHeaderAlignment: string;
+  hideCertificationIssuer: boolean;
 }

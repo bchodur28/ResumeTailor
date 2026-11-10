@@ -14,6 +14,8 @@ namespace ResumeTailor.Application.Contracts.Experiences
         DateOnly? Ended,
         ResumeExperienceSummaryResponse? PrimarySummary,
         int SortOrder,
-        IReadOnlyCollection<ResumeBulletResponse> Bullets
+        IReadOnlyCollection<ResumeBulletResponse> Bullets,
+        string? TechStack,
+        string? Link
         );
 }

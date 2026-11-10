@@ -9,4 +9,5 @@ public sealed record ResumeAppearanceResponse(
     int MainBodyFontSize,
     string FontFamily,
     string FontColor,
-    AlignmentType TopHeaderAlignment);
+    AlignmentType TopHeaderAlignment,
+    bool HideCertificationIssuer);
