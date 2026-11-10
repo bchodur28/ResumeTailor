@@ -234,6 +234,7 @@ const LibraryHeaderPage = () => {
                 valueToDisplay={watchAccount.summary}
                 registration={registerAccount("summary")}
                 error={errors.summary?.message}
+                textOnNextRow
               />
             </div>
             <Button

@@ -376,11 +376,17 @@ namespace ResumeTailor.Infrastructure.Migrations
                     b.Property<int>("AiScoreStaleness")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("AiSummaryVersion")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ResumeSummaryVersion")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")

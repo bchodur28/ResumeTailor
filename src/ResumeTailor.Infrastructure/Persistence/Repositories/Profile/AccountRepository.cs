@@ -49,6 +49,14 @@ internal class AccountRepository(ResumeTailorDbContext dbContext) : IAccountRepo
             .FirstOrDefaultAsync(a => a.Auth0UserId == auth0UserId, cancellationToken);
     }
 
+    public async Task<string?> GetAccountSummaryAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Accounts
+            .Where(a => a.Id == id)
+            .Select(a => a.Summary)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task CreateAccoutAsync(Account account, CancellationToken cancellationToken = default)
     {
         await dbContext.Accounts.AddAsync(account, cancellationToken);

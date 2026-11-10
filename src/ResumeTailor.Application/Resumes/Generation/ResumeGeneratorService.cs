@@ -1,6 +1,8 @@
 using ResumeTailor.Application.Common.Interfaces;
 using ResumeTailor.Application.Common.Models;
+using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.Library.Interfaces;
+using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Resumes.Generation.Interfaces;
 using ResumeTailor.Application.Resumes.Generation.Models;
 using ResumeTailor.Domain.Resumes.Content;
@@ -12,7 +14,8 @@ namespace ResumeTailor.Application.Resumes.Generation;
 public class ResumeGeneratorService(
     IAiGenerator<AiResumeDataOutput> aiGenerator,
     IResumeCreator resumeCreator,
-    ILibraryExperienceRepository libraryExperienceRepository) : IResumeGenerator
+    ILibraryExperienceRepository libraryExperienceRepository,
+    IAccountRepository accountRepository) : IResumeGenerator
 {
 
 
@@ -149,6 +152,7 @@ public class ResumeGeneratorService(
                     "SalaryCurrency": {
                         "type": ["string", "null"]
                     }
+               
                 },
                 "required": [
                     "CompanyName",
@@ -162,12 +166,14 @@ public class ResumeGeneratorService(
                     "SalaryCurrency"
                 ],
                 "additionalProperties": false
-            }
+            },
+            "ResumeSummary": {"type": ["string", "null"]}
         },
         "required": [
             "Experiences",
             "JobMatchAnalysis",
-            "JobPostingData"
+            "JobPostingData",
+            "ResumeSummary"
         ],
         "additionalProperties": false
     }
@@ -175,21 +181,52 @@ public class ResumeGeneratorService(
     private const string AiResumeSchemaFormatName = "resume_analysis";
 
 
-    public async Task<int> GenerateResumeAsync(int accountId, string jobDescription, CancellationToken cancellationToken = default)
+    public async Task<int> GenerateResumeAsync(int accountId, GeneratedResumeRequest request, CancellationToken cancellationToken = default)
     {
         var aiExperienceInput = await libraryExperienceRepository.GetAiInputDataForGeneration(accountId, cancellationToken);
-        var aiResumeInput = new ResumeAiInput(jobDescription, aiExperienceInput);
+
+        var (summaryMode, resumeSummary) = await ResolveSummaryAsync(accountId, request.SummaryMode, cancellationToken);
+
+        var aiResumeInput = new ResumeAiInput(request.JobDescription, aiExperienceInput, resumeSummary, summaryMode);
 
         var aiContext = new AiContext(BuildPrompt(aiResumeInput), AiResumeSchemaFormatName, AiResumeDataOutputSchema);
+
         var aiResult = await aiGenerator.GenerateAsync(aiContext, cancellationToken);
+
+        var aiSummary = GetAiSummary(summaryMode, aiResult.Value.ResumeSummary);
 
         // Combine AI selections with Library selection
         var resolvedExperience = ResolveExperiences(aiExperienceInput, aiResult.Value.Experiences);
 
 
-        var resumeId = await resumeCreator.CreateResumeAsync(accountId, aiResult, resolvedExperience,  cancellationToken);
+        var resumeId = await resumeCreator.CreateResumeAsync(accountId, aiResult, resolvedExperience, resumeSummary, aiSummary, cancellationToken);
 
         return resumeId;
+    }
+
+    private static string? GetAiSummary(SummaryGenerationMode mode, string? generatedSummary)
+    {
+        return mode is SummaryGenerationMode.TailorDefault
+            or SummaryGenerationMode.GenerateNew
+                ? generatedSummary
+                : null;
+    }
+
+    private async Task<(SummaryGenerationMode Mode, string? Summary)> ResolveSummaryAsync(int accountId, SummaryGenerationMode mode, CancellationToken cancellationToken)
+    {
+        if (mode is not (SummaryGenerationMode.UseDefault or SummaryGenerationMode.TailorDefault))
+        {
+            return (mode, null);
+        }
+
+        var summary = await accountRepository.GetAccountSummaryAsync(accountId, cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(summary))
+        {
+            return (SummaryGenerationMode.None, null);
+        }
+
+        return (mode, summary);
     }
 
     private static IReadOnlyCollection<ResolvedResumeExperience> ResolveExperiences(
@@ -248,6 +285,36 @@ public class ResumeGeneratorService(
                 WriteIndented = true
             });
 
+        var resumeSummaryInstructions = context.SummaryMode switch
+        {
+            SummaryGenerationMode.None or SummaryGenerationMode.UseDefault => """
+                - Do not generate a resume summary.
+                - Return null for ResumeSummary.
+                """,
+
+            SummaryGenerationMode.TailorDefault => """
+                - Rewrite the provided DEFAULT RESUME SUMMARY to better
+                  align with the job description.
+                - Preserve the candidate's original qualifications,
+                  experience, and factual claims.
+                - Emphasize relevant skills, technologies, and experience.
+                - Do not invent qualifications or accomplishments.
+                - Keep the summary concise and professional.
+                """,
+
+            SummaryGenerationMode.GenerateNew => """
+                - Generate a new professional resume summary using
+                  the candidate's supplied experiences.
+                - Tailor the summary to the job description.
+                - Highlight the most relevant technical skills,
+                  qualifications, and accomplishments.
+                - Do not invent experience, technologies, or metrics.
+                - Keep the summary concise and professional.
+                """,
+
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
         return $$"""
         Analyze the candidate's experience against the provided job
         description and generate tailored resume recommendations,
@@ -258,7 +325,24 @@ public class ResumeGeneratorService(
 
         CANDIDATE EXPERIENCES:
         {{experienceJson}}
-        
+
+        DEFAULT RESUME SUMMARY:
+        {{context.Summary ?? "None provided"}}
+
+        RESUME SUMMARY GENERATION:
+
+        {{resumeSummaryInstructions}}
+
+        - ResumeSummary represents the candidate's overall
+        professional resume summary, not an individual
+        experience's ChosenSummary.
+        - Base any generated or tailored summary only on
+        supported candidate qualifications.
+        - Do not confuse ResumeSummary with
+        JobMatchAnalysis.Summary, which summarizes
+        the job description itself.
+ 
+
         EXPERIENCE SELECTION:
 
         - Evaluate every provided experience against the job description.
@@ -276,8 +360,6 @@ public class ResumeGeneratorService(
         - Preserve the order of the provided experiences.
         
 
-        
-        
         SUMMARY SELECTION:
 
         For each experience:

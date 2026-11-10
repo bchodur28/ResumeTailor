@@ -1,3 +1,6 @@
+import type { SummaryGenerationModeValue } from "../../models/resumes/SummaryGenerationMode";
+
 export type GenerateResumeRequest = {
-  description: string;
+  jobDescription: string;
+  summaryMode: SummaryGenerationModeValue;
 };

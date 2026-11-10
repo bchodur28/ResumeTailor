@@ -13,10 +13,11 @@ namespace ResumeTailor.Application.Resumes.Generation;
 public sealed class ResumeCreator(IEducationRepository educationRepository, IResumeRepository resumeRepository) : IResumeCreator
 {
 
-    public async Task<int> CreateResumeAsync(int accountId, AiResult<AiResumeDataOutput> aiResumeData, IReadOnlyCollection<ResolvedResumeExperience> resolvedExperiences, CancellationToken cancellationToken = default)
+    public async Task<int> CreateResumeAsync(int accountId, AiResult<AiResumeDataOutput> aiResumeData, IReadOnlyCollection<ResolvedResumeExperience> resolvedExperiences, string? resumeSummary, string? aiSummary, CancellationToken cancellationToken = default)
     {
+        
         var educationIds = await educationRepository.GetIdsForCreationAsync(accountId, cancellationToken);
-        var resume = BuildResume(accountId, aiResumeData, resolvedExperiences, educationIds, cancellationToken);
+        var resume = BuildResume(accountId, aiResumeData, resolvedExperiences, educationIds, resumeSummary, aiSummary, cancellationToken);
 
         await resumeRepository.CreateResumeAsync(resume, cancellationToken);
         await resumeRepository.SaveAsync(cancellationToken);
@@ -24,13 +25,21 @@ public sealed class ResumeCreator(IEducationRepository educationRepository, IRes
         return resume.Id;
     }
 
-    private static Resume BuildResume(int accountId, AiResult<AiResumeDataOutput> aiResumeData, IReadOnlyCollection<ResolvedResumeExperience> resolvedExperience, IEnumerable<int> educationIds, CancellationToken cancellationToken = default)
+    private static Resume BuildResume(int accountId, AiResult<AiResumeDataOutput> aiResumeData, IReadOnlyCollection<ResolvedResumeExperience> resolvedExperience, IEnumerable<int> educationIds, string? resumeSummary, string? aiSummary, CancellationToken cancellationToken = default)
     {
         var jobPosting = CreateJobPosting(aiResumeData.Value.JobPostingData);
         var metaData = CreateAiMetaData(aiResumeData.MetaData);
         var aiScore = aiResumeData.Value.JobMatchAnalysis.AiScore;
 
-        var resume = new Resume(accountId, CreateResumeName(aiResumeData.Value.JobPostingData), aiScore, metaData, jobPosting);
+        var resume = new Resume(
+            accountId: accountId,
+            name: CreateResumeName(aiResumeData.Value.JobPostingData),
+            aiScore: aiScore,
+            resumeSummaryVersion: resumeSummary,
+            aiSummaryVersion: aiSummary,
+            aiMetaData: metaData,
+            jobPosting: jobPosting);
+
         AddEducationSelections(educationIds, resume);
         AddExperienceWithBullets(resolvedExperience, resume);
         SetAiAnalysis(aiResumeData.Value.JobMatchAnalysis, resume);

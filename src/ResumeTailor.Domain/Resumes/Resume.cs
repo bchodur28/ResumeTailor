@@ -18,8 +18,10 @@ public class Resume : Entity
     public string Name { get; private set; } = null!;
 
     public int? AiScore { get; private set; }
-
     public AiScoreStaleness AiScoreStaleness { get; private set; } = AiScoreStaleness.None;
+
+    public string? ResumeSummaryVersion { get; set; }
+    public string? AiSummaryVersion { get; set; }
 
     private readonly List<ResumeEducationSelection> _educationSelections = [];
     public IReadOnlyCollection<ResumeEducationSelection> EducationSelections => _educationSelections.AsReadOnly();
@@ -46,12 +48,16 @@ public class Resume : Entity
         int accountId,
         string name,
         int? aiScore,
+        string? resumeSummaryVersion,
+        string? aiSummaryVersion,
         ResumeAiMetaData aiMetaData,
         ResumeJobPosting jobPosting)
     {
         AccountId = accountId;
         Name = name;
         AiScore = aiScore;
+        ResumeSummaryVersion = resumeSummaryVersion;
+        AiSummaryVersion = aiSummaryVersion;
         AiMetaData = aiMetaData;
         JobPosting = jobPosting;
         ApplicationTracking = ResumeApplicationTracking.CreateDefault();

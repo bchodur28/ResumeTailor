@@ -125,7 +125,7 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
                     Email: r.Account.Email,
                     PhoneNumber: r.Account.PhoneNumber,
                     Location: r.Account.Location,
-                    Summary: r.Account.Summary,
+                    Summary: r.ResumeSummaryVersion,
 
                     PersonalLinks: r.Account.PersonalLinks
                         .Select(pl => new PersonalLinkResponse(

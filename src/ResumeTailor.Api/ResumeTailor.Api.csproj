@@ -22,4 +22,8 @@
     <ProjectReference Include="..\ResumeTailor.Infrastructure\ResumeTailor.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

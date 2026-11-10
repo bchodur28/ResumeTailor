@@ -6,5 +6,5 @@ namespace ResumeTailor.Application.Resumes.Generation.Interfaces;
 
 public interface IResumeCreator
 {
-    Task<int> CreateResumeAsync(int accountId, AiResult<AiResumeDataOutput> aiResumeData, IReadOnlyCollection<ResolvedResumeExperience> ResolvedExperiences, CancellationToken cancellationToken = default);
+    Task<int> CreateResumeAsync(int accountId, AiResult<AiResumeDataOutput> aiResumeData, IReadOnlyCollection<ResolvedResumeExperience> ResolvedExperiences, string? summary, string? aiSummary, CancellationToken cancellationToken = default);
 }

@@ -11,6 +11,7 @@ type TextAreaViewProps = {
   error?: string;
   isValid?: boolean;
   rows?: number;
+  textOnNextRow?: boolean;
 };
 
 const TextAreaView = ({
@@ -21,6 +22,7 @@ const TextAreaView = ({
   registration,
   error,
   rows,
+  textOnNextRow = false,
 }: TextAreaViewProps) => {
   return (
     <>
@@ -34,7 +36,9 @@ const TextAreaView = ({
         />
       )}
       {!isInput && (
-        <li className="flex gap-2 items-baseline">
+        <li
+          className={`flex ${textOnNextRow ? "flex-col" : "gap-2"}  items-baseline`}
+        >
           <p className="text-sm font-medium text-gray-600">{label}:</p>
           <p className="text-base font-medium text-gray-700">
             {valueToDisplay ?? ""}

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using ResumeTailor.Api.Models;
 using ResumeTailor.Application.Common.Models;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
@@ -18,9 +17,9 @@ public sealed class ResumeController(
 {
 
     [HttpPost("{accountId:int}/generate")]
-    public async Task<ActionResult<int>> GenerateResumeAsync(int accountId, [FromBody] GenerateResumeRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<int>> GenerateResumeAsync(int accountId, [FromBody] GeneratedResumeRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await generatorService.GenerateResumeAsync(accountId, request.Description, cancellationToken);
+        var response = await generatorService.GenerateResumeAsync(accountId, request, cancellationToken);
 
         return Ok(response);
     }
