@@ -82,6 +82,12 @@ public class Resume : Entity
     public ResumeExperience AddExperience(int libraryExperienceId, int? librarySummaryId, int sortOrder)
     {
         var experience = new ResumeExperience(libraryExperienceId, sortOrder);
+
+        if (librarySummaryId.HasValue)
+        {
+            experience.UpdateSummary(librarySummaryId.Value);
+        }
+
         _experiences.Add(experience);
         return experience;
     }

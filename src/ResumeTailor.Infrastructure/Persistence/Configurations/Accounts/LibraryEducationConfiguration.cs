@@ -20,14 +20,14 @@ internal class LibraryEducationConfiguration : IEntityTypeConfiguration<LibraryE
             .HasMaxLength(200);
 
         builder.Property(education => education.FieldOfStudy)
-            .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(education => education.Started)
-            .HasColumnType("date");
+        builder.Property(x => x.Gpa)
+            .HasPrecision(4, 3);
 
-        builder.Property(education => education.Ended)
-            .HasColumnType("date");
+        builder.Property(education => education.Started);
+
+        builder.Property(education => education.Ended);
 
         builder.Property(education => education.UseForResume)
             .IsRequired();

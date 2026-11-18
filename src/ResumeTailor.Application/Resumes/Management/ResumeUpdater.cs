@@ -1,6 +1,5 @@
 using ResumeTailor.Application.Common.Exceptions;
 using ResumeTailor.Application.Contracts.Resume;
-using ResumeTailor.Application.Contracts.Resume.Selection;
 using ResumeTailor.Application.Resumes.Management.Interfaces;
 using ResumeTailor.Domain.GeneratedResumes;
 using ResumeTailor.Domain.Resumes;
@@ -138,6 +137,8 @@ public sealed class ResumeUpdater : IResumeUpdater
                     experienceRequest.LibrarySummaryId,
                     experienceRequest.SortOrder
                 );
+                var summary = newExperience.ResumeSummary;
+                var summaryId = summary?.LibrarySummaryId;
 
                 foreach (var bulletRequest in experienceRequest.Bullets)
                 {

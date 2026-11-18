@@ -35,7 +35,7 @@ internal sealed class FieldExtractionDefinitionConfiguration : IEntityTypeConfig
             .IsRequired();
 
         builder.HasMany(x => x.Patterns)
-            .WithOne()
+            .WithOne(x => x.FieldExtractionDefinition)
             .HasForeignKey(x => x.FieldExtractionDefinitionId)
             .OnDelete(DeleteBehavior.Cascade);
 

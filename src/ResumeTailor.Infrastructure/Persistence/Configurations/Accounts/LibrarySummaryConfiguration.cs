@@ -20,7 +20,7 @@ internal sealed class LibrarySummaryConfiguration : IEntityTypeConfiguration<Lib
 
         builder.HasIndex(s => s.ExperienceId)
             .IsUnique()
-            .HasFilter("\"IsPrimary\" = 1");
+            .HasFilter("[IsPrimary] = 1");
 
     }
 }

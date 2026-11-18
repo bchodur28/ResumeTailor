@@ -28,6 +28,5 @@ internal sealed class FieldPatternConfiguration : IEntityTypeConfiguration<Field
             pattern.FieldExtractionDefinitionId,
             pattern.MatchPattern
         }).IsUnique();
-        
     }
 }

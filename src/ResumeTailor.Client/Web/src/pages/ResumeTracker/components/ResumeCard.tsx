@@ -179,18 +179,32 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
         </div>
         <div>
           {statusUpdatedSuccessfully === true && (
-            <Message
-              type="success"
-              message="Status updated successfully"
-              onClose={() => setStatusUpdatedSuccessfully(null)}
-            />
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              <Message
+                type="success"
+                message="Status updated successfully"
+                onClose={() => setStatusUpdatedSuccessfully(null)}
+              />
+            </div>
           )}
           {statusUpdatedSuccessfully === false && (
-            <Message
-              type="error"
-              message="Failed to update status"
-              onClose={() => setStatusUpdatedSuccessfully(null)}
-            />
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              <Message
+                type="error"
+                message="Failed to update status"
+                onClose={() => setStatusUpdatedSuccessfully(null)}
+              />
+            </div>
           )}
         </div>
 
@@ -252,7 +266,7 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
       </Link>
       <div className="shrink-0 p-2 border-t border-gray-300 flex justify-center gap-2">
         <ButtonContainer align="center" isRelative={true}>
-          <DropdownButton label="Edit Post" styleType="edit">
+          {/* <DropdownButton label="Edit Post" styleType="edit">
             <ActionList
               actions={[
                 {
@@ -261,8 +275,8 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
                 },
               ]}
             />
-          </DropdownButton>
-          <DropdownButton label="Set Status" styleType="edit">
+          </DropdownButton> */}
+          <DropdownButton label="Set Status" styleType="edit" closeOnClick>
             <ActionList
               actions={[
                 {

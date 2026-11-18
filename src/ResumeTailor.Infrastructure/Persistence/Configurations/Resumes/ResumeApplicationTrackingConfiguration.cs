@@ -29,9 +29,6 @@ namespace ResumeTailor.Infrastructure.Persistence.Configurations.Resumes
 
             builder.Property(x => x.Rejected)
                 .HasColumnType("date");
-
-            builder.Property(x => x.Status)
-                .HasColumnType("date");
         }
     }
 }

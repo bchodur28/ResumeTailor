@@ -18,11 +18,8 @@ internal sealed class LibraryExperienceConfiguration : IEntityTypeConfiguration<
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(ex => ex.Started)
-            .HasColumnType("date");
-
-        builder.Property(ex => ex.Ended)
-            .HasColumnType("date");
+        builder.Property(ex => ex.Started);
+        builder.Property(ex => ex.Ended);
 
         builder.Property(ex => ex.LetAiChooseSummary)
             .IsRequired();

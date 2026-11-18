@@ -10,7 +10,6 @@ using ResumeTailor.Application.GeneratedResumes.Rendering.Interfaces;
 using ResumeTailor.Application.Library.Interfaces;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Education.Interfaces;
-using ResumeTailor.Application.Profile.Experience.Interfaces;
 using ResumeTailor.Application.Resumes.Generation.Interfaces;
 using ResumeTailor.Application.Resumes.Generation.Models;
 using ResumeTailor.Infrastructure.AI;
@@ -33,26 +32,14 @@ public static class DependencyInjection
 
         var databasePath = configuration["Database:Path"];
 
-        if (string.IsNullOrWhiteSpace(databasePath))
-        {
-            var applicationDataDirectory = Path.Combine(
-                Environment.GetFolderPath(
-                    Environment.SpecialFolder.LocalApplicationData), "ResumeTailor");
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException(
+                "Database connection string is missing.");
 
-            databasePath = Path.Combine(applicationDataDirectory, "resume-tailor.db");
-        }
-
-        var databaseDirectory = Path.GetDirectoryName(databasePath);
-
-        if (!string.IsNullOrWhiteSpace(databaseDirectory))
-        {
-            Directory.CreateDirectory(databaseDirectory);
-        }
-        
-        services.AddDbContext<ResumeTailorDbContext>(options =>
-        {
-            options.UseSqlite($"Data Source={databasePath}");
-        });
+                services.AddDbContext<ResumeTailorDbContext>(options =>
+                {
+                    options.UseSqlServer(connectionString);
+                });
 
         var openAiApiKey = configuration["OpenAI:ApiKey"];
 
@@ -73,7 +60,6 @@ public static class DependencyInjection
         services.AddScoped<IFieldExtractionDefinitionRepository, FieldExtractionDefinitionRepository>();
         services.AddScoped<IFieldPatternRepository, FieldPatternRepository>();
         services.AddScoped<IResumeRepository, ResumeRepository>();
-        services.AddScoped<IExperienceRepository, ExperienceRepository>();
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<IEducationRepository, EducationRepository>();
         services.AddScoped<IResumePdfGenerator, QuestPdfResumeGenerator>();

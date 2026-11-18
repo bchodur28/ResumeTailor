@@ -20,5 +20,8 @@ internal class ResumeAiMetaDataConfiguration : IEntityTypeConfiguration<ResumeAi
         builder.Property(x => x.TotalTokens)
             .IsRequired();
 
+        builder.Property(x => x.Cost)
+            .HasPrecision(18, 8);
+
     }
 }
