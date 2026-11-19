@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { DropdownContext } from "../../../contexts/DropdownContext";
 
 type ButtonContainerProps = {
@@ -27,6 +27,8 @@ const ButtonContainer = ({
 }: ButtonContainerProps) => {
   const [openId, setOpenId] = useState<string | null>(null);
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   const toggle = (id: string) => {
     setOpenId((prevOpenId) => (prevOpenId === id ? null : id));
   };
@@ -35,10 +37,30 @@ const ButtonContainer = ({
     setOpenId(null);
   };
 
+  useEffect(() => {
+    if (openId === null) return;
+
+    const handleClickOutside = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !containerRef.current?.contains(event.target)
+      ) {
+        close();
+      }
+    };
+
+    document.addEventListener("pointerdown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside);
+    };
+  }, [openId]);
+
   return (
     <DropdownContext.Provider value={{ openId, toggle, close }}>
       <div
-        className={`btn-container ${hasStyle ? "btn-container-style" : ""} ${getAlignmentClass(align)} ${isRelative ? "btn-container-relative" : "btn-container-absolute"}`}
+        ref={containerRef}
+        className={`btn-container ${hasStyle ? "btn-container--styled" : ""} ${getAlignmentClass(align)} ${isRelative ? "btn-container--relative" : "btn-container--absolute"}`}
       >
         {children}
       </div>

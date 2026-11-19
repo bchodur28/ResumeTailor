@@ -11,16 +11,24 @@
     --small-shadow-light: 0px 2px 3px 0px hsl(0, 0%, 80%);
     --small-shadow-dark: 0px 2px 3px 0px hsl(0, 0%, 50%);
 
-    --applied-color: hsl(284, 33%, 40%);
+    --interested-color:hsl(201, 100%, 41%);
+    --applied-color: hsla(276, 100%, 41%);
     --interviewed-color: hsl(54, 100%, 46%);
     --offer-received-color: hsl(137, 33%, 52%);
     --offer-accepted-color: hsl(137, 33%, 32%);
     --rejected-color: hsl(0, 52%, 52%);
-
 }
 
 .primary-border{
   border: 1px solid var(--primary-color-100);
+}
+
+.primary-bg-300{
+  background-color: var(--primary-color-300);
+}
+
+.primary-bg-400{
+  background-color: var(--primary-color-400);
 }
 
 .primary-color{

@@ -1,13 +1,11 @@
-import styles from "../../../components/resume/Resume.module.css";
-
 export type DropdownProps = {
   actions: { label: string; onClick: () => void }[];
 };
 
-const Dropdown = ({ actions }: DropdownProps) => {
+const DropdownActions = ({ actions }: DropdownProps) => {
   return (
     <>
-      <ul className={styles.editToolBarList}>
+      <ul className="dropdown-actions">
         {actions.map((action) => (
           <li key={action.label}>
             <button
@@ -26,4 +24,4 @@ const Dropdown = ({ actions }: DropdownProps) => {
   );
 };
 
-export default Dropdown;
+export default DropdownActions;

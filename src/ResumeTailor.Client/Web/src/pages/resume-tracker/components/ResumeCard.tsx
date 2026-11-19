@@ -13,8 +13,8 @@ import interviewingIcon from "../../../assets/icons/job-interview.png";
 import handShakeIcon from "../../../assets/icons/handshake.png";
 import rejectedIcon from "../../../assets/icons/reject.png";
 import DropdownButton from "../../../components/ui/buttons/DropdownButton";
-import ActionList from "../../../components/ui/lists/ActionList";
 import ButtonContainer from "../../../components/ui/buttons/ButtonContainer";
+import DropdownActions from "../../../components/ui/dropdowns/DropdownActions";
 
 type ResumeCardProps = {
   resume: ResumeSummaryResponse;
@@ -58,27 +58,6 @@ const formatDate = (date: string | Date) => {
     day: "numeric",
     year: "numeric",
   }).format(value);
-};
-
-const getStatusColor = (status: ApplicationStatusValue | undefined) => {
-  console.log("Current status:", status);
-  if (!status) {
-    return ["var(--primary-color-300)", "white"];
-  }
-  switch (status) {
-    case ApplicationStatus.Applied:
-      return ["var(--applied-color)", "white"];
-    case ApplicationStatus.Interviewed:
-      return ["var(--interviewed-color)", "black"];
-    case ApplicationStatus.OfferReceived:
-      return ["var(--offer-received-color)", "black"];
-    case ApplicationStatus.OfferAccepted:
-      return ["var(--offer-accepted-color)", "white"];
-    case ApplicationStatus.Rejected:
-      return ["var(--rejected-color)", "white"];
-    default:
-      return ["var(--primary-color-300)", "white"];
-  }
 };
 
 function renderInfo(title: string, value: string | null | undefined) {
@@ -125,6 +104,15 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
     resume.applicationTracking?.rejected,
   );
 
+  const statusClasses = {
+    interested: "interested",
+    applied: "applied",
+    interviewing: "interviewing",
+    offerReceived: "offer-received",
+    offerAccepted: "offer-accepted",
+    rejected: "rejected",
+  };
+
   const setDateForStatus = (status: ApplicationStatusValue, date: string) => {
     switch (status) {
       case ApplicationStatus.Applied:
@@ -164,81 +152,87 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
   };
 
   return (
-    <div className="resume-card">
-      <Link className="flex flex-col gap-2 flex-1" to={`/resumes/${resume.id}`}>
-        <div
-          style={{
-            backgroundColor: getStatusColor(currentStatus)[0],
-            color: getStatusColor(currentStatus)[1],
-          }}
-          className="flex items-center p-3 rounded-t-lg shadow-md"
-        >
-          <h1 className="text-md font-semibold">
+    <div
+      className={`resume-card resume-card--${statusClasses[currentStatus ?? "interested"]}`}
+    >
+      <Link
+        className="flex flex-col gap-2 flex-1"
+        to={`/app/resumes/${resume.id}`}
+      >
+        <div className="flex items-center p-3 border-b border-slate-300 shadow-[0_3px_3px_-2px_rgba(0,0,0,0.15)]">
+          <h1 className="text-md font-semibold text-gray-800">
             {getDisplayName(resume.name)}
           </h1>
         </div>
-        <div>
-          {statusUpdatedSuccessfully === true && (
-            <div
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            >
-              <Message
-                type="success"
-                message="Status updated successfully"
-                onClose={() => setStatusUpdatedSuccessfully(null)}
+        {statusUpdatedSuccessfully === true && (
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <Message
+              type="success"
+              message="Status updated successfully"
+              onClose={() => setStatusUpdatedSuccessfully(null)}
+            />
+          </div>
+        )}
+        {statusUpdatedSuccessfully === false && (
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <Message
+              type="error"
+              message="Failed to update status"
+              onClose={() => setStatusUpdatedSuccessfully(null)}
+            />
+          </div>
+        )}
+        {(appliedOn ||
+          interviewedOn ||
+          offerReceivedOn ||
+          offerAcceptedOn ||
+          rejectedOn) && (
+          <div className="grid grid-cols-3 gap-6 px-4">
+            {appliedOn && (
+              <img
+                src={applicationIcon}
+                alt="Applied"
+                className="h-16 w-16 object-contain"
               />
-            </div>
-          )}
-          {statusUpdatedSuccessfully === false && (
-            <div
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            >
-              <Message
-                type="error"
-                message="Failed to update status"
-                onClose={() => setStatusUpdatedSuccessfully(null)}
-              />
-            </div>
-          )}
-        </div>
+            )}
 
-        <div className="grid grid-cols-3 px-4 justify-between gap-6">
-          {appliedOn && (
-            <img
-              src={applicationIcon}
-              alt="Applied"
-              className="h-16 w-16 object-cover"
-            />
-          )}
-          {interviewedOn && (
-            <img
-              src={interviewingIcon}
-              alt="Interviewing"
-              className="h-16 w-16 object-cover"
-            />
-          )}
-          {offerReceivedOn && (
-            <img
-              src={handShakeIcon}
-              alt="Offer Received"
-              className="h-16 w-16 object-cover"
-            />
-          )}
-          {rejectedOn && (
-            <img
-              src={rejectedIcon}
-              alt="Offer Rejected"
-              className="h-16 w-16 object-cover"
-            />
-          )}
-        </div>
-        <div className="flex-1 px-4">
+            {interviewedOn && (
+              <img
+                src={interviewingIcon}
+                alt="Interviewing"
+                className="h-16 w-16 object-contain"
+              />
+            )}
+
+            {offerReceivedOn && (
+              <img
+                src={handShakeIcon}
+                alt="Offer Received"
+                className="h-16 w-16 object-contain"
+              />
+            )}
+
+            {rejectedOn && (
+              <img
+                src={rejectedIcon}
+                alt="Rejected"
+                className="h-16 w-16 object-contain"
+              />
+            )}
+          </div>
+        )}
+
+        <div className="flex-1 px-3 pb-4">
           {renderInfo("Company", resume.jobPosting?.companyName)}
           {renderInfo("Job Title", resume.jobPosting?.jobTitle)}
           {renderInfo("Location", resume.jobPosting?.location)}
@@ -264,39 +258,28 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
           {rejectedOn && renderInfo("Rejected on", formatDate(rejectedOn))}
         </div>
       </Link>
-      <div className="shrink-0 p-2 border-t border-gray-300 flex justify-center gap-2">
+      <div className="shrink-0 p-2 border-t border-slate-300 flex justify-center gap-2 shadow-[0_-3px_3px_-2px_rgba(0,0,0,0.15)]">
         <ButtonContainer align="center" isRelative={true}>
-          {/* <DropdownButton label="Edit Post" styleType="edit">
-            <ActionList
+          <DropdownButton label="Set Status" styleType="plain" closeOnClick>
+            <DropdownActions
               actions={[
                 {
-                  actionName: "Edit",
-                  actionFn: () => console.log("Edit clicked"),
-                },
-              ]}
-            />
-          </DropdownButton> */}
-          <DropdownButton label="Set Status" styleType="edit" closeOnClick>
-            <ActionList
-              actions={[
-                {
-                  actionName: "Applied",
-                  actionFn: () => handleStatusChange(ApplicationStatus.Applied),
+                  label: "Applied",
+                  onClick: () => handleStatusChange(ApplicationStatus.Applied),
                 },
                 {
-                  actionName: "Interviewing",
-                  actionFn: () =>
+                  label: "Interviewing",
+                  onClick: () =>
                     handleStatusChange(ApplicationStatus.Interviewed),
                 },
                 {
-                  actionName: "Offered",
-                  actionFn: () =>
+                  label: "Offered",
+                  onClick: () =>
                     handleStatusChange(ApplicationStatus.OfferReceived),
                 },
                 {
-                  actionName: "Rejected",
-                  actionFn: () =>
-                    handleStatusChange(ApplicationStatus.Rejected),
+                  label: "Rejected",
+                  onClick: () => handleStatusChange(ApplicationStatus.Rejected),
                 },
               ]}
             />

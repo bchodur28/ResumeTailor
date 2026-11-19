@@ -17,9 +17,9 @@ import {
 import type { ResumeSummarySortByValue } from "../../../models/resumes/ResumeSummarySortBy";
 import { ResumeSummarySortBy } from "../../../models/resumes/ResumeSummarySortBy";
 import type { ApplicationStatusValue } from "../../../models/resumes/ApplicationStatus";
-import ActionList from "../../../components/ui/lists/ActionList";
 import type { ResumeSummaryQuery } from "../../../api/contracts/resumes/ResumeSummaryQuery";
 import type { Dispatch, SetStateAction } from "react";
+import DropdownActions from "../../../components/ui/dropdowns/DropdownActions";
 
 export type TrackingQuery = Omit<ResumeSummaryQuery, "accountId">;
 
@@ -317,17 +317,12 @@ const TrackingToolBar = ({
           hideLabel={false}
           styleType="filter"
         >
-          <ul className="flex flex-col justify-end">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                className="p-2 bg-white hover:bg-gray-100 text-gray-800 text-sm font-semibold"
-                key={index}
-                onClick={() => onPageChange(index + 1)}
-              >
-                {index + 1}
-              </button>
-            ))}
-          </ul>
+          <DropdownActions
+            actions={Array.from({ length: totalPages }, (_, index) => ({
+              label: `${index + 1}`,
+              onClick: () => onPageChange(index + 1),
+            }))}
+          />
         </DropdownButton>
       )}
       <DropdownButton
@@ -336,10 +331,10 @@ const TrackingToolBar = ({
         iconComponent={List}
         hideLabel={false}
       >
-        <ActionList
+        <DropdownActions
           actions={([12, 24, 48, "All"] as const).map((count) => ({
-            actionName: `${count}`,
-            actionFn: () =>
+            label: `${count}`,
+            onClick: () =>
               onItemsPerPageChange(
                 count === "All" ? (totalUnfilteredCount ?? 48) : count,
               ),

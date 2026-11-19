@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useLibraryEducation } from "../../hooks/useLibraryEducation";
-import { useDateFormat } from "../../hooks/useDateFormat";
 import {
   EducationType,
   getEducationTypeLabel,
@@ -8,10 +7,10 @@ import {
 } from "../../models/education/EducationType";
 import Card from "../../components/ui/Card";
 import DropdownButton from "../../components/ui/buttons/DropdownButton";
-import ActionList from "../../components/ui/lists/ActionList";
 import LibraryEducationItem from "./components/LibraryEducationItem";
 import Button from "../../components/ui/buttons/Button";
 import Message from "../../components/ui/feedback/Message";
+import DropdownActions from "../../components/ui/dropdowns/DropdownActions";
 
 type NewEducation = {
   key: string;
@@ -123,10 +122,10 @@ const LibraryEducationPage = () => {
               grow
               positionRelativeTo="container"
             >
-              <ActionList
+              <DropdownActions
                 actions={Object.values(EducationType).map((type) => ({
-                  actionName: getEducationTypeLabel(type),
-                  actionFn: () => handleAddEducation(type),
+                  label: getEducationTypeLabel(type),
+                  onClick: () => handleAddEducation(type),
                 }))}
               />
             </DropdownButton>

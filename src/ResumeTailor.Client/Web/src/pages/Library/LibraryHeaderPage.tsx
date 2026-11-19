@@ -13,7 +13,6 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/buttons/Button";
 import CollapsibleSection from "./components/CollapsibleSection";
 import InputView from "./components/InputView";
-import Dropdown from "../ResumeDetails/components/Dropdown";
 import ControllerView from "./components/ControllerView";
 import { dateFormatOptions } from "../../models/common/DateFormat";
 import TextAreaView from "./components/TextAreaView";

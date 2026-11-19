@@ -16,12 +16,6 @@
   cursor: pointer;
 }
 
-/* .btn-container{
-  display: flex;
-  flex-direction: column;
-  gap: .4rem;
-} */
-
 .nav{
   display: flex;
   margin-bottom: 1rem;

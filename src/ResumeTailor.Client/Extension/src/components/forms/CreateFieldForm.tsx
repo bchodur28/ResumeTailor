@@ -115,20 +115,6 @@ const CreateFieldForm = ({ siteId }: CreateFieldFormProps) => {
         />
       </div>
 
-      {/* <div className="selector-container">
-        <p>Selectors:</p>
-        {selectors.map((selector) => {
-          return (
-            <Selector
-              key={selector.id}
-              id={selector.id}
-              rule={selector.selector}
-              priority={selector.priority}
-            />
-          );
-        })}
-      </div> */}
-
       <div className="submit-btn-container">
         <button
           type="submit"

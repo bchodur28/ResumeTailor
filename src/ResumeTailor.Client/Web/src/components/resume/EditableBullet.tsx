@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowUp,
   ArrowDown,
@@ -12,8 +12,7 @@ import styles from "./Resume.module.css";
 import { useResumeEdit } from "../../contexts/ResumeEditContext";
 import ButtonContainer from "../ui/buttons/ButtonContainer";
 import Button from "../ui/buttons/Button";
-import DropdownButton from "../ui/buttons/DropdownButton";
-import SearchDropdown from "../../pages/ResumeDetails/components/SearchDropdown";
+import SearchDropdown from "../ui/dropdowns/SearchableDropdownActions";
 
 type EditableBulletProps = {
   item: ResolvedBullet;
@@ -54,6 +53,14 @@ const EditableBullet = ({
 
   const hasAlternative = item.aiAlternativeValue !== null;
 
+  const [isReplaceOpen, setIsReplaceOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setIsReplaceOpen(false);
+    }
+  }, [isEditing]);
+
   const handleBulletSwapWithAlternative = (alternativeValue: string) => {
     // onBulletReplace(
     //   companyIndex,
@@ -65,6 +72,7 @@ const EditableBullet = ({
 
   return (
     <li
+      data-resume-editor-active={isEditing}
       className={`${styles.editableBulletContainer} ${
         isEditing ? styles.editableBulletContainerActive : ""
       }`}
@@ -82,6 +90,7 @@ const EditableBullet = ({
             return;
           }
 
+          setIsReplaceOpen(false);
           toggleEditor(editorId);
         }}
       >
@@ -98,67 +107,78 @@ const EditableBullet = ({
       </button>
 
       {isEditing && (
-        <ButtonContainer
-          hasStyle={true}
-          isRelative={false}
-          align="space-between"
-        >
-          <Button
-            label="Delete"
-            styleType="filter"
-            labelSlideOut={true}
-            iconComponent={() => <Trash3 size={20} className="danger-color" />}
-            onClick={() => {
-              onBulletRemove();
-              closeEditor();
-            }}
-          />
-
-          <DropdownButton
-            label="Replace"
-            iconComponent={() => <ArrowLeftRight size={20} />}
-            styleType="filter"
-            labelSlideOut={true}
-            positionRelativeTo="container"
+        <div className={`${styles.editControls} ${styles.editControlsBullet}`}>
+          <ButtonContainer
+            hasStyle={true}
+            isRelative={true}
+            align="space-between"
           >
-            <SearchDropdown
-              filteredActions={additionalBullets.map((bullet) => ({
-                label: bullet.value,
-                onClick: () => onBulletReplace(bullet.libraryBulletId),
-              }))}
-            ></SearchDropdown>
-          </DropdownButton>
-
-          {hasAlternative && (
             <Button
-              label="Use Alternative"
-              iconComponent={() => <ArrowRepeat size={20} />}
-              onClick={() => {}}
+              label="Delete"
               styleType="filter"
               labelSlideOut={true}
+              iconComponent={() => (
+                <Trash3 size={20} className="danger-color" />
+              )}
+              onClick={() => {
+                onBulletRemove();
+                closeEditor();
+              }}
             />
-          )}
 
-          {!isFirstBullet && (
             <Button
-              label="Move Up"
-              iconComponent={() => <ArrowUp size={20} />}
-              onClick={onBulletMoveUp}
+              label="Replace"
+              iconComponent={() => <ArrowLeftRight size={20} />}
               styleType="filter"
               labelSlideOut={true}
+              onClick={() => setIsReplaceOpen((prev) => !prev)}
             />
-          )}
 
-          {!isLastBullet && (
-            <Button
-              label="Move Down"
-              iconComponent={() => <ArrowDown size={20} />}
-              onClick={onBulletMoveDown}
-              styleType="filter"
-              labelSlideOut={true}
-            />
+            {hasAlternative && (
+              <Button
+                label="Use Alternative"
+                iconComponent={() => <ArrowRepeat size={20} />}
+                onClick={() => {}}
+                styleType="filter"
+                labelSlideOut={true}
+              />
+            )}
+
+            {!isFirstBullet && (
+              <Button
+                label="Move Up"
+                iconComponent={() => <ArrowUp size={20} />}
+                onClick={onBulletMoveUp}
+                styleType="filter"
+                labelSlideOut={true}
+              />
+            )}
+
+            {!isLastBullet && (
+              <Button
+                label="Move Down"
+                iconComponent={() => <ArrowDown size={20} />}
+                onClick={onBulletMoveDown}
+                styleType="filter"
+                labelSlideOut={true}
+              />
+            )}
+          </ButtonContainer>
+
+          {isReplaceOpen && (
+            <div className={styles.editControlsDropdown} data-resume-dropdown>
+              <SearchDropdown
+                actions={additionalBullets.map((bullet) => ({
+                  label: bullet.value,
+                  onClick: () => {
+                    onBulletReplace(bullet.libraryBulletId);
+                    setIsReplaceOpen(false);
+                  },
+                }))}
+              />
+            </div>
           )}
-        </ButtonContainer>
+        </div>
       )}
     </li>
   );

@@ -1,21 +1,19 @@
+import { useAuth0 } from "@auth0/auth0-react";
 import { useAccount } from "../../contexts/AccountContext";
-import { states } from "../../data/states";
 
-type ProfileMenuProps = {
-  onEditProfile: () => void;
-  onManageEducation: () => void;
-  onManageCompanies: () => void;
-  onManageProjects: () => void;
-};
-
-const ProfileMenu = ({
-  onEditProfile,
-  onManageEducation,
-  onManageCompanies,
-  onManageProjects,
-}: ProfileMenuProps) => {
+const ProfileMenu = () => {
   const { account } = useAccount();
+  const { logout } = useAuth0();
+
   if (!account) return null;
+
+  const handleLogout = () => {
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+      },
+    });
+  };
 
   return (
     <div
@@ -48,11 +46,8 @@ const ProfileMenu = ({
               {account.email}
             </div>
 
-            {account.city && account.state && (
-              <div className="text-sm text-gray-600">
-                {account.city},{" "}
-                {states.find((state) => state.name === account.state)?.code}
-              </div>
+            {account.location && (
+              <div className="text-sm text-gray-600">{account.location}</div>
             )}
           </div>
         </div>
@@ -61,39 +56,8 @@ const ProfileMenu = ({
       <div className="border-t border-gray-200 py-2">
         <button
           type="button"
-          onClick={onEditProfile}
           className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-        >
-          Edit profile
-        </button>
-
-        <button
-          type="button"
-          onClick={onManageEducation}
-          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-        >
-          Manage education
-        </button>
-        <button
-          type="button"
-          onClick={onManageCompanies}
-          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-        >
-          Manage companies
-        </button>
-        <button
-          type="button"
-          onClick={onManageProjects}
-          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-        >
-          Manage projects
-        </button>
-      </div>
-
-      <div className="border-t border-gray-200 py-2">
-        <button
-          type="button"
-          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+          onClick={handleLogout}
         >
           Sign out
         </button>

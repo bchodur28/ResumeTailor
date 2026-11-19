@@ -48,22 +48,20 @@ const Message: React.FC<MessageProps> = ({ type, message, onClose }) => {
     }
   };
   return (
-    <div>
-      <div
-        className={`p-2 rounded border shadow-md flex justify-between ${getColorClasses()}`}
-      >
-        <p>
-          <b>{getStarterMessage()}</b> {message}
-        </p>
-        {onClose && (
-          <button
-            className={`font-bold ${getButtonColorClasses()}`}
-            onClick={onClose}
-          >
-            x
-          </button>
-        )}
-      </div>
+    <div
+      className={`p-2 rounded border shadow-md flex justify-between ${getColorClasses()}`}
+    >
+      <p>
+        <b>{getStarterMessage()}</b> {message}
+      </p>
+      {onClose && (
+        <button
+          className={`font-bold ${getButtonColorClasses()}`}
+          onClick={onClose}
+        >
+          x
+        </button>
+      )}
     </div>
   );
 };

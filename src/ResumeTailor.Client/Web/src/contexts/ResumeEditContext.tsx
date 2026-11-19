@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 type ResumeEditContextValue = {
   activeEditorId: string | null;
@@ -22,6 +28,30 @@ export const ResumeEditProvider = ({ children }: ResumeEditProviderProps) => {
   const closeEditor = () => {
     setActiveEditorId(null);
   };
+
+  useEffect(() => {
+    if (activeEditorId === null) return;
+
+    const handleClickOutside = (event: PointerEvent) => {
+      const activeEditor = document.querySelector<HTMLElement>(
+        '[data-resume-editor-active="true"]',
+      );
+
+      if (
+        activeEditor &&
+        event.target instanceof Node &&
+        !activeEditor.contains(event.target)
+      ) {
+        closeEditor();
+      }
+    };
+
+    document.addEventListener("pointerdown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside);
+    };
+  }, [activeEditorId]);
 
   return (
     <ResumeEditContext.Provider

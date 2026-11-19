@@ -43,7 +43,7 @@ const ScaledResumePreview = ({
   return (
     <div ref={containerRef} className="w-full min-w-0">
       <div
-        className="relative mx-auto"
+        className="relative mx-auto resume-preview-wrapper"
         style={{
           width: documentWidth * scale,
           height,

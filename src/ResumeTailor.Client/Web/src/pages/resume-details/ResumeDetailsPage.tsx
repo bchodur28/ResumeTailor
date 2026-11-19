@@ -7,7 +7,6 @@ import Card from "../../components/ui/Card";
 import RatingBar from "../../components/ui/feedback/RatingBar";
 import type { ResumeResponse } from "../../api/contracts/resumes/ResumeResponse";
 import type { ResumeEducationRequest } from "../../api/contracts/resumes/ResumeEducationRequest";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLibraryEducation } from "../../hooks/useLibraryEducation";
 import {
   Book,
@@ -17,7 +16,6 @@ import {
   Paragraph,
   PatchCheck,
 } from "react-bootstrap-icons";
-import { useCompanyBullets } from "../../hooks/useCompanyBullet";
 import { getResumePdf } from "../../api/resumeApi";
 import { useUpdateResume } from "../../hooks/useUpdateResume";
 import Message from "../../components/ui/feedback/Message";
@@ -25,7 +23,7 @@ import ListItem from "../../components/ui/lists/ListItem";
 import ScaledResumePreview from "./components/ScaledResumePreview";
 import ButtonContainer from "../../components/ui/buttons/ButtonContainer";
 import DropdownButton from "../../components/ui/buttons/DropdownButton";
-import SearchDropdown from "./components/SearchDropdown";
+import SearchDropdown from "../../components/ui/dropdowns/SearchableDropdownActions";
 import type { UpdateResumeRequest } from "../../api/contracts/resumes/UpdateResumeRequest";
 import type { ResumeExperienceRequest } from "../../api/contracts/resumes/ResumeExperienceRequest";
 import { useLibraryExperiences } from "../../hooks/useLibraryExperiences";
@@ -37,8 +35,8 @@ import type { LibraryExperienceResponse } from "../../api/contracts/library/Libr
 import Resume from "../../components/resume/Resume";
 import { ResumeEditProvider } from "../../contexts/ResumeEditContext";
 import type { SkillResponse } from "../../api/contracts/accounts/SkillResponse";
-import Dropdown from "./components/Dropdown";
 import Button from "../../components/ui/buttons/Button";
+import DropdownActions from "../../components/ui/dropdowns/DropdownActions";
 
 const mapResumeToRequest = (resume: ResumeResponse): UpdateResumeRequest => ({
   name: resume.resumeName ?? "",
@@ -807,7 +805,7 @@ const ResumeDetailsPage = () => {
                 labelSlideOut={true}
               >
                 <SearchDropdown
-                  filteredActions={availableEducationButExcludingCurrent.map(
+                  actions={availableEducationButExcludingCurrent.map(
                     (education) => ({
                       label: education.institutionName,
                       onClick: () =>
@@ -824,7 +822,7 @@ const ResumeDetailsPage = () => {
                 styleType="filter"
                 labelSlideOut={true}
               >
-                <Dropdown
+                <DropdownActions
                   actions={availableCertificationsButExcludingCurrent.map(
                     (certification) => ({
                       label: certification.institutionName,
@@ -842,7 +840,7 @@ const ResumeDetailsPage = () => {
                 styleType="filter"
                 labelSlideOut={true}
               >
-                <Dropdown
+                <DropdownActions
                   actions={availableProjectsButExcludingCurrent.map(
                     (project) => ({
                       label: project.title,
@@ -859,7 +857,7 @@ const ResumeDetailsPage = () => {
               styleType="filter"
               labelSlideOut={true}
             >
-              <Dropdown
+              <DropdownActions
                 actions={[16, 17, 18, 19, 20].map((size) => ({
                   label: `${size}pt`,
                   onClick: () => handleTitleFontSizeChange(size),
@@ -872,7 +870,7 @@ const ResumeDetailsPage = () => {
               styleType="filter"
               labelSlideOut={true}
             >
-              <Dropdown
+              <DropdownActions
                 actions={[14, 15, 16, 17, 18, 19, 20].map((size) => ({
                   label: `${size}pt`,
                   onClick: () => handleSectionHeaderFontSizeChange(size),
@@ -885,7 +883,7 @@ const ResumeDetailsPage = () => {
               styleType="filter"
               labelSlideOut={true}
             >
-              <Dropdown
+              <DropdownActions
                 actions={[10, 11, 12].map((size) => ({
                   label: `${size}pt`,
                   onClick: () => handleMainBodyFontSizeChange(size),

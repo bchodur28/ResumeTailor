@@ -46,12 +46,8 @@ const DropdownButton = ({
   return (
     <div
       className={`
-    relative
-    ${
-      positionRelativeTo === "container"
-        ? "dropdown-btn-container-parent-width"
-        : "dropdown-btn-container"
-    }
+    dropdown-btn-container
+    ${positionRelativeTo === "container" ? "dropdown-btn-container--parent-width" : ""}
     ${grow ? "dropdown-btn-container--grow" : ""}
   `}
     >

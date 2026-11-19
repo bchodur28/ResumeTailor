@@ -8,6 +8,7 @@ import {
   EyeSlash,
   Eye,
 } from "react-bootstrap-icons";
+import { useResumeEdit } from "../../contexts/ResumeEditContext";
 import { useDateFormat } from "../../hooks/useDateFormat";
 import BulletList from "./BulletList";
 import EditableInnerSection from "./EditableInnerSection";
@@ -68,6 +69,8 @@ const Resume = ({
     center: "center",
     right: "flex-end",
   }[resume.appearance.topHeaderAlignment];
+
+  const { closeEditor } = useResumeEdit();
 
   const { formatDate } = useDateFormat();
 
@@ -254,7 +257,10 @@ const Resume = ({
                 topPtSpacing={index === 0 ? 4 : 8}
                 actions={[
                   {
-                    onClick: () => onRemoveEducation(index),
+                    onClick: () => {
+                      onRemoveEducation(index);
+                      closeEditor();
+                    },
                     label: "Remove",
                     icon: () => <Trash3 size={20} className="danger-color" />,
                   },
@@ -304,7 +310,10 @@ const Resume = ({
                 topPtSpacing={index === 0 ? 4 : 8}
                 actions={[
                   {
-                    onClick: () => onRemoveEducation(index),
+                    onClick: () => {
+                      onRemoveEducation(index);
+                      closeEditor();
+                    },
                     label: "Remove",
                     icon: () => <Trash3 size={20} className="danger-color" />,
                   },

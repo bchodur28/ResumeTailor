@@ -1,9 +1,9 @@
+import { useState, useEffect } from "react";
 import styles from "./Resume.module.css";
 import { useResumeEdit } from "../../contexts/ResumeEditContext";
 import ButtonContainer from "../ui/buttons/ButtonContainer";
-import SearchDropdown from "../../pages/ResumeDetails/components/SearchDropdown";
+import SearchableDropdownActions from "../ui/dropdowns/SearchableDropdownActions";
 import type { Icon } from "react-bootstrap-icons";
-import DropdownButton from "../ui/buttons/DropdownButton";
 import Button from "../ui/buttons/Button";
 
 export type EditableInnerSectionAction = {
@@ -31,13 +31,26 @@ const EditableInnerSection = ({
   actions,
 }: EditableInnerSectionProps) => {
   const { activeEditorId, toggleEditor, closeEditor } = useResumeEdit();
-  const isEditing = activeEditorId === editorId;
 
-  const isLocked = activeEditorId !== null && activeEditorId !== editorId;
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const isEditing = activeEditorId === editorId;
+  const isLocked = activeEditorId !== null && !isEditing;
+
+  const activeDropdownAction = actions.find(
+    (action) => action.label === openDropdown,
+  );
+
+  useEffect(() => {
+    if (!isEditing) {
+      setOpenDropdown(null);
+    }
+  }, [isEditing]);
 
   return (
     <div
-      className={`${styles.editableInnerSectionContainer} ${
+      data-resume-editor-active={isEditing}
+      className={`relative ${styles.editableInnerSectionContainer} ${
         isEditing ? styles.editableInnerSectionContainerActive : ""
       }`}
       style={{ paddingTop: `${topPtSpacing}pt` }}
@@ -49,10 +62,9 @@ const EditableInnerSection = ({
         onClick={(e) => {
           e.stopPropagation();
 
-          if (isLocked) {
-            return;
-          }
+          if (isLocked) return;
 
+          setOpenDropdown(null);
           toggleEditor(editorId);
         }}
       >
@@ -60,54 +72,54 @@ const EditableInnerSection = ({
       </div>
 
       {isEditing && actions.length > 0 && (
-        <ButtonContainer
-          hasStyle={true}
-          isRelative={false}
-          align="space-between"
-        >
-          {actions.map(
-            ({
-              onClick,
-              label,
-              icon,
-              additionalActions,
-              releaseLockOnClick,
-            }) =>
-              onClick ? (
-                <Button
-                  key={label}
-                  label={label}
-                  iconComponent={icon}
-                  styleType="filter"
-                  onClick={() => {
-                    onClick?.();
-                    if (releaseLockOnClick) {
+        <div className={styles.editControls}>
+          <ButtonContainer
+            hasStyle={true}
+            isRelative={true}
+            align="space-between"
+          >
+            {actions.map((action) => (
+              <Button
+                key={action.label}
+                label={action.label}
+                iconComponent={action.icon}
+                styleType="filter"
+                labelSlideOut={true}
+                onClick={() => {
+                  if (action.additionalActions) {
+                    setOpenDropdown((prev) =>
+                      prev === action.label ? null : action.label,
+                    );
+                  } else {
+                    action.onClick?.();
+
+                    if (action.releaseLockOnClick) {
                       closeEditor();
                     }
-                  }}
-                  labelSlideOut={true}
-                />
-              ) : (
-                <DropdownButton
-                  key={label}
-                  label={label}
-                  iconComponent={icon}
-                  styleType="filter"
-                  labelSlideOut={true}
-                  positionRelativeTo="container"
-                >
-                  <SearchDropdown
-                    filteredActions={
-                      additionalActions?.map(({ label, onClick }) => ({
-                        label,
-                        onClick,
-                      })) ?? []
-                    }
-                  />
-                </DropdownButton>
-              ),
+
+                    setOpenDropdown(null);
+                  }
+                }}
+              />
+            ))}
+          </ButtonContainer>
+
+          {activeDropdownAction?.additionalActions && (
+            <div className={styles.editControlsDropdown} data-resume-dropdown>
+              <SearchableDropdownActions
+                actions={activeDropdownAction.additionalActions.map(
+                  (action) => ({
+                    label: action.label,
+                    onClick: () => {
+                      action.onClick();
+                      setOpenDropdown(null);
+                    },
+                  }),
+                )}
+              />
+            </div>
           )}
-        </ButtonContainer>
+        </div>
       )}
     </div>
   );

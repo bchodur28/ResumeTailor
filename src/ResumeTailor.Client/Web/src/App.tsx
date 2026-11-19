@@ -4,37 +4,40 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
-import LibraryExperienceEditPage from "./pages/Library/LibraryExperienceEditPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import LibraryExperienceEditPage from "./pages/library/LibraryExperienceEditPage";
 import AccountSetup from "./pages/AccountSetup";
 import RootLayout from "./layouts/RootLayout";
 import Generate from "./pages/Generate";
 import LibraryLayout from "./layouts/LibraryLayout";
-import Manage from "./pages/Manage";
-import Track from "./pages/ResumeTracker/ResumeTrackingPage";
+import Track from "./pages/resume-tracker/ResumeTrackingPage";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
-import Login from "./pages/Login";
 import AccountRequiredRoute from "./components/routes/AccountRequiredRoute";
-import ResumeDetailsPage from "./pages/ResumeDetails/ResumeDetailsPage";
-import LibraryExperiencePage from "./pages/Library/LibraryExperiencePage";
-import LibraryEducationPage from "./pages/Library/LibraryEducationPage";
-import LibraryHeaderPage from "./pages/Library/LibraryHeaderPage";
+import ResumeDetailsPage from "./pages/resume-details/ResumeDetailsPage";
+import LibraryExperiencePage from "./pages/library/LibraryExperiencePage";
+import LibraryEducationPage from "./pages/library/LibraryEducationPage";
+import LibraryHeaderPage from "./pages/library/LibraryHeaderPage";
 import AccountSetupRoute from "./components/routes/AccountSetupRoute";
+import LandingPage from "./pages/public/LandingPage";
+import SiteLayout from "./layouts/SiteLayout";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <>
-      <Route path="/login" element={<Login />} />
+    <Route element={<SiteLayout />}>
+      {/* Public pages */}
+      <Route path="/" element={<LandingPage />} />
+
+      {/* Authenticated pages */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AccountSetupRoute />}>
           <Route path="/account/setup" element={<AccountSetup />} />
         </Route>
 
         <Route element={<AccountRequiredRoute />}>
-          <Route path="/" element={<RootLayout />}>
+          <Route path="/app" element={<RootLayout />}>
             <Route index element={<Track />} />
             <Route path="generate" element={<Generate />} />
-            <Route path="manage" element={<Manage />} />
             <Route path="resumes/:id" element={<ResumeDetailsPage />} />
             <Route path="profile" element={<Profile />} />
 
@@ -51,15 +54,8 @@ const router = createBrowserRouter(
         </Route>
       </Route>
 
-      <Route
-        path="*"
-        element={
-          <div>
-            <h1>Not Found</h1>
-          </div>
-        }
-      />
-    </>,
+      <Route path="*" element={<NotFoundPage />} />
+    </Route>,
   ),
 );
 
