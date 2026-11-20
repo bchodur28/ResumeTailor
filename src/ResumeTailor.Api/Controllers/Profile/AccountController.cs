@@ -1,25 +1,20 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Profile.Accounts.Models;
 using System.Security.Claims;
 
 namespace ResumeTailor.Api.Controllers.Profile
 {
-    [Authorize]
-    [ApiController]
+
     [Route("api/accounts")]
-    public class AccountController(IAccountService accountService) : ControllerBase
+    public class AccountController(IAccountService accountService) : AuthenticatedControllerBase
     {
         [HttpGet("me")]
         public async Task<ActionResult<AccountResponse>> GetCurrentAccountAsync(CancellationToken cancellationToken = default)
         {
-            var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (auth0UserId is null)
-            {
-                return Unauthorized();
-            }
+            var auth0UserId = GetAuth0UserId();
 
             var account = await accountService.GetAccountByAuth0UserIdAsync(
                 auth0UserId,
@@ -43,11 +38,7 @@ namespace ResumeTailor.Api.Controllers.Profile
         [HttpPost]
         public async Task<ActionResult> CreateAccountAsync([FromBody] AccountRequest request, CancellationToken cancellationToken = default)
         {
-            var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if(string.IsNullOrWhiteSpace(auth0UserId))
-            {
-                return Unauthorized();
-            }
+            var auth0UserId = GetAuth0UserId();
 
             var id = await accountService.CreateAccountAsync(auth0UserId, request, cancellationToken);
             return CreatedAtRoute("GetAccountByAuth0UserId", new { auth0UserId }, id);
@@ -56,11 +47,8 @@ namespace ResumeTailor.Api.Controllers.Profile
         [HttpPut("me")]
         public async Task<ActionResult> UpdateAccountAsync([FromBody] AccountRequest request, CancellationToken cancellationToken = default)
         {
-            var auth0UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrWhiteSpace(auth0UserId))
-            {
-                return Unauthorized();
-            }
+            var auth0UserId = GetAuth0UserId();
+
             await accountService.UpdateAccountAsync(auth0UserId, request, cancellationToken);
             return NoContent();
         }

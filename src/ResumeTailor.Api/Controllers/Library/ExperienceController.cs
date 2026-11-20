@@ -7,10 +7,8 @@ using System.Security.Claims;
 
 namespace ResumeTailor.Api.Controllers.Library;
 
-[Authorize]
-[ApiController]
 [Route("api/experiences")]
-public class ExperienceController(ILibraryExperienceService service) : ControllerBase
+public class ExperienceController(ILibraryExperienceService service) : AuthenticatedControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyCollection<LibraryExperienceResponse>>> GetExperiencesAsync(CancellationToken cancellationToken = default)
@@ -82,12 +80,5 @@ public class ExperienceController(ILibraryExperienceService service) : Controlle
 
         await service.RestoreExperienceAsync(auth0UserId, id, cancellationToken);
         return NoContent();
-    }
-
-    private string GetAuth0UserId()
-    {
-        return User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? throw new InvalidOperationException(
-                "Authenticated user is missing the required identifier claim.");
     }
 }

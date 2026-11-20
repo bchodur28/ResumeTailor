@@ -178,7 +178,7 @@ const LibraryExperiencePage = () => {
                   className="primary-border p-2 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm transition-colors duration-300"
                   key={experience.id}
                   onClick={() =>
-                    navigate(`/library/experience/${experience.id}/edit`)
+                    navigate(`/app/library/experience/${experience.id}/edit`)
                   }
                 >
                   <div className="flex justify-between">

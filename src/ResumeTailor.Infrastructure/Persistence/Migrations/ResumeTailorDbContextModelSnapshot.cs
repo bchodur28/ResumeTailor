@@ -368,6 +368,12 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int>("Plan")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
                     b.Property<string>("Summary")
                         .HasColumnType("nvarchar(max)");
 
@@ -377,6 +383,71 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Account", (string)null);
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.CreditTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReferenceId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("ResumeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId", "CreatedDate");
+
+                    b.ToTable("CreditTransaction", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CreditTransaction_Amount", "[Amount] <> 0");
+                        });
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.CreditWallet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Balance")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CreditWallet", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CreditWallet_Balance", "[Balance] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.Profile.LibraryBullet", b =>
@@ -1022,6 +1093,27 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.CreditTransaction", b =>
+                {
+                    b.HasOne("ResumeTailor.Domain.Profile.CreditWallet", null)
+                        .WithMany("Transactions")
+                        .HasForeignKey("AccountId")
+                        .HasPrincipalKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.CreditWallet", b =>
+                {
+                    b.HasOne("ResumeTailor.Domain.Profile.Account", "Account")
+                        .WithOne("CreditWallet")
+                        .HasForeignKey("ResumeTailor.Domain.Profile.CreditWallet", "AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("ResumeTailor.Domain.Profile.LibraryBullet", b =>
                 {
                     b.HasOne("ResumeTailor.Domain.Profile.LibraryExperience", null)
@@ -1201,11 +1293,19 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ResumeTailor.Domain.Profile.Account", b =>
                 {
+                    b.Navigation("CreditWallet")
+                        .IsRequired();
+
                     b.Navigation("PersonalLinks");
 
                     b.Navigation("Skills");
 
                     b.Navigation("Titles");
+                });
+
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.CreditWallet", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.Profile.LibraryExperience", b =>

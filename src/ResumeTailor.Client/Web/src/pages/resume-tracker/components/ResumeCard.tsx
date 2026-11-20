@@ -8,13 +8,10 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { updateResumeApplicationTracking } from "../../../api/resumeApi";
 import Message from "../../../components/ui/feedback/Message";
-import applicationIcon from "../../../assets/icons/application.png";
-import interviewingIcon from "../../../assets/icons/job-interview.png";
-import handShakeIcon from "../../../assets/icons/handshake.png";
-import rejectedIcon from "../../../assets/icons/reject.png";
 import DropdownButton from "../../../components/ui/buttons/DropdownButton";
 import ButtonContainer from "../../../components/ui/buttons/ButtonContainer";
 import DropdownActions from "../../../components/ui/dropdowns/DropdownActions";
+import { useAuth0 } from "@auth0/auth0-react";
 
 type ResumeCardProps = {
   resume: ResumeSummaryResponse;
@@ -54,9 +51,8 @@ const formatDate = (date: string | Date) => {
   }
 
   return new Intl.DateTimeFormat("en-US", {
-    month: "long",
+    month: "short",
     day: "numeric",
-    year: "numeric",
   }).format(value);
 };
 
@@ -82,6 +78,8 @@ const getLocalDateString = () => {
 };
 
 const ResumeCard = ({ resume }: ResumeCardProps) => {
+  const { getAccessTokenSilently } = useAuth0();
+
   const [statusUpdatedSuccessfully, setStatusUpdatedSuccessfully] = useState<
     boolean | null
   >(null);
@@ -133,9 +131,14 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
     }
   };
   const saveStatus = useMutation({
-    mutationFn: (status: ApplicationStatusValue) =>
-      updateResumeApplicationTracking(resume.id, status),
-
+    mutationFn: async (status: ApplicationStatusValue) => {
+      const token = await getAccessTokenSilently({
+        authorizationParams: {
+          audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        },
+      });
+      return updateResumeApplicationTracking(resume.id, status, token);
+    },
     onSuccess: (_, status) => {
       setCurrentStatus(status);
       setDateForStatus(status, getLocalDateString());
@@ -197,8 +200,43 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
           offerReceivedOn ||
           offerAcceptedOn ||
           rejectedOn) && (
-          <div className="grid grid-cols-3 gap-6 px-4">
+          <div className="grid grid-cols-4 px-4">
             {appliedOn && (
+              <div>
+                <div className="applied-color h-2"></div>
+                <span className="text-xs font-semibold text-gray-700">
+                  {`Applied: ${formatDate(appliedOn)}`}
+                </span>
+              </div>
+            )}
+            {interviewedOn && (
+              <div>
+                <div className="interviewed-color h-2"></div>
+                <span className="text-xs font-semibold text-gray-700">
+                  {`Interviewed: ${formatDate(interviewedOn)}`}
+                </span>
+              </div>
+            )}
+
+            {offerReceivedOn && (
+              <div>
+                <div className="offer-received-color h-2"></div>
+                <span className="text-xs font-semibold text-gray-700">
+                  {`Offer Received: ${formatDate(offerReceivedOn)}`}
+                </span>
+              </div>
+            )}
+            {/* <div className="offer-received-color h-4"></div> */}
+            {rejectedOn && (
+              <div>
+                <div className="rejected-color h-2"></div>
+                <span className="text-xs font-semibold text-gray-700">
+                  {`Rejected: ${formatDate(rejectedOn)}`}
+                </span>
+              </div>
+            )}
+            {/* <div className="bg-red-200 h-4"></div> */}
+            {/* {appliedOn && (
               <img
                 src={applicationIcon}
                 alt="Applied"
@@ -228,7 +266,7 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
                 alt="Rejected"
                 className="h-16 w-16 object-contain"
               />
-            )}
+            )} */}
           </div>
         )}
 
@@ -248,14 +286,14 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
             ),
           )}
           {renderInfo("Status", currentStatus)}
-          {appliedOn && renderInfo("Applied on", formatDate(appliedOn))}
+          {/* {appliedOn && renderInfo("Applied on", formatDate(appliedOn))}
           {interviewedOn &&
             renderInfo("Interviewed on", formatDate(interviewedOn))}
           {offerReceivedOn &&
             renderInfo("Received offer on", formatDate(offerReceivedOn))}
           {offerAcceptedOn &&
             renderInfo("Accepted offer on", formatDate(offerAcceptedOn))}
-          {rejectedOn && renderInfo("Rejected on", formatDate(rejectedOn))}
+          {rejectedOn && renderInfo("Rejected on", formatDate(rejectedOn))} */}
         </div>
       </Link>
       <div className="shrink-0 p-2 border-t border-slate-300 flex justify-center gap-2 shadow-[0_-3px_3px_-2px_rgba(0,0,0,0.15)]">

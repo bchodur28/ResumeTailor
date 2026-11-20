@@ -33,6 +33,27 @@ public sealed class ResumeTailorDbContext(DbContextOptions<ResumeTailorDbContext
     public DbSet<LibraryBullet> LibraryBullets => Set<LibraryBullet>();
     public DbSet<LibrarySummary> LibrarySummaries => Set<LibrarySummary>();
 
+    private void ValidateCreditTransactions()
+    {
+        var invalidEntries = ChangeTracker
+            .Entries<CreditTransaction>()
+            .Where(x =>
+                x.State == EntityState.Modified ||
+                x.State == EntityState.Deleted);
+
+        if (invalidEntries.Any())
+        {
+            throw new InvalidOperationException("Credit transactions cannot be modified or deleted.");
+        }
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ValidateCreditTransactions();
+
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1,5 +1,6 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
 import TextArea from "../../../components/forms/TextArea";
+import { useState } from "react";
 
 type TextAreaViewProps = {
   id: string;
@@ -14,6 +15,14 @@ type TextAreaViewProps = {
   textOnNextRow?: boolean;
 };
 
+const truncateWords = (str: string) => {
+  const words = str.trim().split(/\s+/);
+  if (words.length <= 30) {
+    return str;
+  }
+  return words.slice(0, 30).join(" ") + "...";
+};
+
 const TextAreaView = ({
   id,
   label,
@@ -24,6 +33,16 @@ const TextAreaView = ({
   rows,
   textOnNextRow = false,
 }: TextAreaViewProps) => {
+  const [isTruncated, setIsTruncated] = useState(true);
+
+  const toggleText = () => {
+    setIsTruncated(!isTruncated);
+  };
+
+  const filteredValue = isTruncated
+    ? truncateWords(valueToDisplay ?? "")
+    : (valueToDisplay ?? "");
+
   return (
     <>
       {isInput && (
@@ -40,8 +59,13 @@ const TextAreaView = ({
           className={`flex ${textOnNextRow ? "flex-col" : "gap-2"}  items-baseline`}
         >
           <p className="text-sm font-medium text-gray-600">{label}:</p>
-          <p className="text-base font-medium text-gray-700">
-            {valueToDisplay ?? ""}
+          <p
+            onClick={() => {
+              toggleText();
+            }}
+            className="text-base font-medium text-gray-700 cursor-pointer"
+          >
+            {filteredValue}
           </p>
         </li>
       )}

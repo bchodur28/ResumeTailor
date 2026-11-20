@@ -8,15 +8,15 @@ const LibraryLayout = () => {
   return (
     <div className="w-full flex flex-col items-center gap-4">
       <div className="flex gap-2">
-        <NavLink className={getNavClass} to="/library" end>
+        <NavLink className={getNavClass} to="/app/library" end>
           <CardHeading size={24} />
           <p className="max-[640px]:text-sm font-semibold">Header</p>
         </NavLink>
-        <NavLink className={getNavClass} to="/library/education">
+        <NavLink className={getNavClass} to="/app/library/education">
           <Book size={24} />
           <p className="max-[640px]:text-sm font-semibold">Education</p>
         </NavLink>
-        <NavLink className={getNavClass} to="/library/experience">
+        <NavLink className={getNavClass} to="/app/library/experience">
           <CardList size={24} />
           <p className="max-[640px]:text-sm font-semibold">Experience</p>
         </NavLink>

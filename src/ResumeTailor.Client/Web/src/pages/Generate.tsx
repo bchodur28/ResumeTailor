@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
+import { useAuth0 } from "@auth0/auth0-react";
 
 import Card from "../components/ui/Card";
 import Button from "../components/ui/buttons/Button";
@@ -20,6 +21,7 @@ import {
 const Generate = () => {
   const { account, isLoadingAccount } = useAccount();
   const navigate = useNavigate();
+  const { getAccessTokenSilently } = useAuth0();
 
   const {
     register,
@@ -35,13 +37,21 @@ const Generate = () => {
   });
 
   const generateResumeMutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       accountId,
       request,
     }: {
       accountId: number;
       request: GenerateResumeRequest;
-    }) => generateResume(accountId, request),
+    }) => {
+      const token = await getAccessTokenSilently({
+        authorizationParams: {
+          audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        },
+      });
+
+      return generateResume(accountId, request, token);
+    },
 
     onSuccess: (resumeId) => {
       navigate(`/resumes/${resumeId}`);

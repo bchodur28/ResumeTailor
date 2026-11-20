@@ -62,6 +62,15 @@ namespace ResumeTailor.Infrastructure.Persistence.Configurations.Accounts
                 .HasForeignKey(education => education.AccountId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasOne(a => a.CreditWallet)
+                .WithOne(w => w.Account)
+                .HasForeignKey<CreditWallet>(w => w.AccountId);
+
+            builder.HasOne(a => a.CreditWallet)
+                .WithOne(w => w.Account)
+                .HasForeignKey<CreditWallet>(w => w.AccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             //Navigation properties
             builder.Navigation(x => x.PersonalLinks)
                 .UsePropertyAccessMode(PropertyAccessMode.Field);

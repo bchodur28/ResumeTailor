@@ -11,11 +11,13 @@ const resumeUrl = "/api/resumes/";
 export const generateResume = async (
   accountId: number,
   request: GenerateResumeRequest,
+  token: string,
 ): Promise<number> => {
   const response = await fetch(`${resumeUrl}${accountId}/generate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(request),
   });
@@ -27,9 +29,15 @@ export const generateResume = async (
   return await response.json();
 };
 
-export const getResumePdf = async (resumeId: number): Promise<Blob> => {
+export const getResumePdf = async (
+  resumeId: number,
+  token: string,
+): Promise<Blob> => {
   const response = await fetch(`${resumeUrl}${resumeId}/pdf`, {
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {
@@ -41,9 +49,13 @@ export const getResumePdf = async (resumeId: number): Promise<Blob> => {
 
 export const getResumeDetails = async (
   resumeId: number,
+  token: string,
 ): Promise<ResumeDetailsResponse> => {
   const response = await fetch(`${resumeUrl}${resumeId}`, {
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {
@@ -56,6 +68,7 @@ export const getResumeDetails = async (
 
 export const getResumeSummaries = async (
   request: ResumeSummaryQuery,
+  token: string,
 ): Promise<PagedResult<ResumeSummaryResponse>> => {
   const params = new URLSearchParams();
 
@@ -72,6 +85,9 @@ export const getResumeSummaries = async (
 
   const response = await fetch(`${resumeUrl}?${params.toString()}`, {
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {
@@ -84,11 +100,13 @@ export const getResumeSummaries = async (
 export const updateResumeApplicationTracking = async (
   resumeId: number,
   status: ApplicationStatusValue,
+  token: string,
 ): Promise<void> => {
   const response = await fetch(`${resumeUrl}${resumeId}/application-tracking`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(status),
   });
@@ -101,11 +119,13 @@ export const updateResumeApplicationTracking = async (
 export const updateResume = async (
   id: number,
   resume: UpdateResumeRequest,
+  token: string,
 ): Promise<ResumeDetailsResponse> => {
   const response = await fetch(`${resumeUrl}${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(resume),
   });

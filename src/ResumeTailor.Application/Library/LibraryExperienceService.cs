@@ -11,17 +11,17 @@ public sealed class LibraryExperienceService(
     ILibraryExperienceRepository experienceRepository,
     IAccountRepository accountRepository) : ILibraryExperienceService
 {
-    public async Task<IReadOnlyCollection<LibraryExperienceSummaryResponse>> GetExperienceSummariesAsync(string Auth0UserId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<LibraryExperienceSummaryResponse>> GetExperienceSummariesAsync(string auth0UserId, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when fetching experience summaries");
 
         return await experienceRepository.GetSummeriesByAccountIdAsync(accountId, cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<LibraryExperienceResponse>> GetExperiencesAsync(string Auth0UserId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<LibraryExperienceResponse>> GetExperiencesAsync(string auth0UserId, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when creating an experience");
 
         var experiences = await experienceRepository.GetAllByAccountIdAsync(accountId, cancellationToken);
@@ -29,17 +29,17 @@ public sealed class LibraryExperienceService(
         return experiences.Select(LibraryExperienceMapper.MapEntityToResponse).ToList();
     }
 
-    public async Task<IReadOnlyCollection<LibraryExperienceListItemResponse>> GetExperienceListItemsAsync(string Auth0UserId, bool archived, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<LibraryExperienceListItemResponse>> GetExperienceListItemsAsync(string auth0UserId, bool archived, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when fetching an experience list item");
 
         return await experienceRepository.GetListItemsAsync(accountId, archived, cancellationToken);
     }
 
-    public async Task<LibraryExperienceResponse> GetExperienceAsync(string Auth0UserId, int experienceId, CancellationToken cancellationToken = default)
+    public async Task<LibraryExperienceResponse> GetExperienceAsync(string auth0UserId, int experienceId, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when creating an experience");
 
         var experience = await experienceRepository.GetByIdAsync(experienceId, cancellationToken)
@@ -51,9 +51,9 @@ public sealed class LibraryExperienceService(
 
     }
 
-    public async Task<int> CreateExperienceAsync(string Auth0UserId, LibraryExperienceRequest request, CancellationToken cancellationToken = default)
+    public async Task<int> CreateExperienceAsync(string auth0UserId, LibraryExperienceRequest request, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when creating an experience");
 
         var experience = LibraryExperienceMapper.MapRequestToEntity(accountId, request);
@@ -67,9 +67,9 @@ public sealed class LibraryExperienceService(
         return experience.Id;
     }
 
-    public async Task UpdateExperienceAsync(string Auth0UserId, int experienceId, LibraryExperienceRequest request, CancellationToken cancellationToken = default)
+    public async Task UpdateExperienceAsync(string auth0UserId, int experienceId, LibraryExperienceRequest request, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when updating an experience");
 
         var experience = await experienceRepository.GetForUpdatingByIdAsync(experienceId)
@@ -96,9 +96,9 @@ public sealed class LibraryExperienceService(
         await experienceRepository.SaveAync(cancellationToken);
     }
 
-    public async Task DeleteExperienceAsync(string Auth0UserId, int experienceId, CancellationToken cancellationToken = default)
+    public async Task DeleteExperienceAsync(string auth0UserId, int experienceId, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when deleting an experience");
 
         var experience = await experienceRepository.GetForUpdatingByIdAsync(experienceId)
@@ -117,9 +117,9 @@ public sealed class LibraryExperienceService(
         await experienceRepository.SaveAync(cancellationToken);
     }
 
-    public async Task ArchiveExperienceAsync(string Auth0UserId, int experienceId, CancellationToken cancellationToken = default)
+    public async Task ArchiveExperienceAsync(string auth0UserId, int experienceId, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when deleting an experience");
 
         var experience = await experienceRepository.GetForUpdatingByIdAsync(experienceId, cancellationToken)
@@ -131,9 +131,9 @@ public sealed class LibraryExperienceService(
         await experienceRepository.SaveAync(cancellationToken);
     }
 
-    public async Task RestoreExperienceAsync(string Auth0UserId, int experienceId, CancellationToken cancellationToken = default)
+    public async Task RestoreExperienceAsync(string auth0UserId, int experienceId, CancellationToken cancellationToken = default)
     {
-        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(Auth0UserId, cancellationToken)
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
             ?? throw new DirectoryNotFoundException($"Account was not found when deleting an experience");
 
         var experience = await experienceRepository.GetForUpdatingByIdAsync(experienceId, cancellationToken)

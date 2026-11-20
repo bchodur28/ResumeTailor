@@ -21,14 +21,4 @@ public sealed class ResumeAiMetaData : Entity
         TotalTokens = totalTokens;
         Cost = cost;
     }
-
-    public void Update(string model, int inputTokens, int outputTokens, int totalTokens, decimal cost)
-    {
-        Model = model;
-        InputTokens = inputTokens;
-        OutputTokens = outputTokens;
-        TotalTokens = totalTokens;
-        Cost = cost;
-        MarkUpdated();
-    }
 }

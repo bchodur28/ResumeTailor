@@ -1,6 +1,7 @@
+using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Domain.Common;
 
-namespace ResumeTailor.Application.Profile.Accounts.Models;
+namespace ResumeTailor.Application.Contracts.Accounts;
 
 public sealed record AccountRequest(
     string Email,

@@ -8,27 +8,28 @@ using ResumeTailor.Domain.Resumes.ApplicationTracking;
 
 namespace ResumeTailor.Api.Controllers.GeneratedResumes;
 
-[ApiController]
 [Route("api/resumes")]
 public sealed class ResumeController(
     IResumeManagementService managementService,
     IResumeGenerator generatorService,
-    IResumePdfGenerator pdfGenerator) : ControllerBase
+    IResumePdfGenerator pdfGenerator) : AuthenticatedControllerBase
 {
 
     [HttpPost("{accountId:int}/generate")]
-    public async Task<ActionResult<int>> GenerateResumeAsync(int accountId, [FromBody] GeneratedResumeRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<int>> GenerateResumeAsync([FromBody] GeneratedResumeRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await generatorService.GenerateResumeAsync(accountId, request, cancellationToken);
+        var auth0UserId = GetAuth0UserId();
 
+        var response = await generatorService.GenerateResumeAsync(auth0UserId, request, cancellationToken);
         return Ok(response);
     }
 
     [HttpGet("{id:int}/pdf")]
     public async Task<ActionResult> GetResumePdf(int id, CancellationToken cancellationToken)
     {
-        var resumeDetails = await managementService.GetResumeDetailsAsync(id, cancellationToken);
+        var auth0UserId = GetAuth0UserId();
 
+        var resumeDetails = await managementService.GetResumeDetailsAsync(auth0UserId, id, cancellationToken);
         var pdf = pdfGenerator.Generate(resumeDetails.Resume);
 
         return File(pdf, "application/pdf", $"{resumeDetails.Resume.ResumeName}");
@@ -37,45 +38,56 @@ public sealed class ResumeController(
     [HttpGet("{id:int}", Name = "GetGeneratedResume")]
     public async Task<ActionResult<ResumeDetailsResponse>> GetResumeAsync(int id, CancellationToken cancellationToken = default)
     {
-        var response = await managementService.GetResumeDetailsAsync(id, cancellationToken);
+        var auth0UserId = GetAuth0UserId();
+
+        var response = await managementService.GetResumeDetailsAsync(auth0UserId, id, cancellationToken);
         return Ok(response);
     }
 
     [HttpGet]
     public async Task<ActionResult<PagedResult<ResumeExperienceSummaryResponse>>> GetResumeSummariesByAccountIdAsync([FromQuery] ResumeSummaryQuery request, CancellationToken cancellationToken = default)
     {
-        var response = await managementService.GetPagedResumeSummariesByAccountIdAsync(request, cancellationToken);
+        var auth0UserId = GetAuth0UserId();
+
+        var response = await managementService.GetPagedResumeSummariesByAccountIdAsync(auth0UserId, request, cancellationToken);
         return Ok(response);
     }
 
     [HttpPut("{id:int}")]
     public async Task<ActionResult<ResumeDetailsResponse>> UpdateResumeAsync(int id, [FromBody] UpdateResumeRequest request, CancellationToken cancellationToken = default)
     {
-        await managementService.UpdateResumeAsync(id, request, cancellationToken);
+        var auth0UserId = GetAuth0UserId();
 
-        var response = await managementService.GetResumeDetailsAsync(id, cancellationToken);
+        await managementService.UpdateResumeAsync(auth0UserId, id, request, cancellationToken);
 
+        var response = await managementService.GetResumeDetailsAsync(auth0UserId, id, cancellationToken);
         return Ok(response);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteResumeAsync(int id, CancellationToken cancellationToken = default)
     {
-        await managementService.DeleteResumeDetailsAsync(id, cancellationToken);
+        var auth0UserId = GetAuth0UserId();
+
+        await managementService.DeleteResumeDetailsAsync(auth0UserId, id, cancellationToken);
         return NoContent();
     }
 
     [HttpPut("{id:int}/job-posting")]
     public async Task<ActionResult> UpdateResumeJobPostingAsync(int id, [FromBody] ResumeJobPostingRequest request, CancellationToken cancellationToken = default)
     {
-        await managementService.UpdateResumeJobPostingAsync(id, request, cancellationToken);
+        var auth0UserId = GetAuth0UserId();
+
+        await managementService.UpdateResumeJobPostingAsync(auth0UserId, id, request, cancellationToken);
         return NoContent();
     }
 
     [HttpPut("{id:int}/application-tracking")]
     public async Task<ActionResult> UpdateResumeApplicationTrackingAsync(int id, [FromBody] ApplicationStatus request, CancellationToken cancellationToken = default)
     {
-        await managementService.UpdateResumeApplicationTrackingAsync(id, request, cancellationToken);
+        var auth0UserId = GetAuth0UserId();
+
+        await managementService.UpdateResumeApplicationTrackingAsync(auth0UserId, id, request, cancellationToken);
         return NoContent();
     }
 }

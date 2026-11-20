@@ -37,6 +37,7 @@ import { ResumeEditProvider } from "../../contexts/ResumeEditContext";
 import type { SkillResponse } from "../../api/contracts/accounts/SkillResponse";
 import Button from "../../components/ui/buttons/Button";
 import DropdownActions from "../../components/ui/dropdowns/DropdownActions";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const mapResumeToRequest = (resume: ResumeResponse): UpdateResumeRequest => ({
   name: resume.resumeName ?? "",
@@ -116,6 +117,7 @@ const resolveLibraryEducation = (
 
 const ResumeDetailsPage = () => {
   const { id } = useParams();
+  const { getAccessTokenSilently } = useAuth0();
   const resumeId = Number(id);
 
   const { data: resumeDetails, isLoading, error } = useResumeDetails(resumeId);
@@ -670,7 +672,13 @@ const ResumeDetailsPage = () => {
   }
 
   const handleDownloadPdf = async () => {
-    const pdf = await getResumePdf(resumeId);
+    const token = await getAccessTokenSilently({
+      authorizationParams: {
+        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+      },
+    });
+
+    const pdf = await getResumePdf(resumeId, token);
 
     const url = URL.createObjectURL(pdf);
 

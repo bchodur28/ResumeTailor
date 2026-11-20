@@ -181,8 +181,11 @@ public class ResumeGeneratorService(
     private const string AiResumeSchemaFormatName = "resume_analysis";
 
 
-    public async Task<int> GenerateResumeAsync(int accountId, GeneratedResumeRequest request, CancellationToken cancellationToken = default)
+    public async Task<int> GenerateResumeAsync(string auth0UserId, GeneratedResumeRequest request, CancellationToken cancellationToken = default)
     {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
+           ?? throw new DirectoryNotFoundException($"Account was not found when generating an resume");
+
         var aiExperienceInput = await libraryExperienceRepository.GetAiInputDataForGeneration(accountId, cancellationToken);
 
         var (summaryMode, resumeSummary) = await ResolveSummaryAsync(accountId, request.SummaryMode, cancellationToken);

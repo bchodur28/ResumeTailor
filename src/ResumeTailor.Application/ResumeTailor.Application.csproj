@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <Folder Include="Library\Models\" />
+    <Folder Include="Profile\Accounts\Models\" />
     <Folder Include="Resumes\Common\Interfaces\" />
   </ItemGroup>
 

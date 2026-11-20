@@ -3,6 +3,7 @@ using ResumeTailor.Application.Common.Models;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
 using ResumeTailor.Application.Library.Interfaces;
+using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Resumes.Common.Models;
 using ResumeTailor.Application.Resumes.Management.Interfaces;
 using ResumeTailor.Application.Resumes.Management.Models;
@@ -15,18 +16,25 @@ namespace ResumeTailor.Application.Resumes.Management;
 internal sealed class ResumeManagementService(
     IResumeRepository repository,
     IResumeUpdater resumeUpdater,
-    ILibraryExperienceRepository libraryExperienceRepository) : IResumeManagementService
+    ILibraryExperienceRepository libraryExperienceRepository,
+    IAccountRepository accountRepository) : IResumeManagementService
 {
-    public async Task<ResumeDetailsResponse> GetResumeDetailsAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ResumeDetailsResponse> GetResumeDetailsAsync(string auth0UserId, int id, CancellationToken cancellationToken = default)
     {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when getting an resume details");
+
         var resumeDetails = await repository.GetResumeDetails(id, cancellationToken)
             ?? throw new NotFoundException($"Resume details with ID {id} was not found.");
 
         return resumeDetails;
     }
 
-    public async Task<PagedResult<ResumeSummaryResponse>> GetPagedResumeSummariesByAccountIdAsync(ResumeSummaryQuery request, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<ResumeSummaryResponse>> GetPagedResumeSummariesByAccountIdAsync(string auth0UserId, ResumeSummaryQuery request, CancellationToken cancellationToken = default)
     {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when getting an paged resume summaries");
+
         var result = await repository.GetPagedResumesForSummaryByAccountIdAsync(request, cancellationToken);
 
         var summeries = result.Items
@@ -41,12 +49,13 @@ internal sealed class ResumeManagementService(
             PageSize: result.PageSize);
     }
 
-    public async Task UpdateResumeAsync(int id, UpdateResumeRequest request, CancellationToken cancellationToken = default)
+    public async Task UpdateResumeAsync(string auth0UserId, int id, UpdateResumeRequest request, CancellationToken cancellationToken = default)
     {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when updating an resume.");
+
         var existingResume = await repository.GetResumeForUpdatingAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Resume with ID {id} was not found while updating.");
-
-        var accountId = existingResume.AccountId;
 
         // 1. Validate the request's internal consistency.
         ValidateExperienceSelections(request.Experiences);
@@ -77,8 +86,11 @@ internal sealed class ResumeManagementService(
         await repository.SaveAsync(cancellationToken);
     }
 
-    public async Task DeleteResumeDetailsAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteResumeDetailsAsync(string auth0UserId, int id, CancellationToken cancellationToken = default)
     {
+        var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
+            ?? throw new DirectoryNotFoundException($"Account was not found when deleting an resume.");
+
         var resume = await repository.GetResumeForUpdatingAsync(id, cancellationToken)
             ?? throw new NotFoundException($"Resume with ID {id} was not found while deleting.");
 
@@ -86,7 +98,7 @@ internal sealed class ResumeManagementService(
         await repository.SaveAsync(cancellationToken);
     }
 
-    public async Task UpdateResumeJobPostingAsync(int resumeId, ResumeJobPostingRequest request, CancellationToken cancellationToken = default)
+    public async Task UpdateResumeJobPostingAsync(string auth0UserId, int resumeId, ResumeJobPostingRequest request, CancellationToken cancellationToken = default)
     {
         var existingJobPosting = await repository.GetResumeJobPostingForUpdatingAsync(resumeId, cancellationToken)
             ?? throw new NotFoundException($"Resume job posting with resume ID {resumeId} was not found while updating job posting.");
@@ -105,7 +117,7 @@ internal sealed class ResumeManagementService(
         await repository.SaveAsync(cancellationToken);
     }
 
-    public async Task UpdateResumeApplicationTrackingAsync(int resumeId, ApplicationStatus request, CancellationToken cancellationToken = default)
+    public async Task UpdateResumeApplicationTrackingAsync(string auth0UserId, int resumeId, ApplicationStatus request, CancellationToken cancellationToken = default)
     {
         var existingApplicationTracking = await repository.GetResumeApplicationTrackingForUpdatingAsync(resumeId, cancellationToken)
             ?? throw new NotFoundException($"Resume application tracking with resume ID {resumeId} was not found while updating application tracking.");

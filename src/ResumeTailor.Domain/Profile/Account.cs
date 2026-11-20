@@ -1,4 +1,3 @@
-using Microsoft.VisualBasic;
 using ResumeTailor.Domain.Common;
 
 namespace ResumeTailor.Domain.Profile;
@@ -6,6 +5,11 @@ namespace ResumeTailor.Domain.Profile;
 public sealed class Account : Entity
 {
     public string Auth0UserId { get; private set; } = string.Empty;
+
+    public AccountRole Role { get; private set; } = AccountRole.User;
+    public AccountPlan Plan { get; private set; } = AccountPlan.Free;
+
+    public CreditWallet CreditWallet { get; private set; } = null!;
 
     public string Email { get; private set; } = string.Empty;
     public string DisplayName { get; private set; } = string.Empty;
@@ -25,6 +29,8 @@ public sealed class Account : Entity
     private readonly List<Skill> _skills = [];
     public IReadOnlyCollection<Skill> Skills => _skills.AsReadOnly();
 
+    private Account() { }
+
     public Account(string auth0UserId, string email, string displayName, string location, ResumeDateFormat dateFormat, string? summary)
     {
         Auth0UserId = auth0UserId;
@@ -33,6 +39,7 @@ public sealed class Account : Entity
         Location = location;
         DateFormat = dateFormat;
         Summary = summary;
+        CreditWallet = new CreditWallet(this);
     }
 
     public void Update(string email, string displayName, string location, ResumeDateFormat dateFormat, string? summary)
