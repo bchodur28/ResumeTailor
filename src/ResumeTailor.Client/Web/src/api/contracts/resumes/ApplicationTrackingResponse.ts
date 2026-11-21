@@ -2,6 +2,7 @@ import type { ApplicationStatusValue } from "../../../models/resumes/Application
 
 export type ApplicationTrackingResponse = {
   status: ApplicationStatusValue;
+  generated: string;
   applied: string | null;
   interviewed: string | null;
   offerReceived: string | null;

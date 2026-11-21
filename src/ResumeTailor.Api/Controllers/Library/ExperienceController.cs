@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResumeTailor.Application.Contracts.Experiences;
+using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.Library.Interfaces;
 using System.Security.Claims;
 
@@ -20,7 +21,7 @@ public class ExperienceController(ILibraryExperienceService service) : Authentic
     }
 
     [HttpGet("list-items")]
-    public async Task<ActionResult<IReadOnlyCollection<LibraryExperienceListItemResponse>>> GetExperienceListItemsAsync([FromQuery] bool archived = false, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<IReadOnlyCollection<ResumeSummaryResponse>>> GetExperienceListItemsAsync([FromQuery] bool archived = false, CancellationToken cancellationToken = default)
     {
         var auth0UserId = GetAuth0UserId();
 

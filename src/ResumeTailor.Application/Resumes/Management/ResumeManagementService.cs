@@ -230,6 +230,7 @@ internal sealed class ResumeManagementService(
             Id: resume.Id,
             AccountId: resume.AccountId,
             Name: resume.Name,
+            AiScore: resume.AiScore,
 
             JobPosting: new JobPostingResult(
                 CompanyName: resume.JobPosting.CompanyName,
@@ -245,6 +246,7 @@ internal sealed class ResumeManagementService(
 
             ApplicationTracking: new ApplicationTrackingResponse(
                 Status: resume.ApplicationTracking.Status,
+                Generated: DateOnly.FromDateTime(resume.ApplicationTracking.CreatedDate),
                 Applied: resume.ApplicationTracking.Applied,
                 Interviewed: resume.ApplicationTracking.Interviewed,
                 OfferReceived: resume.ApplicationTracking.OfferReceived,

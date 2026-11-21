@@ -1,5 +1,6 @@
 import type { TitleResponse } from "./TitleResponse";
 import type { PersonalLinkResponse } from "./PersonalLinkResponse";
+import type { CreditWalletResponse } from "./CreditWalletResponse";
 import type { DateFormatValue } from "../../../models/common/DateFormat";
 
 export type AccountResponse = {
@@ -11,4 +12,5 @@ export type AccountResponse = {
   titles: TitleResponse[];
   personalLinks: PersonalLinkResponse[];
   summary: string | null;
+  creditWallet: CreditWalletResponse;
 };

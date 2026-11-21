@@ -1,7 +1,6 @@
 using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Contracts.Experiences;
-using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Domain.Resumes;
 
 namespace ResumeTailor.Application.Contracts.Resume;

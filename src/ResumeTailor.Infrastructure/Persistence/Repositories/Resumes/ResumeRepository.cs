@@ -5,7 +5,6 @@ using ResumeTailor.Application.Contracts.Education;
 using ResumeTailor.Application.Contracts.Experiences;
 using ResumeTailor.Application.Contracts.Resume;
 using ResumeTailor.Application.GeneratedResumes.Management.Interfaces;
-using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Application.Resumes.Common.Models;
 using ResumeTailor.Application.Resumes.Management.Models;
 using ResumeTailor.Domain.GeneratedResumes;
@@ -39,11 +38,17 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
 
         query = request.DateFilter switch
         {
-            ResumeSummaryDateFilter.Today => query.Where(r => r.ApplicationTracking.Applied == today),
+            ResumeSummaryDateFilter.Today =>
+                query.Where(r =>
+                    (r.ApplicationTracking.Applied ?? DateOnly.FromDateTime(r.ApplicationTracking.CreatedDate)) == today),
 
-            ResumeSummaryDateFilter.ThisWeek => query.Where(r => r.ApplicationTracking.Applied >= startOfWeek),
+            ResumeSummaryDateFilter.ThisWeek =>
+                query.Where(r =>
+                    (r.ApplicationTracking.Applied ?? DateOnly.FromDateTime(r.ApplicationTracking.CreatedDate)) >= startOfWeek),
 
-            ResumeSummaryDateFilter.ThisMonth => query.Where(r => r.ApplicationTracking.Applied >= startOfMonth),
+            ResumeSummaryDateFilter.ThisMonth =>
+                query.Where(r =>
+                    (r.ApplicationTracking.Applied ??  DateOnly.FromDateTime(r.ApplicationTracking.CreatedDate)) >= startOfMonth),
 
             _ => query
         };
@@ -54,7 +59,7 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
         {
             ResumeSummarySortBy.AppliedDate =>
                 request.Descending
-                    ? query.OrderByDescending(r => r.ApplicationTracking.Applied)
+                    ? query.OrderByDescending(r => r.ApplicationTracking.Applied ?? DateOnly.FromDateTime(r.ApplicationTracking.CreatedDate))
                     : query.OrderBy(r => r.ApplicationTracking.Applied),
 
             ResumeSummarySortBy.InterviededDate =>
@@ -67,7 +72,7 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
                     ? query.OrderByDescending(r => r.JobPosting.Salary ?? r.JobPosting.SalaryMax)
                     : query.OrderBy(r => r.JobPosting.Salary ?? r.JobPosting.SalaryMin),
 
-            _ => query.OrderByDescending(j => j.ApplicationTracking.Applied)
+            _ => query.OrderByDescending(r => r.ApplicationTracking.Applied ?? DateOnly.FromDateTime(r.ApplicationTracking.CreatedDate))
         };
 
         var items = await orderedQuery
@@ -240,6 +245,7 @@ public class ResumeRepository(ResumeTailorDbContext dbContext) : IResumeReposito
                 ),
                 ApplicationTracking: new ApplicationTrackingResponse(
                     Status: r.ApplicationTracking.Status,
+                    Generated: DateOnly.FromDateTime(r.ApplicationTracking.CreatedDate),
                     Applied: r.ApplicationTracking.Applied,
                     Interviewed: r.ApplicationTracking.Interviewed,
                     OfferReceived: r.ApplicationTracking.OfferReceived,

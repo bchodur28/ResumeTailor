@@ -77,15 +77,63 @@ const getLocalDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
+const getAvailableStatuses = (status?: ApplicationStatusValue) => {
+  const applied = {
+    label: "Applied",
+    status: ApplicationStatus.Applied,
+  };
+
+  const interviewing = {
+    label: "Interviewing",
+    status: ApplicationStatus.Interviewed,
+  };
+
+  const offered = {
+    label: "Offered",
+    status: ApplicationStatus.OfferReceived,
+  };
+
+  const accepted = {
+    label: "Accept Offer",
+    status: ApplicationStatus.OfferAccepted,
+  };
+
+  const rejected = {
+    label: "Rejected",
+    status: ApplicationStatus.Rejected,
+  };
+
+  switch (status) {
+    case ApplicationStatus.Applied:
+      return [interviewing, offered, rejected];
+
+    case ApplicationStatus.Interviewed:
+      return [offered, rejected];
+
+    case ApplicationStatus.OfferReceived:
+      return [accepted];
+
+    case ApplicationStatus.OfferAccepted:
+    case ApplicationStatus.Rejected:
+      return [];
+
+    default:
+      return [applied, interviewing, offered, rejected];
+  }
+};
+
 const ResumeCard = ({ resume }: ResumeCardProps) => {
   const { getAccessTokenSilently } = useAuth0();
 
   const [statusUpdatedSuccessfully, setStatusUpdatedSuccessfully] = useState<
     boolean | null
   >(null);
+
   const [currentStatus, setCurrentStatus] = useState(
     resume.applicationTracking?.status,
   );
+  const availableStatuses = getAvailableStatuses(currentStatus);
+
   const [appliedOn, setAppliedOn] = useState(
     resume.applicationTracking?.applied,
   );
@@ -162,10 +210,13 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
         className="flex flex-col gap-2 flex-1"
         to={`/app/resumes/${resume.id}`}
       >
-        <div className="flex items-center p-3 border-b border-slate-300 shadow-[0_3px_3px_-2px_rgba(0,0,0,0.15)]">
+        <div className="flex items-center justify-between p-3 border-b border-slate-300 shadow-[0_3px_3px_-2px_rgba(0,0,0,0.15)]">
           <h1 className="text-md font-semibold text-gray-800">
             {getDisplayName(resume.name)}
           </h1>
+          <p className="text-xs font-semibold text-green-700">
+            AI Score: {resume.aiScore ?? "N/A"}
+          </p>
         </div>
         {statusUpdatedSuccessfully === true && (
           <div
@@ -235,38 +286,6 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
                 </span>
               </div>
             )}
-            {/* <div className="bg-red-200 h-4"></div> */}
-            {/* {appliedOn && (
-              <img
-                src={applicationIcon}
-                alt="Applied"
-                className="h-16 w-16 object-contain"
-              />
-            )}
-
-            {interviewedOn && (
-              <img
-                src={interviewingIcon}
-                alt="Interviewing"
-                className="h-16 w-16 object-contain"
-              />
-            )}
-
-            {offerReceivedOn && (
-              <img
-                src={handShakeIcon}
-                alt="Offer Received"
-                className="h-16 w-16 object-contain"
-              />
-            )}
-
-            {rejectedOn && (
-              <img
-                src={rejectedIcon}
-                alt="Rejected"
-                className="h-16 w-16 object-contain"
-              />
-            )} */}
           </div>
         )}
 
@@ -286,44 +305,26 @@ const ResumeCard = ({ resume }: ResumeCardProps) => {
             ),
           )}
           {renderInfo("Status", currentStatus)}
-          {/* {appliedOn && renderInfo("Applied on", formatDate(appliedOn))}
-          {interviewedOn &&
-            renderInfo("Interviewed on", formatDate(interviewedOn))}
-          {offerReceivedOn &&
-            renderInfo("Received offer on", formatDate(offerReceivedOn))}
-          {offerAcceptedOn &&
-            renderInfo("Accepted offer on", formatDate(offerAcceptedOn))}
-          {rejectedOn && renderInfo("Rejected on", formatDate(rejectedOn))} */}
+          {renderInfo(
+            "Generated on",
+            formatDate(resume.applicationTracking?.generated ?? "N/A"),
+          )}
         </div>
       </Link>
-      <div className="shrink-0 p-2 border-t border-slate-300 flex justify-center gap-2 shadow-[0_-3px_3px_-2px_rgba(0,0,0,0.15)]">
-        <ButtonContainer align="center" isRelative={true}>
-          <DropdownButton label="Set Status" styleType="plain" closeOnClick>
-            <DropdownActions
-              actions={[
-                {
-                  label: "Applied",
-                  onClick: () => handleStatusChange(ApplicationStatus.Applied),
-                },
-                {
-                  label: "Interviewing",
-                  onClick: () =>
-                    handleStatusChange(ApplicationStatus.Interviewed),
-                },
-                {
-                  label: "Offered",
-                  onClick: () =>
-                    handleStatusChange(ApplicationStatus.OfferReceived),
-                },
-                {
-                  label: "Rejected",
-                  onClick: () => handleStatusChange(ApplicationStatus.Rejected),
-                },
-              ]}
-            />
-          </DropdownButton>
-        </ButtonContainer>
-      </div>
+      {availableStatuses.length > 0 && (
+        <div className="shrink-0 p-2 border-t border-slate-300 flex justify-center gap-2 shadow-[0_-3px_3px_-2px_rgba(0,0,0,0.15)]">
+          <ButtonContainer align="center" isRelative={true}>
+            <DropdownButton label="Set Status" styleType="plain" closeOnClick>
+              <DropdownActions
+                actions={availableStatuses.map((option) => ({
+                  label: option.label,
+                  onClick: () => handleStatusChange(option.status),
+                }))}
+              />
+            </DropdownButton>
+          </ButtonContainer>
+        </div>
+      )}
     </div>
   );
 };

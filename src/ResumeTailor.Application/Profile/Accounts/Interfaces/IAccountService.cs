@@ -1,5 +1,4 @@
 using ResumeTailor.Application.Contracts.Accounts;
-using ResumeTailor.Application.Profile.Accounts.Models;
 
 namespace ResumeTailor.Application.Profile.Accounts.Interfaces;
 

@@ -1,7 +1,6 @@
 using ResumeTailor.Application.Common.Exceptions;
 using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
-using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Domain.Profile;
 
 namespace ResumeTailor.Application.Profile.Accounts;
@@ -121,7 +120,13 @@ public class AccountService(IAccountRepository accountRepository) : IAccountServ
             Skills: account.Skills
                 .Select(s => new SkillResponse(s.Id, s.Value))
                 .ToList(),
-            Summary: account.Summary
+            Summary: account.Summary,
+            CreditWallet: new CreditWalletResponse(
+                Id: account.CreditWallet.Id,
+                AccountId: account.CreditWallet.AccountId,
+                Balance: account.CreditWallet.Balance,
+                ReservedCredits: account.CreditWallet.ReservedCredits,
+                AvailableCredits: account.CreditWallet.AvailableCredits)
         );
     }
 

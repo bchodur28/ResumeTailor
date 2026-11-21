@@ -28,27 +28,29 @@ const ProfileMenu = () => {
       "
     >
       <div className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 font-semibold text-gray-700">
-            {account.displayName?.charAt(0)}
-          </div>
-
+        <div className="flex flex-col gap-2">
           <div className="min-w-0">
-            <div className="truncate font-bold text-gray-900">
+            <p className="truncate font-bold text-gray-900">
               {account.displayName}
-            </div>
+            </p>
 
-            <div className="truncate text-sm font-semibold text-gray-900">
+            <p className="truncate text-sm font-semibold text-gray-900">
               {account.titles.find((title) => title.isPrimary)?.value}
-            </div>
+            </p>
 
-            <div className="truncate text-sm text-gray-600">
-              {account.email}
-            </div>
+            <p className="truncate text-sm text-gray-600">{account.email}</p>
 
             {account.location && (
-              <div className="text-sm text-gray-600">{account.location}</div>
+              <p className="text-sm text-gray-600">{account.location}</p>
             )}
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 font-semibold">
+              Available Credits:{" "}
+              <span className="font-bold text-gray-600">
+                {account.creditWallet?.availableCredits ?? 0}
+              </span>
+            </p>
           </div>
         </div>
       </div>

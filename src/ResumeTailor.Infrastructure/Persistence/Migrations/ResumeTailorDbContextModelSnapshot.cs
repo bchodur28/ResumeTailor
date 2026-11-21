@@ -385,6 +385,54 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
                     b.ToTable("Account", (string)null);
                 });
 
+            modelBuilder.Entity("ResumeTailor.Domain.Profile.CreditReservation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LeaseExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ReleasedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("ResumeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("WalletId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique();
+
+                    b.ToTable("CreditReservation", (string)null);
+                });
+
             modelBuilder.Entity("ResumeTailor.Domain.Profile.CreditTransaction", b =>
                 {
                     b.Property<int>("Id")
@@ -438,6 +486,15 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("ReservedCredits")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
@@ -1018,6 +1075,69 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
                     b.ToTable("ResumeAppearance", (string)null);
                 });
 
+            modelBuilder.Entity("ResumeTailor.Domain.Resumes.ResumeGenerationOperation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AiResultJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LeaseExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LeaseToken")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ResumeId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReservationId")
+                        .IsUnique();
+
+                    b.HasIndex("AccountId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("Status", "LeaseExpiresAt");
+
+                    b.ToTable("ResumeGenerationOperation", (string)null);
+                });
+
             modelBuilder.Entity("ResumeTailor.Domain.Extraction.FieldExtractionDefinition", b =>
                 {
                     b.HasOne("ResumeTailor.Domain.Extraction.SiteExtractionDefinition", null)
@@ -1095,12 +1215,14 @@ namespace ResumeTailor.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ResumeTailor.Domain.Profile.CreditTransaction", b =>
                 {
-                    b.HasOne("ResumeTailor.Domain.Profile.CreditWallet", null)
+                    b.HasOne("ResumeTailor.Domain.Profile.CreditWallet", "CreditWallet")
                         .WithMany("Transactions")
                         .HasForeignKey("AccountId")
                         .HasPrincipalKey("AccountId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CreditWallet");
                 });
 
             modelBuilder.Entity("ResumeTailor.Domain.Profile.CreditWallet", b =>

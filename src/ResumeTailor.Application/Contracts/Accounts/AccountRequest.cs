@@ -1,4 +1,3 @@
-using ResumeTailor.Application.Profile.Accounts.Models;
 using ResumeTailor.Domain.Common;
 
 namespace ResumeTailor.Application.Contracts.Accounts;

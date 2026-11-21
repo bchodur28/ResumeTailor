@@ -12,6 +12,7 @@ import { useAccount } from "../contexts/AccountContext";
 import { generateResume } from "../api/resumeApi";
 
 import type { GenerateResumeRequest } from "../api/contracts/GenerateResumeRequest";
+import type { GenerateResumeForm } from "../models/forms/GeneratedResumeForm";
 
 import {
   SummaryGenerationMode,
@@ -19,7 +20,7 @@ import {
 } from "../models/resumes/SummaryGenerationMode";
 
 const Generate = () => {
-  const { account, isLoadingAccount } = useAccount();
+  const { account, isLoadingAccount, refreshAccount } = useAccount();
   const navigate = useNavigate();
   const { getAccessTokenSilently } = useAuth0();
 
@@ -28,7 +29,7 @@ const Generate = () => {
     control,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<GenerateResumeRequest>({
+  } = useForm<GenerateResumeForm>({
     mode: "onChange",
     defaultValues: {
       jobDescription: "",
@@ -53,17 +54,21 @@ const Generate = () => {
       return generateResume(accountId, request, token);
     },
 
-    onSuccess: (resumeId) => {
-      navigate(`/resumes/${resumeId}`);
+    onSuccess: async (resumeId) => {
+      await refreshAccount();
+      navigate(`/app/resumes/${resumeId}`);
     },
   });
 
-  const onSubmit = (data: GenerateResumeRequest) => {
+  const onSubmit = (data: GenerateResumeForm) => {
     if (!account) return;
 
     generateResumeMutation.mutate({
       accountId: account.id,
-      request: data,
+      request: {
+        ...data,
+        requestId: crypto.randomUUID(),
+      },
     });
   };
 
@@ -78,7 +83,12 @@ const Generate = () => {
   return (
     <div className="flex justify-center">
       <Card className="w-5xl flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold">Generate your Resume</h1>
+        <div className="flex justify-between items-end">
+          <h1 className="text-2xl font-semibold">Generate your Resume</h1>
+          <h4 className="text-gray-600 font-semibold">
+            Available Credits: {account.creditWallet?.availableCredits ?? 0}
+          </h4>
+        </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <TextArea

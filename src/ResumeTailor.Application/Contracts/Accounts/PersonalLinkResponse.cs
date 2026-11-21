@@ -1,3 +1,3 @@
-namespace ResumeTailor.Application.Profile.Accounts.Models;
+namespace ResumeTailor.Application.Contracts.Accounts;
 
 public sealed record PersonalLinkResponse(int Id, string DisplayName, string Url);

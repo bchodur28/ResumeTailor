@@ -1,3 +1,4 @@
+
 using ResumeTailor.Application.Common.Models;
 using ResumeTailor.Application.Resumes.Generation.Models;
 using ResumeTailor.Domain.Resumes.Content;

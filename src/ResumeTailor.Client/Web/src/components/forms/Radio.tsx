@@ -31,7 +31,7 @@ const Radio = ({
           onChange?.(e.target.checked);
         }}
       />
-      <label className="text-sm font-semibold text-gray-700" htmlFor={id}>
+      <label className="text-gray-500 text-sm font-medium" htmlFor={id}>
         {label}
       </label>
     </div>

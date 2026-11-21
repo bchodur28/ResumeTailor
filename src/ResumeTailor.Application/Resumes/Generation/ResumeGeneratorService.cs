@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using ResumeTailor.Application.Common.Interfaces;
 using ResumeTailor.Application.Common.Models;
 using ResumeTailor.Application.Contracts.Resume;
@@ -5,6 +6,7 @@ using ResumeTailor.Application.Library.Interfaces;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
 using ResumeTailor.Application.Resumes.Generation.Interfaces;
 using ResumeTailor.Application.Resumes.Generation.Models;
+using ResumeTailor.Domain.Resumes;
 using ResumeTailor.Domain.Resumes.Content;
 using System.Text.Json;
 
@@ -13,9 +15,12 @@ namespace ResumeTailor.Application.Resumes.Generation;
 
 public class ResumeGeneratorService(
     IAiGenerator<AiResumeDataOutput> aiGenerator,
-    IResumeCreator resumeCreator,
     ILibraryExperienceRepository libraryExperienceRepository,
-    IAccountRepository accountRepository) : IResumeGenerator
+    IAccountRepository accountRepository,
+    ICreditReservationService creditReservationService,
+    IResumeGenerationOperationService generationOperationService,
+    IResumeFinalizationService resumeFinalizationService,
+    ILogger<ResumeGeneratorService> logger) : IResumeGenerator
 {
 
 
@@ -179,32 +184,125 @@ public class ResumeGeneratorService(
     }
     """;
     private const string AiResumeSchemaFormatName = "resume_analysis";
+    private const int ResumeCreditCost = 1;
 
 
     public async Task<int> GenerateResumeAsync(string auth0UserId, GeneratedResumeRequest request, CancellationToken cancellationToken = default)
     {
         var accountId = await accountRepository.GetAccountIdByAuth0UserAsync(auth0UserId, cancellationToken)
-           ?? throw new DirectoryNotFoundException($"Account was not found when generating an resume");
+            ?? throw new DirectoryNotFoundException("Account was not found when generating a resume.");
 
         var aiExperienceInput = await libraryExperienceRepository.GetAiInputDataForGeneration(accountId, cancellationToken);
 
         var (summaryMode, resumeSummary) = await ResolveSummaryAsync(accountId, request.SummaryMode, cancellationToken);
 
-        var aiResumeInput = new ResumeAiInput(request.JobDescription, aiExperienceInput, resumeSummary, summaryMode);
+        var aiResumeInput = new ResumeAiInput(
+            request.JobDescription,
+            aiExperienceInput,
+            resumeSummary,
+            summaryMode);
 
-        var aiContext = new AiContext(BuildPrompt(aiResumeInput), AiResumeSchemaFormatName, AiResumeDataOutputSchema);
+        var aiContext = new AiContext(
+            BuildPrompt(aiResumeInput),
+            AiResumeSchemaFormatName,
+            AiResumeDataOutputSchema);
 
-        var aiResult = await aiGenerator.GenerateAsync(aiContext, cancellationToken);
+        if (request.RequestId == Guid.Empty)
+        {
+            throw new InvalidDataException("Guid cannot be empty when generating a resume.");
+        }
 
-        var aiSummary = GetAiSummary(summaryMode, aiResult.Value.ResumeSummary);
+        // Reserve credits before calling OpenAI
+        var requestHash = ComputeRequestHash(request.JobDescription,request.SummaryMode);
 
-        // Combine AI selections with Library selection
-        var resolvedExperience = ResolveExperiences(aiExperienceInput, aiResult.Value.Experiences);
+        var start = await creditReservationService.StartGenerationAsync(
+            accountId,
+            ResumeCreditCost,
+            request.RequestId,
+            requestHash,
+            cancellationToken);
 
+        if (start.Status == ResumeGenerationStatus.Completed)
+        {
+            return start.ResumeId
+                ?? throw new InvalidOperationException("Completed generation has no resume.");
+        }
 
-        var resumeId = await resumeCreator.CreateResumeAsync(accountId, aiResult, resolvedExperience, resumeSummary, aiSummary, cancellationToken);
+        if (start.Status == ResumeGenerationStatus.Failed)
+        {
+            throw new InvalidOperationException("This generation previously failed. Start a new generation request.");
+        }
 
-        return resumeId;
+        if (start.LeaseToken == Guid.Empty)
+        {
+            throw new InvalidOperationException("Generation is already in progress or awaiting finalization.");
+        }
+
+        AiResult<AiResumeDataOutput> aiResult;
+
+        // Step 1: Call OpenAI.
+        try
+        {
+            aiResult = await aiGenerator.GenerateAsync(
+                aiContext,
+                cancellationToken);
+        } catch (OperationCanceledException)
+        {
+            // The outcome may be uncertain.
+            // Leave the reservation for manual recovery.
+            throw;
+        } catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "AI generation failed for operation {OperationId}",
+                start.OperationId);
+
+            try
+            {
+                await creditReservationService.FailGenerationAsync(
+                    start.OperationId,
+                    start.LeaseToken,
+                    CancellationToken.None);
+            } catch (Exception failureException)
+            {
+                logger.LogError(
+                    failureException,
+                    "Failed to release credits for operation {OperationId}",
+                    start.OperationId);
+            }
+
+            throw;
+        }
+
+        // Step 2: Save the AI result so finalization can be retried.
+        var aiSummary = GetAiSummary(
+            summaryMode,
+            aiResult.Value.ResumeSummary);
+
+        var resolvedExperience = ResolveExperiences(
+            aiExperienceInput,
+            aiResult.Value.Experiences);
+
+        var payload = new ResumeFinalizationPayload(
+            aiResult,
+            resolvedExperience,
+            resumeSummary,
+            aiSummary);
+
+        var resultJson = JsonSerializer.Serialize(payload);
+
+        await generationOperationService.MarkReadyAsync(
+            start.OperationId,
+            start.LeaseToken,
+            resultJson,
+            cancellationToken);
+
+        // Step 3: Create the resume and deduct the reserved credit.
+        return await resumeFinalizationService.FinalizeAsync(
+            accountId,
+            start.ReservationId,
+            cancellationToken);
     }
 
     private static string? GetAiSummary(SummaryGenerationMode mode, string? generatedSummary)
@@ -213,6 +311,20 @@ public class ResumeGeneratorService(
             or SummaryGenerationMode.GenerateNew
                 ? generatedSummary
                 : null;
+    }
+
+    private static string ComputeRequestHash(string jobDescription, SummaryGenerationMode summaryMode)
+    {
+        var input = JsonSerializer.Serialize(new
+        {
+            JobDescription = jobDescription,
+            SummaryMode = summaryMode
+        });
+
+        var bytes = System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(input));
+
+        return Convert.ToHexString(bytes);
     }
 
     private async Task<(SummaryGenerationMode Mode, string? Summary)> ResolveSummaryAsync(int accountId, SummaryGenerationMode mode, CancellationToken cancellationToken)
@@ -665,8 +777,8 @@ public class ResumeGeneratorService(
         - Follow the provided JSON schema exactly.
         - Experiences must contain the selected summary
           and bullets for each experience.
-        - OrganizationAnalysis must contain Summary,
-          Strengths, and Weaknesses.
+        - JobMatchAnalysis must contain Summary,
+          AiScore, Strengths, and Weaknesses.
         - JobPostingData must contain the extracted job fields.
         - Return no additional fields.
         """;

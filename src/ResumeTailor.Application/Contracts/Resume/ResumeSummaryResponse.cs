@@ -7,6 +7,7 @@ public sealed record ResumeSummaryResponse(
     int Id,
     int AccountId,
     string Name,
+    int? AiScore,
     JobPostingResult JobPosting,
     ApplicationTrackingResponse ApplicationTracking
     );

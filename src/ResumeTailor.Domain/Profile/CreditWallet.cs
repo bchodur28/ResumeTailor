@@ -1,4 +1,6 @@
 using ResumeTailor.Domain.Common;
+using ResumeTailor.Domain.Common.Exceptions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ResumeTailor.Domain.Profile;
 
@@ -8,9 +10,15 @@ public class CreditWallet : Entity
     public Account Account { get; private set; } = null!;
 
     public int Balance { get; private set; }
+    public int ReservedCredits { get; private set; }
+
+    public int AvailableCredits => Balance - ReservedCredits;
 
     private readonly List<CreditTransaction> _transactions = [];
     public IReadOnlyCollection<CreditTransaction> Transactions => _transactions.AsReadOnly();
+
+    //Concurrency
+    public byte[] RowVersion { get; private set; } = [];
 
     private CreditWallet() { }
 
@@ -18,6 +26,33 @@ public class CreditWallet : Entity
     {
         Account = account ?? throw new ArgumentNullException(nameof(account));
         Balance = 0;
+    }
+
+    public bool HasEnoughCredit(int amount)
+    {
+        return amount > 0 && AvailableCredits >= amount;
+    }
+
+    public void ReserveCredits(int amount)
+    {
+        if (!HasEnoughCredit(amount))
+        {
+            throw new InsufficientCreditsException("Insufficient funds while reserving credits.");
+        }
+            
+
+        ReservedCredits = checked(ReservedCredits + amount);
+    }
+
+    public void ReleaseCredits(int amount)
+    {
+        if (amount <= 0 || amount > ReservedCredits)
+        {
+            throw new InvalidOperationException("Invalid credit release.");
+        }
+            
+
+        ReservedCredits -= amount;
     }
 
     private void AddCredits(int amount, CreditTransactionType type, int? resumeId = null, string? referenceId = null)
@@ -63,6 +98,41 @@ public class CreditWallet : Entity
 
         Balance -= amount;
         MarkUpdated();
+    }
+
+    public void SpendReservedCreditsForResume(int amount, int resumeId)
+    {
+        if (amount <= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        if (ReservedCredits < amount)
+        {
+            throw new InvalidOperationException("Insufficient reserved credits.");
+        }
+            
+
+        if (Balance < amount)
+        {
+            throw new InsufficientCreditsException("Insufficient funds");
+        }
+            
+
+        SpendCreditsForResumeInternal(amount, resumeId);
+
+        ReservedCredits -= amount;
+        MarkUpdated();
+    }
+
+    private void SpendCreditsForResumeInternal(int amount, int resumeId)
+    {
+        Balance -= amount;
+
+        _transactions.Add(new CreditTransaction(
+            wallet: this,
+            amount: -amount,
+            type: CreditTransactionType.ResumeGeneration,
+            resumeId: resumeId
+        ));
     }
 
     public void PurchaseCredits(int amount, string referenceId)

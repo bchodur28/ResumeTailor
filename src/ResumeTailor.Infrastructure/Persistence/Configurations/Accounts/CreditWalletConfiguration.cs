@@ -15,6 +15,9 @@ internal sealed class CreditWalletConfiguration : IEntityTypeConfiguration<Credi
         builder.Property(x => x.Balance)
             .IsRequired();
 
+        builder.Property(cw => cw.RowVersion)
+            .IsRowVersion();
+
         builder.ToTable(t =>
             t.HasCheckConstraint(
                 "CK_CreditWallet_Balance",

@@ -3,6 +3,7 @@ using ResumeTailor.Api.ErrorHandling;
 using ResumeTailor.Api.OpenApi;
 using ResumeTailor.Application;
 using ResumeTailor.Infrastructure;
+using ResumeTailor.Infrastructure.BackgroundServices;
 using Scalar.AspNetCore;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -47,6 +48,9 @@ builder.Services
 builder.Services.AddAuthorization();
 
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddHostedService<CreditReservationRecoveryWorker>();
+
 builder.Services.AddApplication();
 builder.Services
     .AddControllers()

@@ -1,7 +1,7 @@
 using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Domain.Common;
 
-namespace ResumeTailor.Application.Profile.Accounts.Models;
+namespace ResumeTailor.Application.Contracts.Accounts;
 
 public sealed record AccountResponse(
     int Id,
@@ -13,7 +13,7 @@ public sealed record AccountResponse(
     IReadOnlyCollection<PersonalLinkResponse> PersonalLinks,
     IReadOnlyCollection<TitleResponse> Titles,
     IReadOnlyCollection<SkillResponse> Skills,
-    
-    string? Summary
+    string? Summary,
+    CreditWalletResponse CreditWallet
     );
 

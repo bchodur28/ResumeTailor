@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResumeTailor.Application.Contracts.Accounts;
 using ResumeTailor.Application.Profile.Accounts.Interfaces;
-using ResumeTailor.Application.Profile.Accounts.Models;
-using System.Security.Claims;
 
 namespace ResumeTailor.Api.Controllers.Profile
 {

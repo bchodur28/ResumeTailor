@@ -5,6 +5,7 @@ export type ResumeSummaryResponse = {
   id: number;
   accountId: number;
   name: string;
+  aiScore: number | null;
   jobPosting: JobPostingResult | null;
   applicationTracking: ApplicationTrackingResponse | null;
 };

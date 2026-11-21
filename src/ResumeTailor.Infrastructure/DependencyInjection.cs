@@ -19,6 +19,8 @@ using ResumeTailor.Infrastructure.Persistence.Repositories.Accounts;
 using ResumeTailor.Infrastructure.Persistence.Repositories.Extraction;
 using ResumeTailor.Infrastructure.Persistence.Repositories.GeneratedResumes;
 using ResumeTailor.Infrastructure.Persistence.Repositories.Profile;
+using ResumeTailor.Infrastructure.Persistence.Repositories.Resumes;
+using ResumeTailor.Infrastructure.Services;
 
 
 namespace ResumeTailor.Infrastructure;
@@ -36,10 +38,9 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException(
                 "Database connection string is missing.");
 
-                services.AddDbContext<ResumeTailorDbContext>(options =>
-                {
-                    options.UseSqlServer(connectionString);
-                });
+        services.AddDbContextFactory<ResumeTailorDbContext>(
+            options => options.UseSqlServer(connectionString),
+            ServiceLifetime.Scoped);
 
         var openAiApiKey = configuration["OpenAI:ApiKey"];
 
@@ -65,6 +66,14 @@ public static class DependencyInjection
         services.AddScoped<IResumePdfGenerator, QuestPdfResumeGenerator>();
         services.AddScoped<ILibraryExperienceRepository, LibraryExperienceRepository>();
         services.AddScoped<IAiGenerator<AiResumeDataOutput>, OpenAiGenerator<AiResumeDataOutput>>();
+        services.AddScoped<ICreditWalletRepository, CreditWalletRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<ICreditReservationRepository, CreditReservationRepository>();
+        services.AddScoped<ICreditReservationService, CreditReservationService>();
+        services.AddScoped<IResumeFinalizationService, ResumeFinalizationService>();
+        services.AddScoped<ICreditReservationRecoveryService, CreditReservationRecoveryService>();
+        services.AddScoped<IResumeGenerationOperationService, ResumeGenerationOperationService>();
+        services.AddScoped<IResumeGenerationOperationRepository, ResumeGenerationOperationRepository>();
 
         return services;
     }

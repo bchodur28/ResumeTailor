@@ -7,6 +7,7 @@ using ResumeTailor.Domain.Resumes.JobPositing;
 using ResumeTailor.Domain.Resumes.ApplicationTracking;
 using ResumeTailor.Domain.Resumes.ResumeAppearance;
 using ResumeTailor.Domain.Resumes.Content;
+using ResumeTailor.Domain.Resumes;
 
 namespace ResumeTailor.Infrastructure.Persistence;
 
@@ -28,6 +29,11 @@ public sealed class ResumeTailorDbContext(DbContextOptions<ResumeTailorDbContext
     public DbSet<Skill> Skills => Set<Skill>();
     public DbSet<PersonalLink> AccountPersonalLinks => Set<PersonalLink>();
     public DbSet<LibraryEducation> Education => Set<LibraryEducation>();
+
+    public DbSet<CreditWallet> CreditWallets => Set<CreditWallet>();
+    public DbSet<CreditTransaction> CreditTransactions => Set<CreditTransaction>();
+    public DbSet<CreditReservation> CreditReservations => Set<CreditReservation>();
+    public DbSet<ResumeGenerationOperation> ResumeGenerationOperations => Set<ResumeGenerationOperation>();
 
     public DbSet<LibraryExperience> LibraryExperiences => Set<LibraryExperience>();
     public DbSet<LibraryBullet> LibraryBullets => Set<LibraryBullet>();
